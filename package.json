@@ -1,0 +1,62 @@
+{
+  "name": "chartjs-chart-treemap",
+  "version": "0.1.0",
+  "description": "Chart.js module for creating treemap charts",
+  "main": "dist/chartjs-chart-treemap.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurkle/chartjs-chart-treemap.git"
+  },
+  "keywords": [
+    "chart.js",
+    "chart",
+    "treemap"
+  ],
+  "files": [
+    "bower.json",
+    "dist/*.js"
+  ],
+  "author": "Jukka Kurkela",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kurkle/chartjs-chart-treemap/issues"
+  },
+  "homepage": "https://github.com/kurkle/chartjs-chart-treemap#readme",
+  "devDependencies": {
+    "benchmark": "^2.1.4",
+    "chart.js": "^2.8.0",
+    "eslint": "^5.16.0",
+    "eslint-config-chartjs": "^0.1.0",
+    "eslint-plugin-es": "^1.4.0",
+    "eslint-plugin-html": "^5.0.3",
+    "gulp": "^4.0.2",
+    "gulp-eslint": "^5.0.0",
+    "gulp-file": "^0.4.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-streamify": "^1.0.2",
+    "gulp-zip": "^4.2.0",
+    "jasmine-core": "^3.4.0",
+    "karma": "^4.1.0",
+    "karma-coverage": "^1.1.2",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-jasmine": "^2.0.1",
+    "karma-jasmine-html-reporter": "^1.4.2",
+    "karma-rollup-preprocessor": "^7.0.0",
+    "karma-spec-reporter": "0.0.32",
+    "merge2": "^1.2.3",
+    "moment": "^2.24.0",
+    "pixelmatch": "^4.0.2",
+    "rollup": "^1.11.3",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-istanbul": "^2.0.1",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-terser": "^4.0.4",
+    "yargs": "^13.2.2"
+  },
+  "peerDependencies": {
+    "chart.js": ">= 2.8.0 < 3"
+  }
+}

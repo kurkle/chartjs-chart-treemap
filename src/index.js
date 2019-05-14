@@ -2,35 +2,10 @@
 
 import Chart from 'chart.js';
 import controller from './controller';
+import defaults from './defaults';
 
 Chart.controllers.treemap = controller;
-Chart.defaults.treemap = {
-	hover: {
-		mode: 'nearest',
-		intersect: true
-	},
-	tooltips: {
-		mode: 'nearest',
-		position: 'treemap',
-		intersect: true
-	},
-	scales: {
-		xAxes: [{
-			type: 'linear',
-			display: false
-		}],
-		yAxes: [{
-			type: 'linear',
-			display: false
-		}]
-	},
-	elements: {
-		rectangle: {
-			borderSkipped: false,
-			borderWidth: 0.5
-		}
-	}
-};
+Chart.defaults.treemap = defaults;
 
 Chart.Tooltip.positioners.treemap = function(elements) {
 	if (!elements.length) {

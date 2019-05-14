@@ -1,18 +1,32 @@
 <!doctype html>
 <html>
-	<head>
-		<title>TreeMap Chart on linear scale</title>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.bundle.js"></script>
-		<script src="utils.js"></script>
-		<link rel="stylesheet" type="text/css" href="style.css"></link>
-	</head>
-	<body>
-		<div id="canvas-holder">
-			<canvas id="chart-area" width="800" height="400"></canvas>
-		</div>
+
+<head>
+	<title>Basic treemap sample</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="utils.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	</link>
+</head>
+
+<body>
+	<div id="canvas-holder">
+		<canvas id="chart-area" width="800" height="400"></canvas>
+	</div>
 
 
 	<script>
+		function colorFromValue(value, border) {
+			var alpha = (1 + Math.log(value)) / 5;
+			var color = 'purple';
+			if (border) {
+				alpha += 0.01;
+			}
+			return Color(color)
+				.alpha(alpha)
+				.rgbString();
+		}
+
 		Utils.load(function() {
 			var ctx = document.getElementById("chart-area").getContext("2d");
 			window.myTreeMap = new Chart(ctx, {
@@ -20,19 +34,27 @@
 				data: {
 					datasets: [{
 						label: 'Basic treemap',
-						data: [6,6,5,4,3,2,2,1],
+						data: [15, 6, 6, 5, 4, 3, 2, 2],
 						backgroundColor: function(ctx) {
-							var value = ctx.dataset.data[ctx.dataIndex];
-							var alpha = (value + 3) / 10;
-							return Color('blue').alpha(alpha).rgbString();
-						}
+							return colorFromValue(ctx.dataset.data[ctx.dataIndex]);
+						},
+						spacing: 0.1,
+						borderWidth: 2,
+						borderColor: 'rgba(180,180,180, 0.15)'
 					}]
 				},
 				options: {
-					maintainAspectRatio: false
+					maintainAspectRatio: false,
+					title: {
+						display: true,
+						text: 'Basic treemap example'
+					},
+					legend: {
+						display: false
+					}
 				}
 			})
 		});
 	</script>
-	</body>
+</body>
 </html>

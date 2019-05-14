@@ -31,8 +31,8 @@ var Controller = Chart.DatasetController.extend({
 		var area = me.chart.chartArea;
 		var x = sq.x + area.left + sq.w / 2;
 		var y = area.top + sq.y + sq.h / 2;
-		var h = reset ? 0 : sq.h - options.borderWidth * 2;
-		var w = reset ? 0 : sq.w - options.borderWidth * 2;
+		var h = reset ? 0 : sq.h - options.spacing * 2;
+		var w = reset ? 0 : sq.w - options.spacing * 2;
 		var halfH = h / 2;
 
 		item._options = options;
@@ -88,7 +88,8 @@ var Controller = Chart.DatasetController.extend({
 			'backgroundColor',
 			'borderColor',
 			'borderSkipped',
-			'borderWidth'
+			'borderWidth',
+			'spacing'
 		];
 
 		for (i = 0, ilen = keys.length; i < ilen; ++i) {

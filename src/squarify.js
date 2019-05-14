@@ -72,6 +72,24 @@ Object.defineProperties(sqrow.prototype, {
 	}
 });
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+function flatten(input) {
+	const stack = [...input];
+	const res = [];
+	while (stack.length) {
+		// pop value from stack
+		const next = stack.pop();
+		if (Array.isArray(next)) {
+			// push back array items, won't modify the original input
+			stack.push(...next);
+		} else {
+			res.push(next);
+		}
+	}
+	// reverse to restore input order
+	return res.reverse();
+}
+
 function squarify(values, r) {
 	var rect = new Rect(r);
 	var area = rect.h * rect.w;
@@ -98,7 +116,7 @@ function squarify(values, r) {
 	if (row.length) {
 		rows.push(rect.map(row.get(), row.sum));
 	}
-	return rows.flat();
+	return flatten(rows);
 }
 
 export default squarify;

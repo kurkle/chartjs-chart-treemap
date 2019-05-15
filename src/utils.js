@@ -12,7 +12,9 @@ function part(arr, pivot, left, right) {
 
 	for (; left < right; left++) {
 		if (arr[left] < value) {
-			swap(arr, left, start);
+			if (left !== start) {
+				swap(arr, left, start);
+			}
 			start++;
 		}
 	}
@@ -26,7 +28,9 @@ function rpart(arr, pivot, left, right) {
 
 	for (; left < right; left++) {
 		if (arr[left] > value) {
-			swap(arr, left, start);
+			if (left !== start) {
+				swap(arr, left, start);
+			}
 			start++;
 		}
 	}
@@ -43,8 +47,10 @@ function qsort(arr, left, right) {
 	if (left < right) {
 		index = part(arr, right, left, right);
 
-		qsort(arr, left, index - 1);
-		qsort(arr, index + 1, right);
+		if (index < right) {
+			qsort(arr, left, index - 1);
+			qsort(arr, index + 1, right);
+		}
 	}
 }
 
@@ -56,8 +62,10 @@ function qrsort(arr, left, right) {
 	if (left < right) {
 		index = rpart(arr, right, left, right);
 
-		qrsort(arr, left, index - 1);
-		qrsort(arr, index + 1, right);
+		if (index < right) {
+			qrsort(arr, left, index - 1);
+			qrsort(arr, index + 1, right);
+		}
 	}
 }
 
@@ -72,8 +80,27 @@ function sum(values) {
 	return s;
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+function flatten(input) {
+	const stack = [...input];
+	const res = [];
+	while (stack.length) {
+		// pop value from stack
+		const next = stack.pop();
+		if (Array.isArray(next)) {
+			// push back array items, won't modify the original input
+			stack.push(...next);
+		} else {
+			res.push(next);
+		}
+	}
+	// reverse to restore input order
+	return res.reverse();
+}
+
 export default {
-	qsort: qsort,
+	flatten: flatten,
 	qrsort: qrsort,
+	qsort: qsort,
 	sum: sum
 };

@@ -44,5 +44,13 @@ module.exports = [
 		external: [
 			'chart.js'
 		]
+	},
+	{
+		input: 'src/utils.js',
+		output: {
+			file: 'build/utils.js',
+			format: 'cjs',
+			indent: false
+		}
 	}
 ];

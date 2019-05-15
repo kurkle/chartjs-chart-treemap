@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 const Suite = require('benchmark').Suite;
-const utils = require('../src/utils');
+const utils = require('../build/utils');
 
 var length = 1000000;
 var arr = [];
@@ -17,37 +17,54 @@ var rsorted = arr.slice().sort(function(a, b) {
 	return b - a;
 });
 
-var suite = new Suite();
+var suites = [];
 
-suite
-	.add('native', function() {
-		arr.slice().sort(function(a, b) {
-			return a - b;
-		});
-	})
-	.add('native-sorted', function() {
-		sorted.slice().sort(function(a, b) {
-			return a - b;
-		});
-	})
-	.add('native-reverse-sorted', function() {
-		rsorted.slice().sort(function(a, b) {
-			return a - b;
-		});
-	})
-	.add('qsort', function() {
-		utils.qsort(arr.slice(), 0, 999999);
-	})
-	.add('qsort - sorted', function() {
-		utils.qsort(sorted.slice(), 0, 999999);
-	})
-	.add('qsort', function() {
-		utils.qsort(rsorted.slice(), 0, 999999);
-	})
-	.on('cycle', function(event) {
-		console.log(String(event.target));
-	})
-	.on('complete', function() {
-		console.log('Fastest is ' + this.filter('fastest').map('name'));
-	})
-	.run();
+suites.push(
+	new Suite()
+		.add('native', function() {
+			arr.slice().sort(function(a, b) {
+				return a - b;
+			});
+		})
+		.add('qsort', function() {
+			utils.qsort(arr.slice());
+		})
+);
+
+suites.push(
+	new Suite()
+		.add('native - sorted', function() {
+			sorted.slice().sort(function(a, b) {
+				return a - b;
+			});
+		})
+		.add('qsort - sorted', function() {
+			utils.qsort(sorted.slice());
+		})
+);
+
+suites.push(
+	new Suite()
+		.add('native - reverse-sorted', function() {
+			rsorted.slice().sort(function(a, b) {
+				return a - b;
+			});
+		})
+		.add('qsort - reverse-sorted', function() {
+			utils.qsort(rsorted.slice());
+		})
+);
+
+suites.forEach(function(suite) {
+	suite
+		.on('cycle', function(event) {
+			console.log(String(event.target));
+		})
+		.on('error', function(event) {
+			console.log(event);
+		})
+		.on('complete', function() {
+			console.log('Fastest is ' + this.filter('fastest').map('name'));
+		})
+		.run();
+});

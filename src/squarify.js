@@ -2,121 +2,45 @@
 
 import utils from './utils';
 import Rect from './rect';
+import statArray from './statArray';
 
-class sqrow {
-	constructor(ratio) {
-		this._ratio = ratio;
-		this.reset();
+function compareAspectRatio(oldStat, newStat, args) {
+	if (oldStat.sum === 0) {
+		return true;
 	}
-	push(v) {
-		var me = this;
-		var a = v * me._ratio;
-		me._row.push([v, a]);
-		me.__sum = me._sum;
-		me._sum += a;
 
-		if (me._min === null || me._min > a) {
-			me.__min = me._min;
-			me._min = a;
-		} else {
-			me.__min = me._min;
-		}
-
-		if (me._max === null || me._max < a) {
-			me.__max = me._max;
-			me._max = a;
-		} else {
-			me.__max = me._max;
-		}
-	}
-	pop() {
-		var me = this;
-		var [v, a] = me._row.pop();
-		me._sum -= a;
-		me._min = me.__min;
-		me._max = me.__max;
-		return v;
-	}
-	reset(w) {
-		var me = this;
-		me._row = [];
-		me._sum = 0;
-		me._min = me.__min = null;
-		me._max = me.__max = null;
-		me._w = w;
-	}
-	ok() {
-		var me = this;
-		var s2 = me._sum * me._sum;
-		var ps2 = me.__sum * me.__sum;
-		var w2 = me._w * me._w;
-		var n = Math.max(w2 * me._max / s2, s2 / (w2 * me._min));
-		var p = Math.max(w2 * me.__max / ps2, ps2 / (w2 * me.__min));
-		return n <= p;
-	}
-	get() {
-		return this._row;
-	}
-}
-
-Object.defineProperties(sqrow.prototype, {
-	length: {
-		get() {
-			return this._row.length;
-		}
-	},
-	sum: {
-		get() {
-			return this._sum;
-		}
-	}
-});
-
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
-function flatten(input) {
-	const stack = [...input];
-	const res = [];
-	while (stack.length) {
-		// pop value from stack
-		const next = stack.pop();
-		if (Array.isArray(next)) {
-			// push back array items, won't modify the original input
-			stack.push(...next);
-		} else {
-			res.push(next);
-		}
-	}
-	// reverse to restore input order
-	return res.reverse();
+	var [length] = args;
+	var os2 = oldStat.nsum * oldStat.nsum;
+	var ns2 = newStat.nsum * newStat.nsum;
+	var l2 = length * length;
+	var or = Math.max(l2 * oldStat.nmax / os2, os2 / (l2 * oldStat.nmin));
+	var nr = Math.max(l2 * newStat.nmax / ns2, ns2 / (l2 * newStat.nmin));
+	return nr <= or;
 }
 
 function squarify(values, r) {
-	var rect = new Rect(r);
-	var area = rect.h * rect.w;
-	var sum = utils.sum(values);
-	var ratio = area / sum;
-	var n = values.length;
-	var row = new sqrow(ratio);
 	var rows = [];
-	var i, v;
+	var rect = new Rect(r);
+	var row = new statArray('value', rect.area / utils.sum(values));
+	var length = rect.side;
+	var i, n, o;
 
 	values = values.slice();
 	utils.qrsort(values);
 
-	row.reset(rect.side);
-	for (i = 0; i < n; ++i) {
-		row.push(values[i]);
-		if (row.length > 1 && !row.ok()) {
-			v = row.pop();
-			rows.push(rect.map(row.get(), row.sum));
-			row.reset(rect.side);
-			row.push(v);
+	for (i = 0, n = values.length; i < n; ++i) {
+		o = row.pushIf({value: values[i]}, compareAspectRatio, length);
+		if (o) {
+			rows.push(rect.map(row));
+			length = rect.side;
+			row.reset();
+			row.push(o);
 		}
 	}
 	if (row.length) {
-		rows.push(rect.map(row.get(), row.sum));
+		rows.push(rect.map(row));
 	}
-	return flatten(rows);
+	return utils.flatten(rows);
 }
 
 export default squarify;

@@ -91,26 +91,17 @@ describe('squarify', function() {
 			{x: 5.4, y: 2.3333, w: 0.6, h: 1.6667, a: 1, v: 1}
 		]);
 	});
-	/*
-	it('should squarify single element', function() {
-		let sq = squarify([6], {x: 0, y: 0, w: 4, h: 3});
-		expect(sq.length).toEqual(1);
-		expect(sq[0]).toEqual([{x: 0, y: 0, v: 6, w: 4, h: 3}]);
+
+	it('should squarify by given key', function() {
+		let data = [{v: 4}, {v: 4}, {v: 4}, {v: 4}];
+		let rect = {x: 0, y: 0, w: 4, h: 4};
+		let opts = {key: 'v'};
+		let sq = squarify(data, rect, opts);
+		expect(sq).toEqual([
+			{x: 0, y: 0, w: 2, h: 2, a: 4, v: 4},
+			{x: 0, y: 2, w: 2, h: 2, a: 4, v: 4},
+			{x: 2, y: 0, w: 2, h: 2, a: 4, v: 4},
+			{x: 2, y: 2, w: 2, h: 2, a: 4, v: 4}
+		]);
 	});
-
-	it('should squarify correctly', function() {
-		let sq = squarify([6, 6, 4, 3, 2, 2, 1], {x: 0, y: 0, w: 6, h: 4});
-
-		expect(sq.length).toEqual(3);
-
-		expect(sq[0].length).toEqual(2);
-		expect(sq[0][0]).toEqual({v: 6, x: 0, y: 0, h: 2, w: 4});
-		expect(sq[0][1]).toEqual({v: 6, x: 0, y: 2, h: 2, w: 4});
-		expect(sq[1].length).toEqual(1);
-		expect(sq[1][0]).toEqual({v: 4, x: 4, y: 0, h: 4, w: 2});
-		// expect(sq[1]).toEqual({x: 4, y: 0, items: [4], dir: 'y', stat: {min: 4, max: 4, sum: 4}});
-		// expect(sq[2]).toEqual({x: 4, y: 4, dir: 'x', items: [3, 2, 2, 1], stat: {min: 1, max: 3, sum: 8}});
-		// expect(sq[3]).toEqual({x: 5, y: 3.0625000000000004, items: [1], stat: {min: 1, max: 1, sum: 1}});
-	});
-	*/
 });

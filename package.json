@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/kurkle/chartjs-chart-treemap#readme",
   "devDependencies": {
-    "benchmark": "^2.1.4",
     "chart.js": "^2.8.0",
     "eslint": "^5.16.0",
     "eslint-config-chartjs": "^0.1.0",

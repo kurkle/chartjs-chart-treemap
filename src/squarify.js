@@ -18,18 +18,28 @@ function compareAspectRatio(oldStat, newStat, args) {
 	return nr <= or;
 }
 
-function squarify(values, r) {
+function squarify(values, r, opts) {
+	var key = opts && opts.key;
 	var rows = [];
 	var rect = new Rect(r);
-	var row = new statArray('value', rect.area / utils.sum(values));
+	var row = new statArray('value', rect.area / utils.sum(values, key));
 	var length = rect.side;
-	var i, n, o;
+	var n = values.length;
+	var i, o;
+
+	if (!n) {
+		return rows;
+	}
 
 	values = values.slice();
-	utils.qrsort(values);
+	utils.sort(values, key);
 
-	for (i = 0, n = values.length; i < n; ++i) {
-		o = row.pushIf({value: values[i]}, compareAspectRatio, length);
+	function val(idx) {
+		return key ? values[idx][key] : values[idx];
+	}
+
+	for (i = 0; i < n; ++i) {
+		o = row.pushIf({value: val(i)}, compareAspectRatio, length);
 		if (o) {
 			rows.push(rect.map(row));
 			length = rect.side;

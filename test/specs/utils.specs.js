@@ -1,56 +1,28 @@
 import utils from '../../src/utils';
 
 describe('utils', function() {
-	describe('qsort', function() {
-		it('should be a function', function() {
-			expect(typeof utils.qsort).toBe('function');
-		});
 
-		it('should sort correctly', function() {
-			var a = [8, 3, 5, 4, 1, 3, 6, 2, 7];
-			utils.qsort(a);
-			expect(a).toEqual([1, 2, 3, 3, 4, 5, 6, 7, 8]);
-		});
-
-		it('should sort correctly already sorted array', function() {
-			var a = [1, 2, 3, 3, 4, 5, 6, 7, 8];
-			utils.qsort(a);
-			expect(a).toEqual([1, 2, 3, 3, 4, 5, 6, 7, 8]);
-		});
-
-		it('should be able to sort large array', function() {
-			var length = 1000000;
-			var arr = [];
-			for (var i = length; i > 0; i--) {
-				arr.push(parseInt(Math.random() * 1000000000, 10));
-			}
-
-			expect(function() {
-				utils.qsort(arr);
-				utils.qsort(arr);
-				utils.qrsort(arr);
-				utils.qrsort(arr);
-			}).not.toThrow();
+	describe('flatten', function() {
+		it('should flatten array', function() {
+			var a = [1, [2, 3, [4, 5, 6]], 7, [8, 9]];
+			expect(utils.flatten(a)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 		});
 	});
 
-	describe('qrsort', function() {
-		it('should be a function', function() {
-			expect(typeof utils.qrsort).toBe('function');
-		});
-
-		it('should sort correctly', function() {
+	describe('sort', function() {
+		it('should reverse sort array', function() {
 			var a = [8, 3, 5, 4, 1, 3, 6, 2, 7];
-			utils.qrsort(a);
+			utils.sort(a);
 			expect(a).toEqual([8, 7, 6, 5, 4, 3, 3, 2, 1]);
 		});
 
-		it('should sort correctly already sorted array', function() {
-			var a = [8, 7, 6, 5, 4, 3, 3, 2, 1];
-			utils.qrsort(a);
-			expect(a).toEqual([8, 7, 6, 5, 4, 3, 3, 2, 1]);
+		it('should reverse sort array by key', function() {
+			var a = [{x: 8, y: 1}, {x: 3, y: 2}, {x: 5, y: 3}];
+			utils.sort(a, 'x');
+			expect(a).toEqual([{x: 8, y: 1}, {x: 5, y: 3}, {x: 3, y: 2}]);
+			utils.sort(a, 'y');
+			expect(a).toEqual([{x: 5, y: 3}, {x: 3, y: 2}, {x: 8, y: 1}]);
 		});
-
 	});
 
 	describe('sum', function() {
@@ -58,5 +30,12 @@ describe('utils', function() {
 			var a = [8, 3, 5, 4, 1, 3, 6, 2, 7];
 			expect(utils.sum(a)).toEqual(39);
 		});
+
+		it('should compute sum of array by given key', function() {
+			var a = [{x: 8, y: 1}, {x: 3, y: 2}, {x: 5, y: 3}];
+			expect(utils.sum(a, 'x')).toEqual(16);
+			expect(utils.sum(a, 'y')).toEqual(6);
+		});
 	});
+
 });

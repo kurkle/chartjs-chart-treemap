@@ -1,9 +1,54 @@
 'use strict';
 
 import Chart from 'chart.js';
-import squarify from './squarify.js';
+import utils from './utils';
+import squarify from './squarify';
 
 var resolve = Chart.helpers.options.resolve;
+
+function rectNotEqual(r1, r2) {
+	return !r1 || !r2
+		|| r1.x !== r2.x
+		|| r1.y !== r2.y
+		|| r1.w !== r2.w
+		|| r1.h !== r2.h;
+}
+
+function buildData(dataset, mainRect) {
+	var key = dataset.key || '';
+	var tree = dataset.tree || [];
+	var groups = dataset.groups || [];
+	var glen = groups.length;
+	var sp = (dataset.spacing || 0) + (dataset.borderWidth || 0);
+
+	function recur(gidx, rect, parent, gs) {
+		var g = groups[gidx];
+		var pg = (gidx > 0) && groups[gidx - 1];
+		var gdata = utils.group(tree, g, key, pg, parent);
+		var gsq = squarify(gdata, rect, key, g, gidx, gs);
+		var ret = gsq.slice();
+		var subRect;
+		if (gidx < glen - 1) {
+			gsq.forEach(function(sq) {
+				subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
+				if (sq.h > 25) {
+					subRect.y += 15;
+					subRect.h -= 15;
+				}
+				ret.push.apply(ret, recur(gidx + 1, subRect, sq.g, sq.s));
+			});
+		}
+		return ret;
+	}
+
+	if (!tree.length && dataset.data.length) {
+		tree = dataset.tree = dataset.data;
+	}
+
+	return glen
+		? recur(0, mainRect)
+		: squarify(tree, mainRect, key);
+}
 
 var Controller = Chart.DatasetController.extend({
 
@@ -14,9 +59,16 @@ var Controller = Chart.DatasetController.extend({
 		var meta = me.getMeta();
 		var dataset = me.getDataset();
 		var data = meta.data || [];
-		var i, ilen;
+		var area = me.chart.chartArea;
+		var i, ilen, mainRect;
 
-		me._sqdata = squarify(dataset.data, me.chart.chartArea);
+		mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top};
+
+		if (reset || rectNotEqual(me._rect, mainRect)) {
+			me._rect = mainRect;
+			dataset.data = buildData(dataset, mainRect);
+			me.resyncElements();
+		}
 
 		for (i = 0, ilen = data.length; i < ilen; ++i) {
 			me.updateElement(data[i], i, reset);
@@ -26,23 +78,26 @@ var Controller = Chart.DatasetController.extend({
 	updateElement: function(item, index, reset) {
 		var me = this;
 		var datasetIndex = me.index;
-		var sq = me._sqdata[index];
+		var dataset = me.getDataset();
+		var sq = dataset.data[index];
 		var options = me._resolveElementOptions(item, index);
-		var area = me.chart.chartArea;
-		var x = sq.x + area.left + sq.w / 2;
-		var y = area.top + sq.y + sq.h / 2;
 		var h = reset ? 0 : sq.h - options.spacing * 2;
 		var w = reset ? 0 : sq.w - options.spacing * 2;
+		var x = sq.x + w / 2 + options.spacing;
+		var y = sq.y + h / 2 + options.spacing;
 		var halfH = h / 2;
 
 		item._options = options;
 		item._datasetIndex = datasetIndex;
 		item._index = index;
+		item.hidden = h <= options.spacing || w <= options.spacing;
 
 		item._model = {
 			x: x,
 			base: y - halfH,
 			y: y + halfH,
+			top: sq.y,
+			left: sq.x,
 			width: w,
 			height: h,
 			backgroundColor: options.backgroundColor,
@@ -56,11 +111,38 @@ var Controller = Chart.DatasetController.extend({
 
 	draw: function() {
 		var me = this;
-		var data = me.getMeta().data || [];
-		var i, ilen;
+		var metadata = me.getMeta().data || [];
+		var dataset = me.getDataset();
+		var levels = (dataset.groups || []).length - 1;
+		var data = dataset.data || [];
+		var ctx = me.chart.ctx;
+		var i, ilen, rect, item, vm;
 
-		for (i = 0, ilen = data.length; i < ilen; ++i) {
-			data[i].draw();
+		for (i = 0, ilen = metadata.length; i < ilen; ++i) {
+			rect = metadata[i];
+			vm = rect._view;
+			item = data[i];
+			if (!rect.hidden) {
+				rect.draw();
+				if (vm.height > 25 && item.g) {
+					ctx.save();
+					ctx.fillStyle = '#000';
+					ctx.font = '12px serif';
+					ctx.beginPath();
+					ctx.rect(vm.left, vm.top, vm.width, vm.height);
+					ctx.clip();
+					if (!('l' in item) || item.l === levels) {
+						ctx.textAlign = 'center';
+						ctx.textBaseline = 'middle';
+						ctx.fillText(item.g, vm.left + vm.width / 2, vm.top + vm.height / 2);
+					} else {
+						ctx.textAlign = 'start';
+						ctx.textBaseline = 'top';
+						ctx.fillText(item.g, vm.left + vm.borderWidth + 3, vm.top + vm.borderWidth + 3);
+					}
+					ctx.restore();
+				}
+			}
 		}
 	},
 
@@ -70,8 +152,7 @@ var Controller = Chart.DatasetController.extend({
 	_resolveElementOptions: function(rectangle, index) {
 		var me = this;
 		var chart = me.chart;
-		var datasets = chart.data.datasets;
-		var dataset = datasets[me.index];
+		var dataset = me.getDataset();
 		var options = chart.options.elements.rectangle;
 		var values = {};
 		var i, ilen, key;

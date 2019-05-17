@@ -15,7 +15,7 @@ function getStat(sa) {
 }
 
 function getNewStat(sa, o) {
-	var v = o[sa.key];
+	var v = +o[sa.key];
 	var n = v * sa.ratio;
 	o._normalized = n;
 

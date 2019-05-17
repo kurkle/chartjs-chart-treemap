@@ -38,7 +38,7 @@ new Chart(ctx, {
 
 ## Example
 
-[Live example @codepen.io](https://codepen.io/kurkle/full/JqbzgQ)
+[Live examples @codepen.io](https://codepen.io/kurkle/full/JqbzgQ)
 
 ![TreeMap Example Image](treemap.png)
 

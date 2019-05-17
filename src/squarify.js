@@ -18,11 +18,11 @@ function compareAspectRatio(oldStat, newStat, args) {
 	return nr <= or;
 }
 
-function squarify(values, r, opts) {
-	var key = opts && opts.key;
+function squarify(values, r, key, grp, lvl, gsum) {
+	var sum = utils.sum(values, key);
 	var rows = [];
 	var rect = new Rect(r);
-	var row = new statArray('value', rect.area / utils.sum(values, key));
+	var row = new statArray('value', rect.area / sum);
 	var length = rect.side;
 	var n = values.length;
 	var i, o;
@@ -35,11 +35,19 @@ function squarify(values, r, opts) {
 	utils.sort(values, key);
 
 	function val(idx) {
-		return key ? values[idx][key] : values[idx];
+		return key ? +values[idx][key] : +values[idx];
+	}
+	function gval(idx) {
+		return grp && values[idx][grp];
 	}
 
 	for (i = 0; i < n; ++i) {
-		o = row.pushIf({value: val(i)}, compareAspectRatio, length);
+		o = {value: val(i), groupSum: gsum};
+		if (grp) {
+			o.level = lvl;
+			o.group = gval(i);
+		}
+		o = row.pushIf(o, compareAspectRatio, length);
 		if (o) {
 			rows.push(rect.map(row));
 			length = rect.side;

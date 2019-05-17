@@ -9,6 +9,14 @@ describe('utils', function() {
 		});
 	});
 
+	describe('group', function() {
+		it('should group 1 level of data', function() {
+			var a = [{k: 'a', v: 1}, {k: 'b', v: 2}, {k: 'a', v: 3}];
+			var g1 = utils.group(a, 'k', 'v');
+			expect(g1).toEqual([{k: 'a', v: 4}, {k: 'b', v: 2}]);
+		});
+	});
+
 	describe('sort', function() {
 		it('should reverse sort array', function() {
 			var a = [8, 3, 5, 4, 1, 3, 6, 2, 7];
@@ -28,6 +36,11 @@ describe('utils', function() {
 	describe('sum', function() {
 		it('should compute sum of array', function() {
 			var a = [8, 3, 5, 4, 1, 3, 6, 2, 7];
+			expect(utils.sum(a)).toEqual(39);
+		});
+
+		it('should compute sum of numeric string array', function() {
+			var a = ['8', '3', '5', '4', '1', '3', '6', '2', '7'];
 			expect(utils.sum(a)).toEqual(39);
 		});
 

@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>US population, area or population/area by state</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="utils.js"></script>
+	<script src="us_stats_by_state.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	</link>
+</head>
+
+<body>
+	<div id="controls">
+		<select id="data-key">
+			<option value="area" selected>Area (km<sup>2</sup>)</option>
+			<option value="population">Population</option>
+		</select>
+		<input type="checkbox" id="region" value="region" name="region">
+		<label for="region">Region</label>
+		<input type="checkbox" id="division" value="division" name="division">
+		<label for="division">Division</label>
+		<input type="checkbox" id="state" value="state" name="state">
+		<label for="state">State</label>
+	</div>
+	<div id="canvas-holder">
+		<canvas id="chart-area" width="800" height="400"></canvas>
+	</div>
+
+	<script>
+		Utils.load(function() {
+			var ctx = document.getElementById("chart-area").getContext("2d");
+			var tm = window.chart = new Chart(ctx, {
+				type: 'treemap',
+				data: {
+					datasets: [{
+						tree: statsByState,
+						key: 'area',
+						groups: [],
+						spacing: -0.5,
+						borderWidth: 0.5,
+						borderColor: 'rgba(200,200,200,1)',
+						hoverBackgroundColor: 'rgba(220,230,220,0.5)',
+					}]
+				},
+				options: {
+					maintainAspectRatio: false,
+					title: {
+						display: true,
+						text: 'US stats by state'
+					},
+					legend: {
+						display: false
+					},
+					tooltips: {
+						callbacks: {
+							title: function(item, data) {
+								var item = item[0];
+								var obj = data.datasets[item.datasetIndex].data[item.index]._data;
+								return obj.state;
+							},
+							label: function(item, data) {
+								var dataset = data.datasets[item.datasetIndex];
+								var dataItem = dataset.data[item.index];
+								var obj = dataItem._data;
+								return dataset.key + ': ' + dataItem.v;
+							}
+						}
+					}
+				}
+			});
+
+			var sel = document.getElementById('data-key');
+			sel.addEventListener('change', function() {
+				tm.data.datasets[0].key = sel.value;
+				tm.update();
+			});
+
+			function updateGroups() {
+				var groups = tm.data.datasets[0].groups = [];
+				document.querySelectorAll('input:checked').forEach(function(cb){
+					groups.push(cb.value);
+				});
+				tm.update();
+			}
+			document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+				cb.addEventListener('change', function() {
+					updateGroups();
+				})
+			});
+		});
+	</script>
+</body>
+
+</html>

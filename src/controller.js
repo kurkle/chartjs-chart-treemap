@@ -14,6 +14,21 @@ function rectNotEqual(r1, r2) {
 		|| r1.h !== r2.h;
 }
 
+function arrayNotEqual(a1, a2) {
+	var i, n;
+
+	if (a1.lenght !== a2.length) {
+		return true;
+	}
+
+	for (i = 0, n = a1.length; i < n; ++i) {
+		if (a1[i] !== a2[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function buildData(dataset, mainRect) {
 	var key = dataset.key || '';
 	var tree = dataset.tree || [];
@@ -58,14 +73,18 @@ var Controller = Chart.DatasetController.extend({
 		var me = this;
 		var meta = me.getMeta();
 		var dataset = me.getDataset();
+		var groups = dataset.groups || (dataset.groups = []);
 		var data = meta.data || [];
 		var area = me.chart.chartArea;
+		var key = dataset.key || '';
 		var i, ilen, mainRect;
 
 		mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top};
 
-		if (reset || rectNotEqual(me._rect, mainRect)) {
+		if (reset || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
 			me._rect = mainRect;
+			me._groups = groups.slice();
+			me._key = key;
 			dataset.data = buildData(dataset, mainRect);
 			me.resyncElements();
 		}

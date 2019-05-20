@@ -25,24 +25,25 @@ function squarify(values, r, key, grp, lvl, gsum) {
 	var row = new statArray('value', rect.area / sum);
 	var length = rect.side;
 	var n = values.length;
-	var i, o;
+	var i, o, tmp;
 
 	if (!n) {
 		return rows;
 	}
 
-	values = values.slice();
-	utils.sort(values, key);
+	tmp = values.slice();
+	key = utils.index(tmp, key);
+	utils.sort(tmp, key);
 
 	function val(idx) {
-		return key ? +values[idx][key] : +values[idx];
+		return key ? +tmp[idx][key] : +tmp[idx];
 	}
 	function gval(idx) {
-		return grp && values[idx][grp];
+		return grp && tmp[idx][grp];
 	}
 
 	for (i = 0; i < n; ++i) {
-		o = {value: val(i), groupSum: gsum};
+		o = {value: val(i), groupSum: gsum, _data: values[tmp[i]._idx]};
 		if (grp) {
 			o.level = lvl;
 			o.group = gval(i);

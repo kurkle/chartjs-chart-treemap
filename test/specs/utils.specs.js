@@ -13,7 +13,10 @@ describe('utils', function() {
 		it('should group 1 level of data', function() {
 			var a = [{k: 'a', v: 1}, {k: 'b', v: 2}, {k: 'a', v: 3}];
 			var g1 = utils.group(a, 'k', 'v');
-			expect(g1).toEqual([{k: 'a', v: 4}, {k: 'b', v: 2}]);
+			expect(g1).toEqual([
+				jasmine.objectContaining({k: 'a', v: 4}),
+				jasmine.objectContaining({k: 'b', v: 2})
+			]);
 		});
 	});
 

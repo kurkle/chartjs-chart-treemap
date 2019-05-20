@@ -24,7 +24,8 @@ function buildRow(rect, itm, dims, sum) {
 		h: round(dims.h, 4),
 		a: itm._normalized,
 		v: itm.value,
-		s: sum
+		s: sum,
+		_data: itm._data
 	};
 	if (itm.group) {
 		r.g = itm.group;

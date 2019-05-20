@@ -20,6 +20,7 @@ function flatten(input) {
 
 function group(values, grp, key, mainGrp, mainValue) {
 	var tmp = Object.create(null);
+	var data = Object.create(null);
 	var ret = [];
 	var g, i, n, v;
 	for (i = 0, n = values.length; i < n; ++i) {
@@ -30,12 +31,14 @@ function group(values, grp, key, mainGrp, mainValue) {
 		g = v[grp] || '';
 		if (!(g in tmp)) {
 			tmp[g] = 0;
+			data[g] = [];
 		}
 		tmp[g] += +v[key];
+		data[g].push(v);
 	}
 
 	Object.keys(tmp).forEach(function(k) {
-		v = {};
+		v = {children: data[k]};
 		v[key] = +tmp[k];
 		v[grp] = k;
 		if (mainGrp) {
@@ -45,6 +48,32 @@ function group(values, grp, key, mainGrp, mainValue) {
 	});
 
 	return ret;
+}
+
+function isObject(obj) {
+	var type = typeof obj;
+	return type === 'function' || type === 'object' && !!obj;
+}
+
+function index(values, key) {
+	var n = values.length;
+	var i, obj;
+
+	if (!n) {
+		return key;
+	}
+
+	obj = isObject(values[0]);
+	key = obj ? key : 'v';
+
+	for (i = 0, n = values.length; i < n; ++i) {
+		if (obj) {
+			values[i]._idx = i;
+		} else {
+			values[i] = {v: values[i], _idx: i};
+		}
+	}
+	return key;
 }
 
 function sort(values, key) {
@@ -72,6 +101,8 @@ function sum(values, key) {
 export default {
 	flatten: flatten,
 	group: group,
+	index: index,
+	isObject: isObject,
 	sort: sort,
 	sum: sum
 };

@@ -11,13 +11,16 @@ To create a treemap chart, include chartjs-chart-treemap.js after chart.js and t
 ```js
 new Chart(ctx, {
     type: 'treemap',
-    data: dataObject
+    tree: dataObject,
+    key: 'value',
+    groups: ['main', 'sub']
 });
 ```
 
 ## Configuration
 
-TreeMap chart allows configuration of `width` and `height` of the data points in addition to standard Chart.js configuration.
+Tree data should be provided in `tree` property of dataset. `data` is then automatically build. `key` defines the key name in data objects to use for value. `groups` array can be provided to display multiple levels of hierarchy.
+Data is summarized to groups internally.
 
 ```js
 new Chart(ctx, {
@@ -25,7 +28,7 @@ new Chart(ctx, {
     data: {
         datasets: [{
             label: 'Basic treemap',
-            data: [6,6,5,4,3,2,2,1],
+            tree: [6,6,5,4,3,2,2,1],
             backgroundColor: function(ctx) {
                 var value = ctx.dataset.data[ctx.dataIndex];
                 var alpha = (value + 3) / 10;

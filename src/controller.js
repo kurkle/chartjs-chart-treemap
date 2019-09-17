@@ -4,7 +4,12 @@ import Chart from 'chart.js';
 import utils from './utils';
 import squarify from './squarify';
 
-var resolve = Chart.helpers.options.resolve;
+var defaults = Chart.defaults;
+var helpers = Chart.helpers;
+var optionHelpers = helpers.options;
+var parseFont = optionHelpers._parseFont;
+var resolve = optionHelpers.resolve;
+var valueOrDefault = helpers.valueOrDefault;
 
 function rectNotEqual(r1, r2) {
 	return !r1 || !r2
@@ -29,7 +34,14 @@ function arrayNotEqual(a1, a2) {
 	return false;
 }
 
-function buildData(dataset, mainRect) {
+function drawCaption(rect, font) {
+	var w = rect.width || rect.w;
+	var h = rect.height || rect.h;
+	var min = font.lineHeight * 2;
+	return w > min && h > min;
+}
+
+function buildData(dataset, mainRect, font) {
 	var key = dataset.key || '';
 	var tree = dataset.tree || [];
 	var groups = dataset.groups || [];
@@ -46,9 +58,10 @@ function buildData(dataset, mainRect) {
 		if (gidx < glen - 1) {
 			gsq.forEach(function(sq) {
 				subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
-				if (sq.h > 25) {
-					subRect.y += 15;
-					subRect.h -= 15;
+
+				if (drawCaption(sq, font)) {
+					subRect.y += font.lineHeight;
+					subRect.h -= font.lineHeight;
 				}
 				ret.push.apply(ret, recur(gidx + 1, subRect, sq.g, sq.s));
 			});
@@ -65,6 +78,17 @@ function buildData(dataset, mainRect) {
 		: squarify(tree, mainRect, key);
 }
 
+function parseFontOptions(options) {
+	return helpers.extend(parseFont({
+		fontFamily: valueOrDefault(options.fontFamily, defaults.fontFamily),
+		fontSize: valueOrDefault(options.fontSize, defaults.fontSize),
+		fontStyle: valueOrDefault(options.fontStyle, defaults.fontStyle),
+		lineHeight: valueOrDefault(options.lineHeight, defaults.lineHeight)
+	}), {
+		color: resolve([options.fontColor, defaults.fontColor, defaults.global.defaultFontColor])
+	});
+}
+
 var Controller = Chart.DatasetController.extend({
 
 	dataElementType: Chart.elements.Rectangle,
@@ -74,6 +98,7 @@ var Controller = Chart.DatasetController.extend({
 		var meta = me.getMeta();
 		var dataset = me.getDataset();
 		var groups = dataset.groups || (dataset.groups = []);
+		var font = parseFontOptions(dataset);
 		var data = meta.data || [];
 		var area = me.chart.chartArea;
 		var key = dataset.key || '';
@@ -85,7 +110,7 @@ var Controller = Chart.DatasetController.extend({
 			me._rect = mainRect;
 			me._groups = groups.slice();
 			me._key = key;
-			dataset.data = buildData(dataset, mainRect);
+			dataset.data = buildData(dataset, mainRect, font);
 			me.resyncElements();
 		}
 
@@ -122,7 +147,9 @@ var Controller = Chart.DatasetController.extend({
 			backgroundColor: options.backgroundColor,
 			borderColor: options.borderColor,
 			borderSkipped: options.borderSkipped,
-			borderWidth: options.borderWidth
+			borderWidth: options.borderWidth,
+			font: parseFont(options),
+			fontColor: options.fontColor
 		};
 
 		item.pivot();
@@ -143,10 +170,10 @@ var Controller = Chart.DatasetController.extend({
 			item = data[i];
 			if (!rect.hidden) {
 				rect.draw();
-				if (vm.height > 25 && item.g) {
+				if (drawCaption(vm, vm.font) && item.g) {
 					ctx.save();
-					ctx.fillStyle = '#000';
-					ctx.font = '12px serif';
+					ctx.fillStyle = vm.fontColor;
+					ctx.font = vm.font.string;
 					ctx.beginPath();
 					ctx.rect(vm.left, vm.top, vm.width, vm.height);
 					ctx.clip();
@@ -189,6 +216,10 @@ var Controller = Chart.DatasetController.extend({
 			'borderColor',
 			'borderSkipped',
 			'borderWidth',
+			'fontColor',
+			'fontFamily',
+			'fontSize',
+			'fontStyle',
 			'spacing'
 		];
 

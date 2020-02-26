@@ -1,0 +1,8 @@
+{
+  "name": "chartjs-chart-treemap",
+  "description": "Chart.js module for creating treemap charts",
+  "homepage": "https://github.com/kurkle/chartjs-chart-treemap#readme",
+  "license": "MIT",
+  "version": "0.2.3",
+  "main": "dist/chartjs-chart-treemap.js"
+}

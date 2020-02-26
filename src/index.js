@@ -12,7 +12,7 @@ Chart.Tooltip.positioners.treemap = function(elements) {
 		return false;
 	}
 
-	var vm = elements[0]._view;
+	var vm = elements[elements.length - 1]._view;
 
 	return {
 		x: vm.x,

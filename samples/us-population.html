@@ -3,7 +3,7 @@
 
 <head>
 	<title>US population by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -27,6 +27,9 @@
 						groups: ['region', 'division', 'code'],
 						backgroundColor: function(ctx) {
 							var item = ctx.dataset.data[ctx.dataIndex];
+							if (!item) {
+								return;
+							}
 							var a = item.v / (item.gs || item.s) / 2 + 0.5;
 							switch(item.l) {
 								case 0:
@@ -60,6 +63,20 @@
 					},
 					legend: {
 						display: false
+					},
+					tooltips: {
+						callbacks: {
+							title: function(item, data) {
+								return data.datasets[item[0].datasetIndex].key;
+							},
+							label: function(item, data) {
+								var dataset = data.datasets[item.datasetIndex];
+								var dataItem = dataset.data[item.index];
+								var obj = dataItem._data;
+								var label = obj.code || obj.division || obj.region;
+								return label + ': ' + dataItem.v;
+							}
+						}
 					}
 				}
 			});

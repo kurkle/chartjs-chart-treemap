@@ -3,7 +3,7 @@
 
 <head>
 	<title>US population, area or population/area by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -55,15 +55,14 @@
 					tooltips: {
 						callbacks: {
 							title: function(item, data) {
-								var item = item[0];
-								var obj = data.datasets[item.datasetIndex].data[item.index]._data;
-								return obj.state;
+								return data.datasets[item[0].datasetIndex].key;
 							},
 							label: function(item, data) {
 								var dataset = data.datasets[item.datasetIndex];
 								var dataItem = dataset.data[item.index];
 								var obj = dataItem._data;
-								return dataset.key + ': ' + dataItem.v;
+								var label = obj.state || obj.division || obj.region;
+								return label + ': ' + dataItem.v;
 							}
 						}
 					}

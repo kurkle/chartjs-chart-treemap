@@ -1,13 +1,23 @@
 
 export default {
 	hover: {
-		mode: 'nearest',
+		mode: 'point',
 		intersect: true
 	},
 	tooltips: {
-		mode: 'nearest',
+		mode: 'point',
 		position: 'treemap',
-		intersect: true
+		intersect: true,
+		callbacks: {
+			title: function(item, data) {
+				return data.datasets[item[0].datasetIndex].key;
+			},
+			label: function(item, data) {
+				var dataset = data.datasets[item.datasetIndex];
+				var dataItem = dataset.data[item.index];
+				return dataset.label + ': ' + dataItem.v;
+			}
+		}
 	},
 	scales: {
 		xAxes: [{

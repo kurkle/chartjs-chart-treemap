@@ -1,5 +1,3 @@
-'use strict';
-
 import Chart from 'chart.js';
 import controller from './controller';
 import defaults from './defaults';
@@ -7,15 +5,17 @@ import defaults from './defaults';
 Chart.controllers.treemap = controller;
 Chart.defaults.treemap = defaults;
 
-Chart.Tooltip.positioners.treemap = function(elements) {
-	if (!elements.length) {
+const tooltipPlugin = Chart.plugins.getAll().find(p => p.id === 'tooltip');
+tooltipPlugin.positioners.treemap = function(active) {
+	if (!active.length) {
 		return false;
 	}
 
-	var vm = elements[elements.length - 1]._view;
+	const item = active[active.length - 1];
+	const el = item.element;
 
 	return {
-		x: vm.x,
-		y: vm.y - vm.height / 2
+		x: el.x + el.width / 2,
+		y: el.y + el.height / 2
 	};
 };

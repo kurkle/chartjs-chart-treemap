@@ -3,7 +3,7 @@
 
 <head>
 	<title>US population by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-alpha"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -16,34 +16,35 @@
 	</div>
 
 	<script>
-		Utils.load(function() {
-			var ctx = document.getElementById("chart-area").getContext("2d");
-			window.myTreeMap = new Chart(ctx, {
+		/* global Utils, Chart, statsByState */
+		Utils.load(() => {
+			const ctx2d = document.getElementById('chart-area').getContext('2d');
+			window.myTreeMap = new Chart(ctx2d, {
 				type: 'treemap',
 				data: {
 					datasets: [{
 						tree: statsByState,
 						key: 'population',
 						groups: ['region', 'division', 'code'],
-						backgroundColor: function(ctx) {
-							var item = ctx.dataset.data[ctx.dataIndex];
+						backgroundColor(ctx) {
+							const item = ctx.dataset.data[ctx.dataIndex];
 							if (!item) {
 								return;
 							}
-							var a = item.v / (item.gs || item.s) / 2 + 0.5;
-							switch(item.l) {
-								case 0:
-									switch(item.g) {
-										case 'Midwest': return '#4363d8';
-										case 'Northeast': return '#469990';
-										case 'South': return '#9A6324';
-										case 'West': return '#f58231';
-										default: return '#e6beff';
-									}
-								case 1:
-									return Color('white').alpha(0.3).rgbString();
-								default:
-									return Color('green').alpha(a).rgbString();
+							const a = item.v / (item.gs || item.s) / 2 + 0.5;
+							switch (item.l) {
+							case 0:
+								switch (item.g) {
+								case 'Midwest': return '#4363d8';
+								case 'Northeast': return '#469990';
+								case 'South': return '#9A6324';
+								case 'West': return '#f58231';
+								default: return '#e6beff';
+								}
+							case 1:
+								return Chart.helpers.color('white').alpha(0.3).rgbString();
+							default:
+								return Chart.helpers.color('green').alpha(a).rgbString();
 							}
 						},
 						spacing: 2,
@@ -66,14 +67,14 @@
 					},
 					tooltips: {
 						callbacks: {
-							title: function(item, data) {
+							title(item, data) {
 								return data.datasets[item[0].datasetIndex].key;
 							},
-							label: function(item, data) {
-								var dataset = data.datasets[item.datasetIndex];
-								var dataItem = dataset.data[item.index];
-								var obj = dataItem._data;
-								var label = obj.code || obj.division || obj.region;
+							label(item, data) {
+								const dataset = data.datasets[item.datasetIndex];
+								const dataItem = dataset.data[item.index];
+								const obj = dataItem._data;
+								const label = obj.code || obj.division || obj.region;
 								return label + ': ' + dataItem.v;
 							}
 						}

@@ -1,5 +1,3 @@
-'use strict';
-
 const min = Math.min;
 const max = Math.max;
 
@@ -15,8 +13,8 @@ function getStat(sa) {
 }
 
 function getNewStat(sa, o) {
-	var v = +o[sa.key];
-	var n = v * sa.ratio;
+	const v = +o[sa.key];
+	const n = v * sa.ratio;
 	o._normalized = n;
 
 	return {
@@ -38,9 +36,9 @@ function push(sa, o, stat) {
 	setStat(sa, stat);
 }
 
-class statArray {
+export default class statArray {
 	constructor(key, ratio) {
-		var me = this;
+		const me = this;
 		me.key = key;
 		me.ratio = ratio;
 		me.reset();
@@ -51,7 +49,7 @@ class statArray {
 	}
 
 	reset() {
-		var me = this;
+		const me = this;
 		me._arr = [];
 		me._hist = [];
 		me.sum = 0;
@@ -67,7 +65,7 @@ class statArray {
 	}
 
 	pushIf(o, fn, ...args) {
-		var nstat = getNewStat(this, o);
+		const nstat = getNewStat(this, o);
 		if (!fn(getStat(this), nstat, args)) {
 			return o;
 		}
@@ -78,6 +76,3 @@ class statArray {
 		return this._arr;
 	}
 }
-
-
-export default statArray;

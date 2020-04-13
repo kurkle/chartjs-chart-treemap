@@ -1,7 +1,5 @@
-'use strict';
-
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
-function flatten(input) {
+export function flatten(input) {
 	const stack = [...input];
 	const res = [];
 	while (stack.length) {
@@ -18,11 +16,11 @@ function flatten(input) {
 	return res.reverse();
 }
 
-function group(values, grp, key, mainGrp, mainValue) {
-	var tmp = Object.create(null);
-	var data = Object.create(null);
-	var ret = [];
-	var g, i, n, v;
+export function group(values, grp, key, mainGrp, mainValue) {
+	const tmp = Object.create(null);
+	const data = Object.create(null);
+	const ret = [];
+	let g, i, n, v;
 	for (i = 0, n = values.length; i < n; ++i) {
 		v = values[i];
 		if (mainGrp && v[mainGrp] !== mainValue) {
@@ -37,7 +35,7 @@ function group(values, grp, key, mainGrp, mainValue) {
 		data[g].push(v);
 	}
 
-	Object.keys(tmp).forEach(function(k) {
+	Object.keys(tmp).forEach((k) => {
 		v = {children: data[k]};
 		v[key] = +tmp[k];
 		v[grp] = k;
@@ -50,20 +48,20 @@ function group(values, grp, key, mainGrp, mainValue) {
 	return ret;
 }
 
-function isObject(obj) {
-	var type = typeof obj;
+export function isObject(obj) {
+	const type = typeof obj;
 	return type === 'function' || type === 'object' && !!obj;
 }
 
-function index(values, key) {
-	var n = values.length;
-	var i, obj;
+export function index(values, key) {
+	let n = values.length;
+	let i;
 
 	if (!n) {
 		return key;
 	}
 
-	obj = isObject(values[0]);
+	const obj = isObject(values[0]);
 	key = obj ? key : 'v';
 
 	for (i = 0, n = values.length; i < n; ++i) {
@@ -76,20 +74,16 @@ function index(values, key) {
 	return key;
 }
 
-function sort(values, key) {
+export function sort(values, key) {
 	if (key) {
-		values.sort(function(a, b) {
-			return +b[key] - +a[key];
-		});
+		values.sort((a, b) => +b[key] - +a[key]);
 	} else {
-		values.sort(function(a, b) {
-			return +b - +a;
-		});
+		values.sort((a, b) => +b - +a);
 	}
 }
 
-function sum(values, key) {
-	var s, i, n;
+export function sum(values, key) {
+	let s, i, n;
 
 	for (s = 0, i = 0, n = values.length; i < n; ++i) {
 		s += key ? +values[i][key] : +values[i];
@@ -97,12 +91,3 @@ function sum(values, key) {
 
 	return s;
 }
-
-export default {
-	flatten: flatten,
-	group: group,
-	index: index,
-	isObject: isObject,
-	sort: sort,
-	sum: sum
-};

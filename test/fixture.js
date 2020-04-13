@@ -1,4 +1,4 @@
-'use strict';
+/* global __karma__ */
 
 import utils from './utils';
 
@@ -23,6 +23,7 @@ function loadConfig(url, callback) {
 	readFile(url, function(content) {
 		switch (type) {
 		case 'js':
+			// eslint-disable-next-line
 			cfg = new Function('"use strict";' + content + ';return fixture;')();
 			break;
 		case 'json':

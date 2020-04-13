@@ -9,29 +9,28 @@ export default {
 		position: 'treemap',
 		intersect: true,
 		callbacks: {
-			title: function(item, data) {
+			title(item, data) {
 				return data.datasets[item[0].datasetIndex].key;
 			},
-			label: function(item, data) {
-				var dataset = data.datasets[item.datasetIndex];
-				var dataItem = dataset.data[item.index];
+			label(item, data) {
+				const dataset = data.datasets[item.datasetIndex];
+				const dataItem = dataset.data[item.index];
 				return dataset.label + ': ' + dataItem.v;
 			}
 		}
 	},
 	scales: {
-		xAxes: [{
+		x: {
 			type: 'linear',
 			display: false
-		}],
-		yAxes: [{
+		},
+		y: {
 			type: 'linear',
 			display: false
-		}]
+		}
 	},
 	elements: {
 		rectangle: {
-			borderSkipped: false,
 			borderWidth: 0,
 			spacing: 0.5
 		}

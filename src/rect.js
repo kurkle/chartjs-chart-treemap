@@ -1,23 +1,20 @@
-'use strict';
-
-
 function round(v, n) {
 	return +(Math.round(v + 'e+' + n) + 'e-' + n);
 }
 
 function getDims(itm, w2, s2, key) {
-	var a = itm._normalized;
-	var ar = w2 * a / s2;
-	var d1 = Math.sqrt(a * ar);
-	var d2 = a / d1;
-	var w = key === '_ix' ? d1 : d2;
-	var h = key === '_ix' ? d2 : d1;
+	const a = itm._normalized;
+	const ar = w2 * a / s2;
+	const d1 = Math.sqrt(a * ar);
+	const d2 = a / d1;
+	const w = key === '_ix' ? d1 : d2;
+	const h = key === '_ix' ? d2 : d1;
 
-	return {d1: d1, d2: d2, w: w, h: h};
+	return {d1, d2, w, h};
 }
 
 function buildRow(rect, itm, dims, sum) {
-	var r = {
+	const r = {
 		x: round(rect.x + rect._ix, 4),
 		y: round(rect.y + rect._iy, 4),
 		w: round(dims.w, 4),
@@ -34,9 +31,9 @@ function buildRow(rect, itm, dims, sum) {
 	}
 	return r;
 }
-class Rect {
+export default class Rect {
 	constructor(r) {
-		var me = this;
+		const me = this;
 		me.x = r.x || r.left || 0;
 		me.y = r.y || r.top || 0;
 		me._ix = 0;
@@ -58,7 +55,7 @@ class Rect {
 	}
 
 	get dir() {
-		var ih = this.ih;
+		const ih = this.ih;
 		return ih <= this.iw && ih > 0 ? 'y' : 'x';
 	}
 
@@ -67,19 +64,19 @@ class Rect {
 	}
 
 	map(arr) {
-		var me = this;
-		var ret = [];
-		var sum = arr.nsum;
-		var row = arr.get();
-		var n = row.length;
-		var dir = me.dir;
-		var side = me.side;
-		var w2 = side * side;
-		var key = dir === 'x' ? '_ix' : '_iy';
-		var s2 = sum * sum;
-		var maxd2 = 0;
-		var totd1 = 0;
-		var i, itm, dims;
+		const me = this;
+		const ret = [];
+		const sum = arr.nsum;
+		const row = arr.get();
+		const n = row.length;
+		const dir = me.dir;
+		const side = me.side;
+		const w2 = side * side;
+		const key = dir === 'x' ? '_ix' : '_iy';
+		const s2 = sum * sum;
+		let maxd2 = 0;
+		let totd1 = 0;
+		let i, itm, dims;
 		for (i = 0; i < n; ++i) {
 			itm = row[i];
 			dims = getDims(itm, w2, s2, key);
@@ -95,5 +92,3 @@ class Rect {
 		return ret;
 	}
 }
-
-export default Rect;

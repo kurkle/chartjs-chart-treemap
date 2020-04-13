@@ -1,6 +1,4 @@
-'use strict';
-
-import utils from './utils';
+import {sum, index, sort, flatten} from './utils';
 import Rect from './rect';
 import statArray from './statArray';
 
@@ -9,31 +7,30 @@ function compareAspectRatio(oldStat, newStat, args) {
 		return true;
 	}
 
-	var [length] = args;
-	var os2 = oldStat.nsum * oldStat.nsum;
-	var ns2 = newStat.nsum * newStat.nsum;
-	var l2 = length * length;
-	var or = Math.max(l2 * oldStat.nmax / os2, os2 / (l2 * oldStat.nmin));
-	var nr = Math.max(l2 * newStat.nmax / ns2, ns2 / (l2 * newStat.nmin));
+	const [length] = args;
+	const os2 = oldStat.nsum * oldStat.nsum;
+	const ns2 = newStat.nsum * newStat.nsum;
+	const l2 = length * length;
+	const or = Math.max(l2 * oldStat.nmax / os2, os2 / (l2 * oldStat.nmin));
+	const nr = Math.max(l2 * newStat.nmax / ns2, ns2 / (l2 * newStat.nmin));
 	return nr <= or;
 }
 
 function squarify(values, r, key, grp, lvl, gsum) {
-	var sum = utils.sum(values, key);
-	var rows = [];
-	var rect = new Rect(r);
-	var row = new statArray('value', rect.area / sum);
-	var length = rect.side;
-	var n = values.length;
-	var i, o, tmp;
+	const rows = [];
+	const rect = new Rect(r);
+	const row = new statArray('value', rect.area / sum(values, key));
+	let length = rect.side;
+	const n = values.length;
+	let i, o;
 
 	if (!n) {
 		return rows;
 	}
 
-	tmp = values.slice();
-	key = utils.index(tmp, key);
-	utils.sort(tmp, key);
+	const tmp = values.slice();
+	key = index(tmp, key);
+	sort(tmp, key);
 
 	function val(idx) {
 		return key ? +tmp[idx][key] : +tmp[idx];
@@ -59,7 +56,7 @@ function squarify(values, r, key, grp, lvl, gsum) {
 	if (row.length) {
 		rows.push(rect.map(row));
 	}
-	return utils.flatten(rows);
+	return flatten(rows);
 }
 
 export default squarify;

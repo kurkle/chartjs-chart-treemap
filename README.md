@@ -1,6 +1,6 @@
 # chartjs-chart-treemap
 
-[Chart.js](https://www.chartjs.org/) module for creating treemap charts
+[Chart.js](https://www.chartjs.org/) **v3.0.0-alpha** module for creating treemap charts
 
 ![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg) [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest) [![travis](https://img.shields.io/travis/kurkle/chartjs-chart-treemap.svg?style=flat-square&maxAge=60)](https://travis-ci.org/kurkle/chartjs-chart-treemap) ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg) ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
 
@@ -45,7 +45,7 @@ new Chart(ctx, {
 
 ## Example
 
-[Live examples @codepen.io](https://codepen.io/kurkle/full/JqbzgQ)
+[Live examples @codepen.io](https://codepen.io/kurkle/full/oNjXJwe)
 
 ![TreeMap Example Image](treemap.png)
 

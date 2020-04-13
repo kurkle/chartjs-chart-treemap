@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-var statsByState = [
+const statsByState = [
 	{
 		state: 'Alabama',
 		code: 'AL',

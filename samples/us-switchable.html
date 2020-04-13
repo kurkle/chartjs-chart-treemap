@@ -3,7 +3,7 @@
 
 <head>
 	<title>US population, area or population/area by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-alpha"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -28,9 +28,10 @@
 	</div>
 
 	<script>
-		Utils.load(function() {
-			var ctx = document.getElementById("chart-area").getContext("2d");
-			var tm = window.chart = new Chart(ctx, {
+		/* global Utils, Chart, statsByState */
+		Utils.load(() => {
+			const ctx = document.getElementById('chart-area').getContext('2d');
+			const tm = window.chart = new Chart(ctx, {
 				type: 'treemap',
 				data: {
 					datasets: [{
@@ -54,14 +55,14 @@
 					},
 					tooltips: {
 						callbacks: {
-							title: function(item, data) {
+							title(item, data) {
 								return data.datasets[item[0].datasetIndex].key;
 							},
-							label: function(item, data) {
-								var dataset = data.datasets[item.datasetIndex];
-								var dataItem = dataset.data[item.index];
-								var obj = dataItem._data;
-								var label = obj.state || obj.division || obj.region;
+							label(item, data) {
+								const dataset = data.datasets[item.datasetIndex];
+								const dataItem = dataset.data[item.index];
+								const obj = dataItem._data;
+								const label = obj.state || obj.division || obj.region;
 								return label + ': ' + dataItem.v;
 							}
 						}
@@ -69,23 +70,23 @@
 				}
 			});
 
-			var sel = document.getElementById('data-key');
-			sel.addEventListener('change', function() {
+			const sel = document.getElementById('data-key');
+			sel.addEventListener('change', () => {
 				tm.data.datasets[0].key = sel.value;
 				tm.update();
 			});
 
 			function updateGroups() {
-				var groups = tm.data.datasets[0].groups = [];
-				document.querySelectorAll('input:checked').forEach(function(cb){
+				const groups = tm.data.datasets[0].groups = [];
+				document.querySelectorAll('input:checked').forEach((cb) => {
 					groups.push(cb.value);
 				});
 				tm.update();
 			}
-			document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
-				cb.addEventListener('change', function() {
+			document.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+				cb.addEventListener('change', () => {
 					updateGroups();
-				})
+				});
 			});
 		});
 	</script>

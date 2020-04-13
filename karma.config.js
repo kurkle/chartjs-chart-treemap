@@ -1,8 +1,6 @@
-/* eslint-env es6 */
-
-const commonjs = require('rollup-plugin-commonjs');
-const istanbul = require('rollup-plugin-istanbul');
-const resolve = require('rollup-plugin-node-resolve');
+/* eslint-disable import/no-commonjs */
+const commonjs = require('@rollup/plugin-commonjs');
+const resolve = require('@rollup/plugin-node-resolve');
 const builds = require('./rollup.config');
 
 module.exports = function(karma) {
@@ -23,7 +21,6 @@ module.exports = function(karma) {
 		files: [
 			{pattern: './test/fixtures/**/*.js', included: false},
 			{pattern: './test/fixtures/**/*.png', included: false},
-			'node_modules/moment/min/moment.min.js',
 			'node_modules/chart.js/dist/Chart.js',
 			'test/index.js',
 			'src/index.js'
@@ -51,7 +48,7 @@ module.exports = function(karma) {
 		rollupPreprocessor: {
 			plugins: [
 				resolve(),
-				commonjs()
+				commonjs({exclude: ['src/**', 'test/**']})
 			],
 			external: [
 				'chart.js'
@@ -90,14 +87,5 @@ module.exports = function(karma) {
 				{type: 'lcovonly', subdir: '.'}
 			]
 		};
-		[
-			karma.rollupPreprocessor,
-			karma.customPreprocessors.sources.options
-		].forEach((v) => {
-			(v.plugins || (v.plugins = [])).push(
-				istanbul({
-					include: 'src/**/*.js'
-				}));
-		});
 	}
 };

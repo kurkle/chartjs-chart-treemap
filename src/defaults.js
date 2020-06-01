@@ -19,6 +19,17 @@ export default {
 			}
 		}
 	},
+	datasets: {
+		groupLabels: true,
+		borderWidth: 0,
+		spacing: 0.5,
+		groupDividers: false,
+		dividerCapStyle: 'butt',
+		dividerColor: 'black',
+		dividerDash: [],
+		dividerDashOffset: 0,
+		dividerWidth: 1
+	},
 	scales: {
 		x: {
 			type: 'linear',
@@ -29,10 +40,4 @@ export default {
 			display: false
 		}
 	},
-	elements: {
-		rectangle: {
-			borderWidth: 0,
-			spacing: 0.5
-		}
-	}
 };

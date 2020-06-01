@@ -35,11 +35,55 @@ function arrayNotEqual(a1, a2) {
 	return false;
 }
 
-function drawCaption(rect, font) {
+function shouldDrawCaption(rect, font) {
 	const w = rect.width || rect.w;
 	const h = rect.height || rect.h;
 	const min = font.lineHeight * 2;
 	return w > min && h > min;
+}
+
+function drawCaption(ctx, rect, item, opts, levels) {
+	ctx.save();
+	ctx.fillStyle = opts.fontColor;
+	ctx.font = opts.font.string;
+	ctx.beginPath();
+	ctx.rect(rect.x, rect.y, rect.width, rect.height);
+	ctx.clip();
+	if (!('l' in item) || item.l === levels) {
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		drawLabels(ctx, item, rect);
+	} else if (opts.groupLabels) {
+		ctx.textAlign = 'start';
+		ctx.textBaseline = 'top';
+		ctx.fillText(item.g, rect.x + opts.borderWidth + 3, rect.y + opts.borderWidth + 3);
+	}
+	ctx.restore();
+}
+
+function drawDivider(ctx, rect) {
+	const opts = rect.options;
+	const w = rect.width || rect.w;
+	const h = rect.height || rect.h;
+
+	ctx.save();
+	ctx.strokeStyle = opts.dividerColor || 'black';
+	ctx.lineCap = opts.dividerCapStyle;
+	ctx.setLineDash(opts.dividerDash);
+	ctx.lineDashOffset = opts.dividerDashOffset;
+	ctx.lineWidth = opts.dividerWidth;
+	ctx.beginPath();
+	if (w > h) {
+		const w2 = w / 2;
+		ctx.moveTo(rect.x + w2, rect.y);
+		ctx.lineTo(rect.x + w2, rect.y + h);
+	} else {
+		const h2 = h / 2;
+		ctx.moveTo(rect.x, rect.y + h2);
+		ctx.lineTo(rect.x + w, rect.y + h2);
+	}
+	ctx.stroke();
+	ctx.restore();
 }
 
 function buildData(dataset, mainRect, font) {
@@ -60,7 +104,7 @@ function buildData(dataset, mainRect, font) {
 			gsq.forEach((sq) => {
 				subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
 
-				if (drawCaption(sq, font)) {
+				if (dataset.groupLabels && shouldDrawCaption(sq, font)) {
 					subRect.y += font.lineHeight;
 					subRect.h -= font.lineHeight;
 				}
@@ -90,6 +134,14 @@ function parseFontOptions(options) {
 	});
 }
 
+function drawLabels(ctx, item, rect) {
+	const opts = rect.options;
+	const lh = opts.font.lineHeight;
+	const labels = (opts.label || item.g + '\n' + item.v).split('\n');
+	const y = rect.y + rect.height / 2 - labels.length * lh / 4;
+	labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+}
+
 export default class TreemapController extends Chart.DatasetController {
 
 	update(mode) {
@@ -115,12 +167,25 @@ export default class TreemapController extends Chart.DatasetController {
 		me.updateElements(meta.data, 0, mode);
 	}
 
+	_updateOptionsWidthDefaults(options) {
+		const me = this;
+		const dataset = me.getDataset();
+		const treemapDefaults = me.chart.options.treemap.datasets;
+
+		options.dividerColor = dataset.dividerColor || treemapDefaults.dividerColor;
+		options.dividerDash = dataset.dividerDash || treemapDefaults.dividerDash;
+		options.dividerDashOffset = dataset.dividerDashOffset || treemapDefaults.dividerDashOffset;
+		options.dividerWidth = dataset.dividerWidth || treemapDefaults.dividerWidth;
+		options.font = parseFont(options);
+	}
+
 	updateElements(rects, start, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const dataset = me.getDataset();
-		const firstOpts = me.resolveDataElementOptions(start, mode);
+		const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
 		const sharedOptions = me.getSharedOptions(mode, rects[start], firstOpts);
+		me._updateOptionsWidthDefaults(firstOpts);
 
 		for (let i = 0; i < rects.length; i++) {
 			const index = start + i;
@@ -137,49 +202,50 @@ export default class TreemapController extends Chart.DatasetController {
 				height,
 				options
 			};
-			options.font = parseFont(options);
-
+			me._updateOptionsWidthDefaults(options);
 			me.updateElement(rects[i], index, properties, mode);
 		}
 
 		me.updateSharedOptions(sharedOptions, mode);
 	}
 
+	_drawDividers(ctx, data, metadata) {
+		for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
+			const rect = metadata[i];
+			const item = data[i];
+			if (rect.options.groupDividers && item._data.children.length > 1) {
+				drawDivider(ctx, rect);
+			}
+		}
+		if (this.getDataset().groupDividers) {
+			drawDivider(ctx, this._rect);
+		}
+	}
+
+	_drawRects(ctx, data, metadata, levels) {
+		for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
+			const rect = metadata[i];
+			const item = data[i];
+			if (!rect.hidden) {
+				rect.draw(ctx);
+				const opts = rect.options;
+				if (shouldDrawCaption(rect, opts.font) && item.g) {
+					drawCaption(ctx, rect, item, opts, levels);
+				}
+			}
+		}
+	}
+
 	draw() {
 		const me = this;
+		const ctx = me.chart.ctx;
 		const metadata = me.getMeta().data || [];
 		const dataset = me.getDataset();
 		const levels = (dataset.groups || []).length - 1;
 		const data = dataset.data || [];
-		const ctx = me.chart.ctx;
-		let i, ilen, rect, item;
 
-		for (i = 0, ilen = metadata.length; i < ilen; ++i) {
-			rect = metadata[i];
-			item = data[i];
-			if (!rect.hidden) {
-				rect.draw(ctx);
-				const opts = rect.options;
-				if (drawCaption(rect, opts.font) && item.g) {
-					ctx.save();
-					ctx.fillStyle = opts.fontColor;
-					ctx.font = opts.font.string;
-					ctx.beginPath();
-					ctx.rect(rect.x, rect.y, rect.width, rect.height);
-					ctx.clip();
-					if (!('l' in item) || item.l === levels) {
-						ctx.textAlign = 'center';
-						ctx.textBaseline = 'middle';
-						ctx.fillText(item.g, rect.x + rect.width / 2, rect.y + rect.height / 2);
-					} else {
-						ctx.textAlign = 'start';
-						ctx.textBaseline = 'top';
-						ctx.fillText(item.g, rect.x + opts.borderWidth + 3, rect.y + opts.borderWidth + 3);
-					}
-					ctx.restore();
-				}
-			}
-		}
+		me._drawRects(ctx, data, metadata, levels);
+		me._drawDividers(ctx, data, metadata);
 	}
 }
 
@@ -194,5 +260,8 @@ TreemapController.prototype.dataElementOptions = [
 	'fontFamily',
 	'fontSize',
 	'fontStyle',
-	'spacing'
+	'groupLabels',
+	'groupDividers',
+	'spacing',
+	'label'
 ];

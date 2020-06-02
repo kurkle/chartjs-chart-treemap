@@ -71,8 +71,6 @@ function inRange(rect, x, y, useFinalPosition) {
 
 export default class Rectangle extends Chart.Element {
 
-	static _type = 'rectangle';
-
 	constructor(cfg) {
 		super();
 
@@ -136,3 +134,5 @@ export default class Rectangle extends Chart.Element {
 		return axis === 'x' ? this.width / 2 : this.height / 2;
 	}
 }
+
+Rectangle._type = 'rectangle';

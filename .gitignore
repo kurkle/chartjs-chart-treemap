@@ -1,6 +1,5 @@
 .DS_Store
 .vscode/
-cc-test-reporter
 coverage/
 dist/
 build/

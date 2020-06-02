@@ -1,8 +1,7 @@
 /* eslint-disable import/no-commonjs */
-/* eslint-env es6 */
 
-const babel = require('rollup-plugin-babel');
-const resolve = require('@rollup/plugin-node-resolve');
+const babel = require('@rollup/plugin-babel').default;
+const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const terser = require('rollup-plugin-terser').terser;
 const pkg = require('./package.json');
 
@@ -27,7 +26,7 @@ module.exports = [
 		},
 		plugins: [
 			resolve(),
-			babel(),
+			babel({babelHelpers: 'bundled'}),
 		],
 		external: [
 			'chart.js'
@@ -45,7 +44,7 @@ module.exports = [
 		},
 		plugins: [
 			resolve(),
-			babel(),
+			babel({babelHelpers: 'bundled'}),
 			terser({
 				output: {
 					preamble: banner
@@ -68,8 +67,7 @@ module.exports = [
 			}
 		},
 		plugins: [
-			resolve(),
-			babel({envName: 'es6'}),
+			resolve()
 		],
 		external: [
 			'chart.js'
@@ -87,7 +85,6 @@ module.exports = [
 		},
 		plugins: [
 			resolve(),
-			babel({envName: 'es6'}),
 			terser({
 				output: {
 					preamble: banner

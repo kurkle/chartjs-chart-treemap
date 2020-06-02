@@ -1,4 +1,5 @@
 import Chart from 'chart.js';
+import {isObject} from './utils';
 
 /**
  * Helper function to get the bounds of the rect
@@ -16,11 +17,10 @@ function limit(value, min, max) {
 	return Math.max(Math.min(value, max), min);
 }
 
-function parseBorderWidth(rect, maxW, maxH) {
-	const value = rect.options.borderWidth;
+export function parseBorderWidth(value, maxW, maxH) {
 	let t, r, b, l;
 
-	if (Chart.helpers.isObject(value)) {
+	if (isObject(value)) {
 		t = +value.top || 0;
 		r = +value.right || 0;
 		b = +value.bottom || 0;
@@ -41,7 +41,7 @@ function boundingRects(rect) {
 	const bounds = getBounds(rect);
 	const width = bounds.right - bounds.left;
 	const height = bounds.bottom - bounds.top;
-	const border = parseBorderWidth(rect, width / 2, height / 2);
+	const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
 
 	return {
 		outer: {

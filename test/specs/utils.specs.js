@@ -1,4 +1,4 @@
-import {flatten, group, sort, sum} from '../../src/utils';
+import {flatten, group, sort, sum, isObject} from '../../src/utils';
 
 describe('utils', function() {
 
@@ -16,6 +16,14 @@ describe('utils', function() {
 			expect(g1).toEqual([
 				jasmine.objectContaining({k: 'a', v: 4}),
 				jasmine.objectContaining({k: 'b', v: 2})
+			]);
+		});
+		it('should group 2 levels of data', function() {
+			var a = [{k: 'a', k2: 'z', v: 1}, {k: 'b', k2: 'z', v: 2}, {k: 'a', k2: 'x', v: 3}];
+			var g1 = group(a, 'k2', 'v', 'k', 'a');
+			expect(g1).toEqual([
+				jasmine.objectContaining({k2: 'z', v: 1}),
+				jasmine.objectContaining({k2: 'x', v: 3})
 			]);
 		});
 	});
@@ -54,4 +62,9 @@ describe('utils', function() {
 		});
 	});
 
+	describe('isObject', function() {
+		it('should detect objects', function() {
+			expect(isObject({})).toBeTrue();
+		});
+	});
 });

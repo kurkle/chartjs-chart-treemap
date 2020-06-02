@@ -16,9 +16,19 @@ function compareAspectRatio(oldStat, newStat, args) {
 	return nr <= or;
 }
 
-function squarify(values, r, key, grp, lvl, gsum) {
+/**
+ *
+ * @param {number[]|object[]} values
+ * @param {object} rectangle
+ * @param {string} key
+ * @param {*} grp
+ * @param {*} lvl
+ * @param {*} gsum
+ */
+export default function squarify(values, rectangle, key, grp, lvl, gsum) {
+	values = values || [];
 	const rows = [];
-	const rect = new Rect(r);
+	const rect = new Rect(rectangle);
 	const row = new statArray('value', rect.area / sum(values, key));
 	let length = rect.side;
 	const n = values.length;
@@ -32,12 +42,8 @@ function squarify(values, r, key, grp, lvl, gsum) {
 	key = index(tmp, key);
 	sort(tmp, key);
 
-	function val(idx) {
-		return key ? +tmp[idx][key] : +tmp[idx];
-	}
-	function gval(idx) {
-		return grp && tmp[idx][grp];
-	}
+	const val = (idx) => key ? +tmp[idx][key] : +tmp[idx];
+	const gval = (idx) => grp && tmp[idx][grp];
 
 	for (i = 0; i < n; ++i) {
 		o = {value: val(i), groupSum: gsum, _data: values[tmp[i]._idx]};
@@ -58,5 +64,3 @@ function squarify(values, r, key, grp, lvl, gsum) {
 	}
 	return flatten(rows);
 }
-
-export default squarify;

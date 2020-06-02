@@ -55,7 +55,7 @@ function specFromFixture(description, inputs) {
 	});
 }
 
-function specsFromFixtures(path) {
+export default function specsFromFixtures(path) {
 	var regex = new RegExp('(^/base/test/fixtures/' + path + '.+)\\.(png|json|js)');
 	var inputs = {};
 
@@ -76,7 +76,3 @@ function specsFromFixtures(path) {
 		});
 	};
 }
-
-export default {
-	specs: specsFromFixtures
-};

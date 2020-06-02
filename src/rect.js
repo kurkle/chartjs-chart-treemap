@@ -19,7 +19,7 @@ function buildRow(rect, itm, dims, sum) {
 		y: round(rect.y + rect._iy, 4),
 		w: round(dims.w, 4),
 		h: round(dims.h, 4),
-		a: itm._normalized,
+		a: round(itm._normalized, 4),
 		v: itm.value,
 		s: sum,
 		_data: itm._data
@@ -34,6 +34,7 @@ function buildRow(rect, itm, dims, sum) {
 export default class Rect {
 	constructor(r) {
 		const me = this;
+		r = r || {w: 1, h: 1};
 		me.x = r.x || r.left || 0;
 		me.y = r.y || r.top || 0;
 		me._ix = 0;

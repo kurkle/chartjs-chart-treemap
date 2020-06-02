@@ -16,6 +16,13 @@ export function flatten(input) {
 	return res.reverse();
 }
 
+/**
+ * @param {[]} values
+ * @param {string} grp
+ * @param {string} key
+ * @param {string} [mainGrp]
+ * @param {*} [mainValue]
+ */
 export function group(values, grp, key, mainGrp, mainValue) {
 	const tmp = Object.create(null);
 	const data = Object.create(null);

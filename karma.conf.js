@@ -1,23 +1,26 @@
-/* eslint-disable import/no-commonjs */
+/* eslint-disable import/no-nodejs-modules, import/no-commonjs */
 const commonjs = require('@rollup/plugin-commonjs');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const builds = require('./rollup.config');
 const parseArgs = require('minimist');
+const path = require('path');
 
 module.exports = function(karma) {
 	const args = parseArgs(process.argv.slice(3));
-	const regex = karma.autoWatch ? /treemap\.js$/ : /treemap\.min\.js$/;
-	const build = builds.filter((v) => v && v.output.file.match(regex))[0];
-
-	if (karma.autoWatch) {
-		build.output.sourcemap = 'inline';
-	}
+	const build = builds[0];
+	build.output.sourcemap = 'inline';
 
 	karma.set({
 		frameworks: ['jasmine'],
-		reporters: ['spec', 'kjhtml'],
+		reporters: ['progress', 'summary', 'kjhtml'],
 		browsers: (args.browsers || 'chrome,firefox').split(','),
-		logLevel: karma.LOG_INFO,
+		logLevel: karma.autoWatch ? karma.LOG_INFO : karma.LOG_WARN,
+
+		summaryReporter: {
+			show: 'failed',
+			specLength: 50,
+			overviewColumn: false
+		},
 
 		client: {
 			jasmine: {
@@ -56,13 +59,13 @@ module.exports = function(karma) {
 			'test/fixtures/**/*.js': ['fixtures'],
 			'test/specs/**/*.js': ['rollup'],
 			'test/index.js': ['rollup'],
-			'src/index.js': ['sources']
+			'src/index.js': ['sources', 'karma-coverage-istanbul-instrumenter']
 		},
 
 		rollupPreprocessor: {
 			plugins: [
-				resolve(),
-				commonjs({exclude: ['src/**', 'test/**']})
+				resolve({dedupe: ['chart.js']}),
+				commonjs()
 			],
 			external: [
 				'chart.js'
@@ -73,7 +76,7 @@ module.exports = function(karma) {
 				globals: {
 					'chart.js': 'Chart'
 				},
-				sourcemap: karma.autoWatch ? 'inline' : false
+				sourcemap: false
 			}
 		},
 
@@ -83,7 +86,7 @@ module.exports = function(karma) {
 				options: {
 					output: {
 						format: 'iife',
-						name: 'fixture'
+						name: 'fixture',
 					}
 				}
 			},
@@ -92,18 +95,13 @@ module.exports = function(karma) {
 				options: build
 			}
 		},
-
-		browserDisconnectTolerance: 3
 	});
 
 	if (args.coverage) {
-		karma.reporters.push('coverage');
-		karma.coverageReporter = {
-			dir: 'coverage/',
-			reporters: [
-				{type: 'html', subdir: 'html'},
-				{type: 'lcovonly', subdir: '.'}
-			]
+		karma.reporters.push('coverage-istanbul');
+		karma.coverageIstanbulReporter = {
+			reports: ['html', 'lcovonly'],
+			dir: path.join(__dirname, 'coverage'),
 		};
 	}
 };

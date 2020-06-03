@@ -33,7 +33,7 @@ beforeEach(function() {
 		legend: {display: false},
 		responsive: false,
 		title: {display: false},
-		tooltips: false
+		tooltips: {enabled: false}
 	});
 });
 

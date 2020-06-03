@@ -1,4 +1,5 @@
 import Chart from 'chart.js';
+import {spritingOn, spritingOff} from './spriting';
 
 function createCanvas(w, h) {
 	var canvas = document.createElement('CANVAS');
@@ -67,7 +68,11 @@ function acquireChart(config, options) {
 	window.document.body.appendChild(wrapper);
 
 	try {
-		chart = new Chart(canvas.getContext('2d'), config);
+		var ctx = canvas.getContext('2d');
+		if (options.spriteText) {
+			spritingOn(ctx);
+		}
+		chart = new Chart(ctx, config);
 	} catch (e) {
 		window.document.body.removeChild(wrapper);
 		throw e;
@@ -82,6 +87,7 @@ function acquireChart(config, options) {
 }
 
 function releaseChart(chart) {
+	spritingOff(chart.ctx);
 	chart.destroy();
 
 	var wrapper = (chart.$test || {}).wrapper;
@@ -107,6 +113,18 @@ function triggerMouseEvent(chart, type, el) {
 	node.dispatchEvent(event);
 }
 
+function afterEvent(chart, type, callback) {
+	var override = chart._eventHandler;
+	chart._eventHandler = function(event) {
+		override.call(this, event);
+		if (event.type === type) {
+			chart._eventHandler = override;
+			// eslint-disable-next-line callback-return
+			callback();
+		}
+	};
+}
+
 export default {
 	acquireChart: acquireChart,
 	releaseChart: releaseChart,
@@ -114,5 +132,6 @@ export default {
 	createImageData: createImageData,
 	canvasFromImageData: canvasFromImageData,
 	readImageData: readImageData,
-	triggerMouseEvent: triggerMouseEvent
+	triggerMouseEvent: triggerMouseEvent,
+	afterEvent: afterEvent
 };

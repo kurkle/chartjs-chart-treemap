@@ -36,6 +36,9 @@ function arrayNotEqual(a1, a2) {
 }
 
 function shouldDrawCaption(rect, font) {
+	if (!font) {
+		return false;
+	}
 	const w = rect.width || rect.w;
 	const h = rect.height || rect.h;
 	const min = font.lineHeight * 2;

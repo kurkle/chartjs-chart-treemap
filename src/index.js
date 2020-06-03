@@ -14,8 +14,5 @@ tooltipPlugin.positioners.treemap = function(active) {
 	const item = active[active.length - 1];
 	const el = item.element;
 
-	return {
-		x: el.x + el.width / 2,
-		y: el.y + el.height / 2
-	};
+	return el.tooltipPosition();
 };

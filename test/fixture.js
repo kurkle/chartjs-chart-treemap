@@ -41,16 +41,23 @@ function specFromFixture(description, inputs) {
 	it(input, function(done) {
 		loadConfig(input, function(json) {
 			var chart = utils.acquireChart(json.config, json.options);
-			if (!inputs.png) {
-				fail('Missing PNG comparison file for ' + inputs.json);
-				done();
-			}
+			const _done = () => {
+				if (!inputs.png) {
+					fail('Missing PNG comparison file for ' + inputs.json);
+					done();
+				}
 
-			utils.readImageData(inputs.png, function(expected) {
-				expect(chart).toEqualImageData(expected, json);
-				utils.releaseChart(chart);
-				done();
-			});
+				utils.readImageData(inputs.png, function(expected) {
+					expect(chart).toEqualImageData(expected, json);
+					utils.releaseChart(chart);
+					done();
+				});
+			};
+			if (json.options.run) {
+				json.options.run(chart, _done);
+			} else {
+				_done();
+			}
 		});
 	});
 }

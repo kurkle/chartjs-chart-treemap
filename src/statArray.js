@@ -36,7 +36,7 @@ function push(sa, o, stat) {
 	setStat(sa, stat);
 }
 
-export default class statArray {
+export default class StatArray {
 	constructor(key, ratio) {
 		const me = this;
 		me.key = key;

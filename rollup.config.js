@@ -48,7 +48,7 @@ module.exports = [
 		]
 	},
 	{
-		input: 'src/index.js',
+		input: 'src/index.esm.js',
 		output: {
 			file: `dist/${pkg.name}.esm.js`,
 			banner,
@@ -62,25 +62,4 @@ module.exports = [
 			'chart.js'
 		]
 	},
-	{
-		input: 'src/index.js',
-		output: {
-			file: `dist/${pkg.name}.esm.min.js`,
-			format: 'esm',
-			indent: false,
-			globals: {
-				'chart.js': 'Chart'
-			}
-		},
-		plugins: [
-			terser({
-				output: {
-					preamble: banner
-				}
-			})
-		],
-		external: [
-			'chart.js'
-		]
-	}
 ];

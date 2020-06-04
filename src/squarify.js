@@ -1,6 +1,6 @@
 import {sum, index, sort, flatten} from './utils';
 import Rect from './rect';
-import statArray from './statArray';
+import StatArray from './statArray';
 
 function compareAspectRatio(oldStat, newStat, args) {
 	if (oldStat.sum === 0) {
@@ -29,7 +29,7 @@ export default function squarify(values, rectangle, key, grp, lvl, gsum) {
 	values = values || [];
 	const rows = [];
 	const rect = new Rect(rectangle);
-	const row = new statArray('value', rect.area / sum(values, key));
+	const row = new StatArray('value', rect.area / sum(values, key));
 	let length = rect.side;
 	const n = values.length;
 	let i, o;

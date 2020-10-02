@@ -1,11 +1,10 @@
-import Chart from 'chart.js';
-import controller from './controller';
-import defaults from './defaults';
+import {Chart} from 'chart.js';
+import TreemapController from './controller';
+import TreemapElement from './element';
 
-Chart.controllers.treemap = controller;
-Chart.defaults.treemap = defaults;
+Chart.register(TreemapController, TreemapElement);
 
-const tooltipPlugin = Chart.plugins.getAll().find(p => p.id === 'tooltip');
+const tooltipPlugin = Chart.registry.plugins.get('tooltip');
 tooltipPlugin.positioners.treemap = function(active) {
 	if (!active.length) {
 		return false;

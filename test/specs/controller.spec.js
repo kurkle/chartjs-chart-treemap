@@ -1,5 +1,3 @@
-import Chart from 'chart.js';
-
 describe('auto', jasmine.fixture('basic'));
 describe('auto', jasmine.fixture('grouped'));
 describe('auto', jasmine.fixture('events'));

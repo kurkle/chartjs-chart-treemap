@@ -3,7 +3,7 @@
 
 <head>
 	<title>US population by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-alpha"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -50,10 +50,12 @@
 						spacing: 2,
 						borderWidth: 0.5,
 						borderColor: 'rgba(160,160,160,0.5)',
-						fontColor: '#FFF',
-						fontFamily: 'Tahoma',
-						fontSize: 8,
-						fontStyle: 'bold'
+						font: {
+							color: '#FFF',
+							family: 'Tahoma',
+							size: 8,
+							style: 'bold'
+						}
 					}]
 				},
 				options: {
@@ -67,15 +69,10 @@
 					},
 					tooltips: {
 						callbacks: {
-							title(item, data) {
-								return data.datasets[item[0].datasetIndex].key;
-							},
-							label(item, data) {
-								const dataset = data.datasets[item.datasetIndex];
-								const dataItem = dataset.data[item.index];
-								const obj = dataItem._data;
-								const label = obj.code || obj.division || obj.region;
-								return label + ': ' + dataItem.v;
+							label(item) {
+								const dataset = item.dataset;
+								const dataItem = dataset.data[item.dataIndex];
+								return dataItem.g + ': ' + dataItem.v;
 							}
 						}
 					}

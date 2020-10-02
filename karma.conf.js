@@ -67,17 +67,18 @@ module.exports = function(karma) {
 				resolve({dedupe: ['chart.js']}),
 				commonjs()
 			],
-			external: [
-				'chart.js'
-			],
 			output: {
 				name: 'test',
 				format: 'umd',
 				globals: {
-					'chart.js': 'Chart'
+					'chart.js': 'Chart',
+					'chart.js/helpers': 'Chart.helpers'
 				},
 				sourcemap: false
-			}
+			},
+			external: [
+				'chart.js'
+			],
 		},
 
 		customPreprocessors: {
@@ -87,6 +88,10 @@ module.exports = function(karma) {
 					output: {
 						format: 'iife',
 						name: 'fixture',
+						globals: {
+							'chart.js': 'Chart',
+							'chart.js/helpers': 'Chart.helpers'
+						},
 					}
 				}
 			},

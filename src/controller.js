@@ -1,16 +1,9 @@
 'use strict';
 
-import Chart from 'chart.js';
+import {DatasetController} from 'chart.js';
+import {toFont} from 'chart.js/helpers';
 import {group} from './utils';
 import squarify from './squarify';
-import Rectangle from './rectangle';
-
-const defaults = Chart.defaults;
-const helpers = Chart.helpers;
-const optionHelpers = helpers.options;
-const parseFont = optionHelpers._parseFont;
-const resolve = optionHelpers.resolve;
-const valueOrDefault = helpers.valueOrDefault;
 
 function rectNotEqual(r1, r2) {
 	return !r1 || !r2
@@ -47,7 +40,7 @@ function shouldDrawCaption(rect, font) {
 
 function drawCaption(ctx, rect, item, opts, levels) {
 	ctx.save();
-	ctx.fillStyle = opts.fontColor;
+	ctx.fillStyle = opts.font.color;
 	ctx.font = opts.font.string;
 	ctx.beginPath();
 	ctx.rect(rect.x, rect.y, rect.width, rect.height);
@@ -72,7 +65,7 @@ function drawDivider(ctx, rect) {
 	ctx.save();
 	ctx.strokeStyle = opts.dividerColor || 'black';
 	ctx.lineCap = opts.dividerCapStyle;
-	ctx.setLineDash(opts.dividerDash);
+	ctx.setLineDash(opts.dividerDash || []);
 	ctx.lineDashOffset = opts.dividerDashOffset;
 	ctx.lineWidth = opts.dividerWidth;
 	ctx.beginPath();
@@ -126,17 +119,6 @@ function buildData(dataset, mainRect, font) {
 		: squarify(tree, mainRect, key);
 }
 
-function parseFontOptions(options) {
-	return Object.assign(parseFont({
-		fontFamily: valueOrDefault(options.fontFamily, defaults.fontFamily),
-		fontSize: valueOrDefault(options.fontSize, defaults.fontSize),
-		fontStyle: valueOrDefault(options.fontStyle, defaults.fontStyle),
-		lineHeight: valueOrDefault(options.lineHeight, defaults.lineHeight)
-	}), {
-		color: resolve([options.fontColor, defaults.fontColor])
-	});
-}
-
 function drawLabels(ctx, item, rect) {
 	const opts = rect.options;
 	const lh = opts.font.lineHeight;
@@ -145,14 +127,18 @@ function drawLabels(ctx, item, rect) {
 	labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
 }
 
-export default class TreemapController extends Chart.DatasetController {
+export default class TreemapController extends DatasetController {
+	initialize() {
+		this.enableOptionSharing = true;
+		super.initialize();
+	}
 
 	update(mode) {
 		const me = this;
 		const meta = me.getMeta();
 		const dataset = me.getDataset();
 		const groups = dataset.groups || (dataset.groups = []);
-		const font = parseFontOptions(dataset);
+		const font = toFont(dataset.font, me.chart.options.font);
 		const area = me.chart.chartArea;
 		const key = dataset.key || '';
 
@@ -167,10 +153,10 @@ export default class TreemapController extends Chart.DatasetController {
 			me._resyncElements();
 		}
 
-		me.updateElements(meta.data, 0, mode);
+		me.updateElements(meta.data, 0, meta.data.length, mode);
 	}
 
-	_updateOptionsWidthDefaults(options) {
+	_updateOptionsWithDefaults(options) {
 		const me = this;
 		const dataset = me.getDataset();
 		const treemapDefaults = me.chart.options.treemap.datasets;
@@ -179,21 +165,21 @@ export default class TreemapController extends Chart.DatasetController {
 		options.dividerDash = dataset.dividerDash || treemapDefaults.dividerDash;
 		options.dividerDashOffset = dataset.dividerDashOffset || treemapDefaults.dividerDashOffset;
 		options.dividerWidth = dataset.dividerWidth || treemapDefaults.dividerWidth;
-		options.font = parseFont(options);
+		options.font = toFont(options.font, me.chart.options.font);
 	}
 
-	updateElements(rects, start, mode) {
+	updateElements(rects, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const dataset = me.getDataset();
 		const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
-		const sharedOptions = me.getSharedOptions(mode, rects[start], firstOpts);
-		me._updateOptionsWidthDefaults(firstOpts);
+		const sharedOptions = me.getSharedOptions(firstOpts);
+		const includeOptions = me.includeOptions(mode, sharedOptions);
+		// me._updateOptionsWithDefaults(firstOpts);
 
-		for (let i = 0; i < rects.length; i++) {
-			const index = start + i;
-			const sq = dataset.data[index];
-			const options = me.resolveDataElementOptions(i, mode);
+		for (let i = start; i < start + count; i++) {
+			const sq = dataset.data[i];
+			const options = sharedOptions || me.resolveDataElementOptions(i, mode);
 			const height = reset ? 0 : sq.h - options.spacing * 2;
 			const width = reset ? 0 : sq.w - options.spacing * 2;
 			const x = sq.x + options.spacing;
@@ -202,14 +188,17 @@ export default class TreemapController extends Chart.DatasetController {
 				x,
 				y,
 				width,
-				height,
-				options
+				height
 			};
-			me._updateOptionsWidthDefaults(options);
-			me.updateElement(rects[i], index, properties, mode);
+
+			if (includeOptions) {
+				properties.options = options;
+			}
+			// me._updateOptionsWithDefaults(options);
+			me.updateElement(rects[i], i, properties, mode);
 		}
 
-		me.updateSharedOptions(sharedOptions, mode);
+		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
 
 	_drawDividers(ctx, data, metadata) {
@@ -252,19 +241,63 @@ export default class TreemapController extends Chart.DatasetController {
 	}
 }
 
-TreemapController.prototype.dataElementType = Rectangle;
+TreemapController.id = 'treemap';
 
-TreemapController.prototype.dataElementOptions = [
-	'backgroundColor',
-	'borderColor',
-	'borderSkipped',
-	'borderWidth',
-	'fontColor',
-	'fontFamily',
-	'fontSize',
-	'fontStyle',
-	'groupLabels',
-	'groupDividers',
-	'spacing',
-	'label'
-];
+TreemapController.defaults = {
+	dataElementType: 'treemap',
+	dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderSkipped',
+		'borderWidth',
+		'dividerColor',
+		'dividerDash',
+		'dividerDashOffset',
+		'dividerWidth',
+		'font',
+		'groupLabels',
+		'groupDividers',
+		'spacing',
+		'label'
+	],
+	hover: {
+		mode: 'point',
+		intersect: true
+	},
+	tooltips: {
+		mode: 'point',
+		position: 'treemap',
+		intersect: true,
+		callbacks: {
+			title(items) {
+				if (items.length) {
+					const item = items[0];
+					return item.dataset.key || '';
+				}
+				return '';
+			},
+			label(item) {
+				const dataset = item.dataset;
+				const dataItem = dataset.data[item.dataIndex];
+				return dataset.label + ': ' + dataItem.v;
+			}
+		}
+	},
+	datasets: {
+		groupLabels: true,
+		borderWidth: 0,
+		spacing: 0.5,
+		groupDividers: false,
+		dividerWidth: 1
+	},
+	scales: {
+		x: {
+			type: 'linear',
+			display: false
+		},
+		y: {
+			type: 'linear',
+			display: false
+		}
+	},
+};

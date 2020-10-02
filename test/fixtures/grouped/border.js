@@ -14,7 +14,9 @@ export default {
 				tree: data,
 				key: 'value',
 				groups: ['category'],
-				fontColor: 'transparent',
+				font: {
+					color: 'transparent',
+				},
 				borderWidth: {top: 10, left: 5, right: 15, bottom: 20}
 			}]
 		},

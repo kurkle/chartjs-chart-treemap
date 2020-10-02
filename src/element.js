@@ -1,9 +1,9 @@
-import Chart from 'chart.js';
+import {Element} from 'chart.js';
 import {isObject} from './utils';
 
 /**
  * Helper function to get the bounds of the rect
- * @param {Rectangle} rect the rect
+ * @param {TreemapElement} rect the rect
  * @param {boolean} [useFinalPosition]
  * @return {object} bounds of the rect
  * @private
@@ -69,7 +69,7 @@ function inRange(rect, x, y, useFinalPosition) {
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
-export default class Rectangle extends Chart.Element {
+export default class TreemapElement extends Element {
 
 	constructor(cfg) {
 		super();
@@ -135,4 +135,18 @@ export default class Rectangle extends Chart.Element {
 	}
 }
 
-Rectangle._type = 'rectangle';
+TreemapElement.id = 'treemap';
+
+TreemapElement.defaults = {
+	dividerCapStyle: 'butt',
+	dividerColor: 'black',
+	dividerDash: undefined,
+	dividerDashOffset: 0,
+	dividerWidth: 0,
+	groupDividers: false,
+};
+
+TreemapElement.defaultRoutes = {
+	backgroundColor: 'color',
+	borderColor: 'color'
+};

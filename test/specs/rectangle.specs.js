@@ -1,4 +1,4 @@
-import {parseBorderWidth} from '../../src/rectangle';
+import {parseBorderWidth} from '../../src/element';
 
 describe('Rectangle', function() {
 	describe('parseBorderWidth', function() {

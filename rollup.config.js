@@ -1,5 +1,6 @@
 /* eslint-disable import/no-commonjs */
 
+const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const terser = require('rollup-plugin-terser').terser;
 const pkg = require('./package.json');
 
@@ -19,11 +20,16 @@ module.exports = [
 			format: 'umd',
 			indent: false,
 			globals: {
-				'chart.js': 'Chart'
+				'chart.js': 'Chart',
+				'chart.js/helpers': 'Chart.helpers'
 			},
 		},
+		plugins: [
+			resolve()
+		],
 		external: [
-			'chart.js'
+			'chart.js',
+			'chart.js/helpers'
 		]
 	},
 	{
@@ -33,10 +39,12 @@ module.exports = [
 			format: 'umd',
 			indent: false,
 			globals: {
-				'chart.js': 'Chart'
+				'chart.js': 'Chart',
+				'chart.js/helpers': 'Chart.helpers'
 			},
 		},
 		plugins: [
+			resolve(),
 			terser({
 				output: {
 					preamble: banner
@@ -44,7 +52,8 @@ module.exports = [
 			}),
 		],
 		external: [
-			'chart.js'
+			'chart.js',
+			'chart.js/helpers'
 		]
 	},
 	{
@@ -55,11 +64,8 @@ module.exports = [
 			format: 'esm',
 			indent: false,
 			globals: {
-				'chart.js': 'Chart'
 			}
 		},
-		external: [
-			'chart.js'
-		]
+		external: (e) => e.startsWith('chart.js')
 	},
 ];

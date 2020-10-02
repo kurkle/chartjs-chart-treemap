@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>Basic treemap sample</title>
+	<title>Basic treemap sample with dividers</title>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -17,35 +17,26 @@
 
 	<script>
 		/* global Utils, Chart */
-		function colorFromValue(value, border) {
-			let alpha = (1 + Math.log(value)) / 5;
-			const color = 'purple';
-			if (border) {
-				alpha += 0.01;
-			}
-			return Chart.helpers.color(color)
-				.alpha(alpha)
-				.rgbString();
-		}
-
 		Utils.load(() => {
 			const ctx2d = document.getElementById('chart-area').getContext('2d');
 			window.myTreeMap = new Chart(ctx2d, {
 				type: 'treemap',
 				data: {
 					datasets: [{
-						label: 'Basic treemap',
-						tree: [15, 6, 6, 5, 4, 3, 2, 2],
-						backgroundColor(ctx) {
-							const item = ctx.dataset.data[ctx.dataIndex];
-							if (!item) {
-								return;
-							}
-							return colorFromValue(item.v);
-						},
+						label: 'Dividers',
+						tree: [
+							{category: 'main', value: 1},
+							{category: 'main', value: 2},
+							{category: 'other', value: 4},
+						],
+						key: 'value',
+						groups: ['category'],
 						spacing: 0.1,
 						borderWidth: 2,
-						borderColor: 'rgba(180,180,180, 0.15)'
+						borderColor: 'rgba(180,180,180, 0.15)',
+						dividerWidth: 2,
+						dividerDash: [[2, 3]],
+						groupDividers: true
 					}]
 				},
 				options: {

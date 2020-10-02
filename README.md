@@ -29,10 +29,12 @@ new Chart(ctx, {
         datasets: [{
             label: 'Basic treemap',
             tree: [6,6,5,4,3,2,2,1],
-            fontColor: '#000',
-            fontFamily: 'serif',
-            fontSize: 12,
-            fontStyle: 'normal',
+            font: {
+                color: '#000',
+                family: 'serif',
+                size: 12,
+                style: 'normal',
+            },
             backgroundColor: function(ctx) {
                 var value = ctx.dataset.data[ctx.dataIndex];
                 var alpha = (value + 3) / 10;

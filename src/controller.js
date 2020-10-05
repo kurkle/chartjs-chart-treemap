@@ -1,5 +1,3 @@
-'use strict';
-
 import {DatasetController} from 'chart.js';
 import {toFont} from 'chart.js/helpers';
 import {group} from './utils';
@@ -156,16 +154,11 @@ export default class TreemapController extends DatasetController {
 		me.updateElements(meta.data, 0, meta.data.length, mode);
 	}
 
-	_updateOptionsWithDefaults(options) {
-		const me = this;
-		const dataset = me.getDataset();
-		const treemapDefaults = me.chart.options.treemap.datasets;
-
-		options.dividerColor = dataset.dividerColor || treemapDefaults.dividerColor;
-		options.dividerDash = dataset.dividerDash || treemapDefaults.dividerDash;
-		options.dividerDashOffset = dataset.dividerDashOffset || treemapDefaults.dividerDashOffset;
-		options.dividerWidth = dataset.dividerWidth || treemapDefaults.dividerWidth;
-		options.font = toFont(options.font, me.chart.options.font);
+	resolveDataElementOptions(index, mode) {
+		const options = super.resolveDataElementOptions(index, mode);
+		const result = Object.isFrozen(options) ? Object.assign({}, options) : options;
+		result.font = toFont(options.font, this.chart.options.font);
+		return result;
 	}
 
 	updateElements(rects, start, count, mode) {
@@ -175,7 +168,6 @@ export default class TreemapController extends DatasetController {
 		const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
 		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
-		// me._updateOptionsWithDefaults(firstOpts);
 
 		for (let i = start; i < start + count; i++) {
 			const sq = dataset.data[i];
@@ -194,7 +186,6 @@ export default class TreemapController extends DatasetController {
 			if (includeOptions) {
 				properties.options = options;
 			}
-			// me._updateOptionsWithDefaults(options);
 			me.updateElement(rects[i], i, properties, mode);
 		}
 

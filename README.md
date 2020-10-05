@@ -1,6 +1,6 @@
 # chartjs-chart-treemap
 
-[Chart.js](https://www.chartjs.org/) module for creating treemap charts. **Note:** Chart.js v3.0.0-alpha is supported by **@next** version.
+[Chart.js](https://www.chartjs.org/) module for creating treemap charts. Implementation for Chart.js v3 is in [next branch](https://github.com/kurkle/chartjs-chart-treemap/tree/next)
 
 ![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg) [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest) [![travis](https://img.shields.io/travis/kurkle/chartjs-chart-treemap.svg?style=flat-square&maxAge=60)](https://travis-ci.org/kurkle/chartjs-chart-treemap) ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg) ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
 
@@ -43,7 +43,10 @@ new Chart(ctx, {
 });
 ```
 
-**Note** When other charts are using [chartjs-plugin-datalabels](https://chartjs-plugin-datalabels.netlify.app/) on the same page, you'll need to disable the plugin for treemap charts:
+### Note about chartjs-plugin-datalabels
+
+Treemap is not using any scales currently and thats why [chartjs-plugin-datalabels](https://chartjs-plugin-datalabels.netlify.app/) plugin does not work with it.
+When other charts are using datalables on the same page, you'll need to disable the plugin for treemap charts:
 
 ```js
 new Chart(ctx, {

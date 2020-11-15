@@ -1,6 +1,6 @@
 {
   "name": "chartjs-chart-treemap",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "Chart.js module for creating treemap charts",
   "main": "dist/chartjs-chart-treemap.js",
   "module": "dist/chartjs-chart-treemap.esm.js",

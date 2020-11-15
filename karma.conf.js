@@ -59,7 +59,7 @@ module.exports = function(karma) {
 			'test/fixtures/**/*.js': ['fixtures'],
 			'test/specs/**/*.js': ['rollup'],
 			'test/index.js': ['rollup'],
-			'src/index.js': ['sources', 'karma-coverage-istanbul-instrumenter']
+			'src/index.js': args.coverage ? ['sources', 'karma-coverage-istanbul-instrumenter'] : ['sources']
 		},
 
 		rollupPreprocessor: {

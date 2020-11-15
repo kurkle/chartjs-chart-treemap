@@ -22,6 +22,8 @@
 		<label for="division">Division</label>
 		<input type="checkbox" id="state" value="state" name="state">
 		<label for="state">State</label>
+		<input type="checkbox" id="rtl" value="rtl" name="rtl">
+		<label for="rtl">RTL</label>
 	</div>
 	<div id="canvas-holder">
 		<canvas id="chart-area" width="800" height="400"></canvas>
@@ -78,9 +80,15 @@
 
 			function updateGroups() {
 				const groups = tm.data.datasets[0].groups = [];
+				let rtl = false;
 				document.querySelectorAll('input:checked').forEach((cb) => {
-					groups.push(cb.value);
+					if (cb.value === 'rtl') {
+						rtl = true;
+					} else {
+						groups.push(cb.value);
+					}
 				});
+				tm.data.datasets[0].rtl = rtl;
 				tm.update();
 			}
 			document.querySelectorAll('input[type="checkbox"]').forEach((cb) => {

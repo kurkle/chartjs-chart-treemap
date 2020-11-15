@@ -1,5 +1,5 @@
 import {DatasetController} from 'chart.js';
-import {toFont} from 'chart.js/helpers';
+import {toFont, valueOrDefault} from 'chart.js/helpers';
 import {group} from './utils';
 import squarify from './squarify';
 
@@ -48,9 +48,10 @@ function drawCaption(ctx, rect, item, opts, levels) {
 		ctx.textBaseline = 'middle';
 		drawLabels(ctx, item, rect);
 	} else if (opts.groupLabels) {
-		ctx.textAlign = 'start';
+		ctx.textAlign = opts.rtl ? 'end' : 'start';
 		ctx.textBaseline = 'top';
-		ctx.fillText(item.g, rect.x + opts.borderWidth + 3, rect.y + opts.borderWidth + 3);
+		const x = opts.rtl ? rect.x + rect.width - opts.borderWidth - 3 : rect.x + opts.borderWidth + 3;
+		ctx.fillText(item.g, x, rect.y + opts.borderWidth + 3);
 	}
 	ctx.restore();
 }
@@ -98,7 +99,7 @@ function buildData(dataset, mainRect, font) {
 			gsq.forEach((sq) => {
 				subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
 
-				if (dataset.groupLabels && shouldDrawCaption(sq, font)) {
+				if (valueOrDefault(dataset.groupLabels, true) && shouldDrawCaption(sq, font)) {
 					subRect.y += font.lineHeight;
 					subRect.h -= font.lineHeight;
 				}
@@ -250,7 +251,8 @@ TreemapController.defaults = {
 		'groupLabels',
 		'groupDividers',
 		'spacing',
-		'label'
+		'label',
+		'rtl'
 	],
 	hover: {
 		mode: 'point',

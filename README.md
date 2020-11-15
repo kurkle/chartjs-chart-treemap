@@ -39,7 +39,8 @@ new Chart(ctx, {
                 var value = ctx.dataset.data[ctx.dataIndex];
                 var alpha = (value + 3) / 10;
                 return Color('blue').alpha(alpha).rgbString();
-            }
+            },
+            rtl: false // control in which direction the squares are positioned
         }]
     },
 });

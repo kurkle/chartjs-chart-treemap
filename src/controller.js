@@ -139,8 +139,9 @@ export default class TreemapController extends DatasetController {
 		const font = toFont(dataset.font, me.chart.options.font);
 		const area = me.chart.chartArea;
 		const key = dataset.key || '';
+		const rtl = !!dataset.rtl;
 
-		const mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top};
+		const mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top, rtl};
 
 		if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
 			me._rect = mainRect;

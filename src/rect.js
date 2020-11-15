@@ -1,5 +1,5 @@
 function round(v, n) {
-	return +(Math.round(v + 'e+' + n) + 'e-' + n);
+	return (+(Math.round(v + 'e+' + n) + 'e-' + n)) || 0;
 }
 
 function getDims(itm, w2, s2, key) {
@@ -13,9 +13,11 @@ function getDims(itm, w2, s2, key) {
 	return {d1, d2, w, h};
 }
 
+const getX = (rect, w) => round(rect.rtl ? rect.x + rect.w - rect._ix - w : rect.x + rect._ix, 4);
+
 function buildRow(rect, itm, dims, sum) {
 	const r = {
-		x: round(rect.x + rect._ix, 4),
+		x: getX(rect, dims.w),
 		y: round(rect.y + rect._iy, 4),
 		w: round(dims.w, 4),
 		h: round(dims.h, 4),
@@ -31,10 +33,12 @@ function buildRow(rect, itm, dims, sum) {
 	}
 	return r;
 }
+
 export default class Rect {
 	constructor(r) {
 		const me = this;
 		r = r || {w: 1, h: 1};
+		me.rtl = !!r.rtl;
 		me.x = r.x || r.left || 0;
 		me.y = r.y || r.top || 0;
 		me._ix = 0;
@@ -69,7 +73,6 @@ export default class Rect {
 		const ret = [];
 		const sum = arr.nsum;
 		const row = arr.get();
-		const n = row.length;
 		const dir = me.dir;
 		const side = me.side;
 		const w2 = side * side;
@@ -77,14 +80,10 @@ export default class Rect {
 		const s2 = sum * sum;
 		let maxd2 = 0;
 		let totd1 = 0;
-		let i, itm, dims;
-		for (i = 0; i < n; ++i) {
-			itm = row[i];
-			dims = getDims(itm, w2, s2, key);
+		for (const itm of row) {
+			const dims = getDims(itm, w2, s2, key);
 			totd1 += dims.d1;
-			if (dims.d2 > maxd2) {
-				maxd2 = dims.d2;
-			}
+			maxd2 = Math.max(maxd2, dims.d2);
 			ret.push(buildRow(me, itm, dims, arr.sum));
 			me[key] += dims.d1;
 		}

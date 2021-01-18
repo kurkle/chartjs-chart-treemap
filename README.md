@@ -2,7 +2,11 @@
 
 [Chart.js](https://www.chartjs.org/) **v3.0.0-beta.3** module for creating treemap charts. Implementation for Chart.js v2 is in [2.x branch](https://github.com/kurkle/chartjs-chart-treemap/tree/2.x)
 
-![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg) [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest) [![travis](https://img.shields.io/travis/kurkle/chartjs-chart-treemap.svg?style=flat-square&maxAge=60)](https://travis-ci.org/kurkle/chartjs-chart-treemap) ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg) ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
+[![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg)](https://www.npmjs.com/package/chartjs-chart-treemap)
+[![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest) 
+[![travis](https://img.shields.io/travis/kurkle/chartjs-chart-treemap.svg?style=flat-square&maxAge=60)](https://travis-ci.org/kurkle/chartjs-chart-treemap) 
+![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg) 
+![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
 
 ## Documentation
 

@@ -1,8 +1,10 @@
 'use strict';
 
 (function(Utils) {
+	const chartjsUrl = 'https://cdn.jsdelivr.net/npm/chart.js@next/dist/chart.js';
+	const dateFnsUrl = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@next/dist/chartjs-adapter-date-fns.bundle.js';
 	const localUrl = '../dist/chartjs-chart-treemap.js';
-	const remoteUrl = 'https://cdn.jsdelivr.net/npm/chartjs-chart-treemap/dist/chartjs-chart-treemap.js';
+	const remoteUrl = 'https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@next/dist/chartjs-chart-treemap.js';
 
 	function addScript(url, done, error) {
 		const head = document.getElementsByTagName('head')[0];
@@ -27,10 +29,14 @@
 	}
 
 	Utils.load = function(done) {
-		addScript(localUrl, done, (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			addScript(remoteUrl, done, loadError);
-		});
+		addScript(chartjsUrl, () => {
+			addScript(dateFnsUrl, () => {
+				addScript(localUrl, done, (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					addScript(remoteUrl, done, loadError);
+				});
+			}, loadError);
+		}, loadError);
 	};
 }(window.Utils = window.Utils || {}));

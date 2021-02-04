@@ -3,7 +3,6 @@
 
 <head>
 	<title>US population, area or population/area by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -30,7 +29,6 @@
 	</div>
 
 	<script>
-		/* global Utils, Chart, statsByState */
 		Utils.load(() => {
 			const ctx = document.getElementById('chart-area').getContext('2d');
 			const tm = window.chart = new Chart(ctx, {
@@ -48,24 +46,26 @@
 				},
 				options: {
 					maintainAspectRatio: false,
-					title: {
-						display: true,
-						text: 'US stats by state'
-					},
-					legend: {
-						display: false
-					},
-					tooltips: {
-						callbacks: {
-							title(item, data) {
-								return data.datasets[item[0].datasetIndex].key;
-							},
-							label(item, data) {
-								const dataset = data.datasets[item.datasetIndex];
-								const dataItem = dataset.data[item.index];
-								const obj = dataItem._data;
-								const label = obj.state || obj.division || obj.region;
-								return label + ': ' + dataItem.v;
+					plugins: {
+						title: {
+							display: true,
+							text: 'US stats by state'
+						},
+						legend: {
+							display: false
+						},
+						tooltips: {
+							callbacks: {
+								title(item, data) {
+									return data.datasets[item[0].datasetIndex].key;
+								},
+								label(item, data) {
+									const dataset = data.datasets[item.datasetIndex];
+									const dataItem = dataset.data[item.index];
+									const obj = dataItem._data;
+									const label = obj.state || obj.division || obj.region;
+									return label + ': ' + dataItem.v;
+								}
 							}
 						}
 					}

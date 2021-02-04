@@ -1,112 +1,114 @@
-/* eslint-disable import/no-nodejs-modules, import/no-commonjs */
-const commonjs = require('@rollup/plugin-commonjs');
+const istanbul = require('rollup-plugin-istanbul');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const builds = require('./rollup.config');
-const parseArgs = require('minimist');
-const path = require('path');
+const env = process.env.NODE_ENV;
 
 module.exports = function(karma) {
-	const args = parseArgs(process.argv.slice(3));
-	const build = builds[0];
-	build.output.sourcemap = 'inline';
+  const build = builds[0];
 
-	karma.set({
-		frameworks: ['jasmine'],
-		reporters: ['progress', 'summary', 'kjhtml'],
-		browsers: (args.browsers || 'chrome,firefox').split(','),
-		logLevel: karma.autoWatch ? karma.LOG_INFO : karma.LOG_WARN,
+  if (env === 'test') {
+    build.plugins = [
+      resolve(),
+      istanbul({exclude: ['node_modules/**/*.js', 'package.json']})
+    ];
+  }
 
-		summaryReporter: {
-			show: 'failed',
-			specLength: 50,
-			overviewColumn: false
-		},
+  karma.set({
+    browsers: ['chrome', 'firefox'],
+    frameworks: ['jasmine'],
+    reporters: ['progress', 'summary', 'kjhtml'],
+    logLevel: karma.autoWatch ? karma.LOG_INFO : karma.LOG_WARN,
 
-		client: {
-			jasmine: {
-				failFast: !!karma.autoWatch
-			}
-		},
+    summaryReporter: {
+      show: 'failed',
+      specLength: 50,
+      overviewColumn: false
+    },
 
-		// Explicitly disable hardware acceleration to make image
-		// diff more stable when ran on Travis and dev machine.
-		// https://github.com/chartjs/Chart.js/pull/5629
-		customLaunchers: {
-			chrome: {
-				base: 'Chrome',
-				flags: [
-					'--disable-accelerated-2d-canvas'
-				]
-			},
-			firefox: {
-				base: 'Firefox',
-				prefs: {
-					'layers.acceleration.disabled': true
-				}
-			}
-		},
+    client: {
+      jasmine: {
+        failFast: !!karma.autoWatch
+      }
+    },
 
-		files: [
-			{pattern: './test/fixtures/**/*.js', included: false},
-			{pattern: './test/fixtures/**/*.png', included: false},
-			'node_modules/chart.js/dist/chart.js',
-			{pattern: 'test/index.js', watched: false},
-			{pattern: 'src/index.js', watched: false},
-			{pattern: 'test/specs/**/*.js', watched: false}
-		],
+    // Explicitly disable hardware acceleration to make image
+    // diff more stable when ran on Travis and dev machine.
+    // https://github.com/chartjs/Chart.js/pull/5629
+    customLaunchers: {
+      chrome: {
+        base: 'Chrome',
+        flags: [
+          '--disable-accelerated-2d-canvas',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
+        ]
+      },
+      firefox: {
+        base: 'Firefox',
+        prefs: {
+          'layers.acceleration.disabled': true
+        }
+      }
+    },
 
-		preprocessors: {
-			'test/fixtures/**/*.js': ['fixtures'],
-			'test/specs/**/*.js': ['rollup'],
-			'test/index.js': ['rollup'],
-			'src/index.js': args.coverage ? ['sources', 'karma-coverage-istanbul-instrumenter'] : ['sources']
-		},
+    files: [
+      {pattern: './test/fixtures/**/*.js', included: false},
+      {pattern: './test/fixtures/**/*.png', included: false},
+      'node_modules/chart.js/dist/chart.js',
+      'node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js',
+      {pattern: 'test/index.js', watched: false},
+      {pattern: 'src/index.js', watched: false},
+      {pattern: 'test/specs/**/*.js', watched: false}
+    ],
 
-		rollupPreprocessor: {
-			plugins: [
-				resolve({dedupe: ['chart.js']}),
-				commonjs()
-			],
-			output: {
-				name: 'test',
-				format: 'umd',
-				globals: {
-					'chart.js': 'Chart',
-					'chart.js/helpers': 'Chart.helpers'
-				},
-				sourcemap: false
-			},
-			external: [
-				'chart.js'
-			],
-		},
+    preprocessors: {
+      'test/fixtures/**/*.js': ['fixtures'],
+      'test/specs/**/*.js': ['rollup'],
+      'test/index.js': ['rollup'],
+      'src/index.js': ['sources']
+    },
 
-		customPreprocessors: {
-			fixtures: {
-				base: 'rollup',
-				options: {
-					output: {
-						format: 'iife',
-						name: 'fixture',
-						globals: {
-							'chart.js': 'Chart',
-							'chart.js/helpers': 'Chart.helpers'
-						},
-					}
-				}
-			},
-			sources: {
-				base: 'rollup',
-				options: build
-			}
-		},
-	});
+    rollupPreprocessor: {
+      plugins: [
+        resolve(),
+      ],
+      output: {
+        name: 'test',
+        format: 'umd',
+        sourcemap: karma.autoWatch ? 'inline' : false
+      },
+    },
 
-	if (args.coverage) {
-		karma.reporters.push('coverage-istanbul');
-		karma.coverageIstanbulReporter = {
-			reports: ['html', 'lcovonly'],
-			dir: path.join(__dirname, 'coverage'),
-		};
-	}
+    customPreprocessors: {
+      fixtures: {
+        base: 'rollup',
+        options: {
+          output: {
+            format: 'iife',
+            name: 'fixture',
+            globals: {
+              'chart.js': 'Chart',
+              'chart.js/helpers': 'Chart.helpers'
+            },
+          }
+        }
+      },
+      sources: {
+        base: 'rollup',
+        options: build
+      }
+    },
+  });
+
+  if (env === 'test') {
+    karma.reporters.push('coverage');
+    karma.coverageReporter = {
+      dir: 'coverage/',
+      reporters: [
+        {type: 'html', subdir: 'html'},
+        {type: 'lcovonly', subdir: (browser) => browser.toLowerCase().split(/[ /-]/)[0]}
+      ]
+    };
+  }
 };

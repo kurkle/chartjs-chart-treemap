@@ -3,7 +3,6 @@
 
 <head>
 	<title>Basic treemap sample with dividers</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	</link>
@@ -16,7 +15,6 @@
 
 
 	<script>
-		/* global Utils, Chart */
 		Utils.load(() => {
 			const ctx2d = document.getElementById('chart-area').getContext('2d');
 			window.myTreeMap = new Chart(ctx2d, {
@@ -36,17 +34,20 @@
 						borderColor: 'rgba(180,180,180, 0.15)',
 						dividerWidth: 2,
 						dividerDash: [[2, 3]],
-						groupDividers: true
+						groupDividers: true,
+						color: 'transparent'
 					}]
 				},
 				options: {
 					maintainAspectRatio: false,
-					title: {
-						display: true,
-						text: 'Basic treemap example'
-					},
-					legend: {
-						display: false
+					plugins: {
+						title: {
+							display: true,
+							text: 'Basic treemap example'
+						},
+						legend: {
+							display: false
+						}
 					}
 				}
 			});

@@ -3,7 +3,6 @@
 
 <head>
 	<title>Basic treemap sample</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	</link>
@@ -16,7 +15,6 @@
 
 
 	<script>
-		/* global Utils, Chart */
 		function colorFromValue(value, border) {
 			let alpha = (1 + Math.log(value)) / 5;
 			const color = 'purple';
@@ -50,12 +48,14 @@
 				},
 				options: {
 					maintainAspectRatio: false,
-					title: {
-						display: true,
-						text: 'Basic treemap example'
-					},
-					legend: {
-						display: false
+					plugins: {
+						title: {
+							display: true,
+							text: 'Basic treemap example'
+						},
+						legend: {
+							display: false
+						}
 					}
 				}
 			});

@@ -3,7 +3,6 @@
 
 <head>
 	<title>US population by state</title>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0-beta.3"></script>
 	<script src="utils.js"></script>
 	<script src="us_stats_by_state.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -16,7 +15,6 @@
 	</div>
 
 	<script>
-		/* global Utils, Chart, statsByState */
 		Utils.load(() => {
 			const ctx2d = document.getElementById('chart-area').getContext('2d');
 			window.myTreeMap = new Chart(ctx2d, {
@@ -50,8 +48,14 @@
 						spacing: 2,
 						borderWidth: 0.5,
 						borderColor: 'rgba(160,160,160,0.5)',
+						color: '#FFF',
+						hoverColor: '#F0B90B',
 						font: {
-							color: '#FFF',
+							family: 'Tahoma',
+							size: 8,
+							style: 'bold'
+						},
+						hoverFont: {
 							family: 'Tahoma',
 							size: 8,
 							style: 'bold'
@@ -60,19 +64,21 @@
 				},
 				options: {
 					maintainAspectRatio: false,
-					title: {
-						display: true,
-						text: 'US Population by region/division/state'
-					},
-					legend: {
-						display: false
-					},
-					tooltips: {
-						callbacks: {
-							label(item) {
-								const dataset = item.dataset;
-								const dataItem = dataset.data[item.dataIndex];
-								return dataItem.g + ': ' + dataItem.v;
+					plugins: {
+						title: {
+							display: true,
+							text: 'US Population by region/division/state'
+						},
+						legend: {
+							display: false
+						},
+						tooltip: {
+							callbacks: {
+								label(item) {
+									const dataset = item.dataset;
+									const dataItem = dataset.data[item.dataIndex];
+									return dataItem.g + ': ' + dataItem.v;
+								}
 							}
 						}
 					}

@@ -1,6 +1,4 @@
-/* eslint-disable import/no-commonjs */
-
-const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
+const resolve = require('@rollup/plugin-node-resolve').default;
 const terser = require('rollup-plugin-terser').terser;
 const pkg = require('./package.json');
 
@@ -11,61 +9,60 @@ const banner = `/*!
  * Released under the ${pkg.license} license
  */`;
 
+const input = 'src/index.js';
+const inputESM = 'src/index.esm.js';
+const external = [
+  'chart.js',
+  'chart.js/helpers'
+];
+const globals = {
+  'chart.js': 'Chart',
+  'chart.js/helpers': 'Chart.helpers'
+};
+
 module.exports = [
-	{
-		input: 'src/index.js',
-		output: {
-			file: `dist/${pkg.name}.js`,
-			banner,
-			format: 'umd',
-			indent: false,
-			globals: {
-				'chart.js': 'Chart',
-				'chart.js/helpers': 'Chart.helpers'
-			},
-		},
-		plugins: [
-			resolve()
-		],
-		external: [
-			'chart.js',
-			'chart.js/helpers'
-		]
-	},
-	{
-		input: 'src/index.js',
-		output: {
-			file: `dist/${pkg.name}.min.js`,
-			format: 'umd',
-			indent: false,
-			globals: {
-				'chart.js': 'Chart',
-				'chart.js/helpers': 'Chart.helpers'
-			},
-		},
-		plugins: [
-			resolve(),
-			terser({
-				output: {
-					preamble: banner
-				}
-			}),
-		],
-		external: [
-			'chart.js',
-			'chart.js/helpers'
-		]
-	},
-	{
-		input: 'src/index.esm.js',
-		output: {
-			file: `dist/${pkg.name}.esm.js`,
-			banner,
-			format: 'esm',
-			indent: false,
-			globals: {
-			}
-		},
-		external: (e) => e.startsWith('chart.js')
-	},
+  {
+    input,
+    output: {
+      name: pkg.name,
+      file: pkg.main,
+      banner,
+      format: 'umd',
+      indent: false,
+      globals
+    },
+    plugins: [
+      resolve()
+    ],
+    external
+  },
+  {
+    input,
+    output: {
+      name: pkg.name,
+      file: pkg.main.replace('.js', '.min.js'),
+      format: 'umd',
+      indent: false,
+      globals
+    },
+    plugins: [
+      resolve(),
+      terser({
+        output: {
+          preamble: banner
+        }
+      }),
+    ],
+    external
+  },
+  {
+    input: inputESM,
+    output: {
+      file: pkg.module,
+      banner,
+      format: 'esm',
+      indent: false,
+    },
+    external
+  },
 ];

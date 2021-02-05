@@ -6,12 +6,14 @@ Chart.register(TreemapController, TreemapElement);
 
 const tooltipPlugin = Chart.registry.plugins.get('tooltip');
 tooltipPlugin.positioners.treemap = function(active) {
-	if (!active.length) {
-		return false;
-	}
+  if (!active.length) {
+    return false;
+  }
 
-	const item = active[active.length - 1];
-	const el = item.element;
+  const item = active[active.length - 1];
+  const el = item.element;
 
-	return el.tooltipPosition();
+  return el.tooltipPosition();
 };
+
+export * from './utils';

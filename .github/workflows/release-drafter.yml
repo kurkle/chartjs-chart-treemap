@@ -4,29 +4,20 @@ on:
   push:
     branches:
       - next
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number to release'
-        required: true
-        default: '1.0.0'
+      - 2.x
 
 jobs:
-  update_release_draft:
+  correct_repository:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Check prerelease'
-        id: 'check-version'
-        run: |
-          if [[ "${{ github.event.inputs.version }}" =~ ^[^-]+$ ]]; then
-              echo ::set-output name=prerelease::false
-          else
-              echo ::set-output name=prerelease::true
-          fi
-      - name: Draft release
-        uses: release-drafter/release-drafter@v5
-        with:
-          name: "${{ github.event.inputs.version }}"
-          prerelease: ${{ steps.check-version.outputs.prerelease }}
+    - name: fail on fork
+      if: github.repository_owner != 'kurkle'
+      run: exit 1
+
+  update_release_draft:
+    needs: correct_repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

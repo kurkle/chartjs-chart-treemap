@@ -1,4 +1,4 @@
-import {afterEvent, triggerMouseEvent} from 'chartjs-test-utils';
+import {triggerMouseEvent} from 'chartjs-test-utils';
 
 export default {
   config: {
@@ -29,12 +29,9 @@ export default {
       height: 256,
       width: 512
     },
-    run: (chart, done) => {
+    run: (chart) => {
       var elem = chart.getDatasetMeta(0).data[2];
-      afterEvent(chart, 'mousemove', () => {
-        done();
-      });
-      triggerMouseEvent(chart, 'mousemove', elem.tooltipPosition());
+      return triggerMouseEvent(chart, 'mousemove', elem.tooltipPosition());
     }
   }
 };

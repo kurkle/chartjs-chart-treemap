@@ -138,12 +138,20 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
+  borderSkipped: undefined,
+  borderWidth: undefined,
+  color: undefined,
   dividerCapStyle: 'butt',
   dividerColor: 'black',
   dividerDash: undefined,
   dividerDashOffset: 0,
   dividerWidth: 0,
+  font: {},
   groupDividers: false,
+  groupLabels: undefined,
+  spacing: undefined,
+  label: undefined,
+  rtl: undefined
 };
 
 TreemapElement.defaultRoutes = {

@@ -238,27 +238,22 @@ TreemapController.id = 'treemap';
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
-  dataElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderSkipped',
-    'borderWidth',
-    'color',
-    'dividerColor',
-    'dividerDash',
-    'dividerDashOffset',
-    'dividerWidth',
-    'font',
-    'groupLabels',
-    'groupDividers',
-    'spacing',
-    'label',
-    'rtl'
-  ],
+
+  groupLabels: true,
+  borderWidth: 0,
+  spacing: 0.5,
+  groupDividers: false,
+  dividerWidth: 1
+
+};
+TreemapController.overrides = {
   interaction: {
     mode: 'point',
     intersect: true
   },
+
+  hover: {},
+
   plugins: {
     tooltip: {
       position: 'treemap',
@@ -279,13 +274,6 @@ TreemapController.defaults = {
         }
       }
     },
-  },
-  datasets: {
-    groupLabels: true,
-    borderWidth: 0,
-    spacing: 0.5,
-    groupDividers: false,
-    dividerWidth: 1
   },
   scales: {
     x: {

@@ -1,7 +1,8 @@
-import {DatasetController} from 'chart.js';
+import {DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault} from 'chart.js/helpers';
 import {group} from './utils';
 import squarify from './squarify';
+import {version} from '../package.json';
 
 function rectNotEqual(r1, r2) {
   return !r1 || !r2
@@ -127,6 +128,14 @@ function drawLabels(ctx, item, rect) {
 }
 
 export default class TreemapController extends DatasetController {
+  constructor(chart, datasetIndex) {
+    super(chart, datasetIndex);
+
+    this._rect = undefined;
+    this._key = undefined;
+    this._groups = undefined;
+  }
+
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
@@ -137,7 +146,7 @@ export default class TreemapController extends DatasetController {
     const meta = me.getMeta();
     const dataset = me.getDataset();
     const groups = dataset.groups || (dataset.groups = []);
-    const font = toFont(dataset.font, me.chart.options.font);
+    const font = toFont(dataset.font);
     const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
@@ -149,7 +158,9 @@ export default class TreemapController extends DatasetController {
       me._groups = groups.slice();
       me._key = key;
       dataset.data = buildData(dataset, mainRect, font);
+      // @ts-ignore using private stuff
       me._dataCheck();
+      // @ts-ignore using private stuff
       me._resyncElements();
     }
 
@@ -159,7 +170,7 @@ export default class TreemapController extends DatasetController {
   resolveDataElementOptions(index, mode) {
     const options = super.resolveDataElementOptions(index, mode);
     const result = Object.isFrozen(options) ? Object.assign({}, options) : options;
-    result.font = toFont(options.font, this.chart.options.font);
+    result.font = toFont(options.font);
     return result;
   }
 
@@ -236,6 +247,8 @@ export default class TreemapController extends DatasetController {
 
 TreemapController.id = 'treemap';
 
+TreemapController.version = version;
+
 TreemapController.defaults = {
   dataElementType: 'treemap',
 
@@ -246,6 +259,7 @@ TreemapController.defaults = {
   dividerWidth: 1
 
 };
+
 TreemapController.overrides = {
   interaction: {
     mode: 'point',
@@ -285,4 +299,27 @@ TreemapController.overrides = {
       display: false
     }
   },
+};
+
+TreemapController.afterRegister = function() {
+  const tooltipPlugin = registry.plugins.get('tooltip');
+  if (tooltipPlugin) {
+    tooltipPlugin.positioners.treemap = function(active) {
+      if (!active.length) {
+        return false;
+      }
+
+      const item = active[active.length - 1];
+      const el = item.element;
+
+      return el.tooltipPosition();
+    };
+  }
+};
+
+TreemapController.afterUnregister = function() {
+  const tooltipPlugin = registry.plugins.get('tooltip');
+  if (tooltipPlugin) {
+    delete tooltipPlugin.positioners.treemap;
+  }
 };

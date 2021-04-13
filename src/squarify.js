@@ -46,7 +46,7 @@ export default function squarify(values, rectangle, key, grp, lvl, gsum) {
   const gval = (idx) => grp && tmp[idx][grp];
 
   for (i = 0; i < n; ++i) {
-    o = {value: val(i), groupSum: gsum, _data: values[tmp[i]._idx]};
+    o = {value: val(i), groupSum: gsum, _data: values[tmp[i]._idx], level: undefined, group: undefined};
     if (grp) {
       o.level = lvl;
       o.group = gval(i);

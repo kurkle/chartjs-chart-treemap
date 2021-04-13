@@ -1,6 +1,6 @@
 # chartjs-chart-treemap
 
-[Chart.js](https://www.chartjs.org/) **v3.0.0-beta.10** module for creating treemap charts. Implementation for Chart.js v2 is in [2.x branch](https://github.com/kurkle/chartjs-chart-treemap/tree/2.x)
+[Chart.js](https://www.chartjs.org/) **v3.0.0** module for creating treemap charts. Implementation for Chart.js v2 is in [2.x branch](https://github.com/kurkle/chartjs-chart-treemap/tree/2.x)
 
 [![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg)](https://www.npmjs.com/package/chartjs-chart-matrix)
 [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest)
@@ -12,11 +12,11 @@
 To create a treemap chart, include chartjs-chart-treemap.js after chart.js and then create the chart by setting the `type` attribute to `'treemap'`
 
 ```js
-new Chart(ctx, {
-    type: 'treemap',
-    tree: dataObject,
-    key: 'value',
-    groups: ['main', 'sub']
+const chart = new Chart(ctx, {
+  type: 'treemap',
+  tree: dataObject,
+  key: 'value',
+  groups: ['main', 'sub']
 });
 ```
 
@@ -26,26 +26,26 @@ Tree data should be provided in `tree` property of dataset. `data` is then autom
 Data is summarized to groups internally.
 
 ```js
-new Chart(ctx, {
-    type: 'treemap',
-    data: {
-        datasets: [{
-            label: 'Basic treemap',
-            tree: [6,6,5,4,3,2,2,1],
-            font: {
-                color: '#000',
-                family: 'serif',
-                size: 12,
-                style: 'normal',
-            },
-            backgroundColor: function(ctx) {
-                var value = ctx.dataset.data[ctx.dataIndex];
-                var alpha = (value + 3) / 10;
-                return Color('blue').alpha(alpha).rgbString();
-            },
-            rtl: false // control in which direction the squares are positioned
-        }]
-    },
+const chart = new Chart(ctx, {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      label: 'Basic treemap',
+      tree: [6, 6, 5, 4, 3, 2, 2, 1],
+      color: '#000',
+      font: {
+        family: 'serif',
+        size: 12,
+        style: 'normal',
+      },
+      backgroundColor: function(ctx) {
+        var value = ctx.dataset.data[ctx.dataIndex];
+        var alpha = (value + 3) / 10;
+        return Color('blue').alpha(alpha).rgbString();
+      },
+      rtl: false // control in which direction the squares are positioned
+    }]
+  },
 });
 ```
 
@@ -55,14 +55,14 @@ Treemap is not using any scales currently and thats why [chartjs-plugin-datalabe
 When other charts are using datalables on the same page, you'll need to disable the plugin for treemap charts:
 
 ```js
-new Chart(ctx, {
-    type: 'treemap',
-    data: (...),
-    options: {
-        plugins: {
-            datalabels: false
-        }
+const chart = new Chart(ctx, {
+  type: 'treemap',
+  data: [/* (...) */],
+  options: {
+    plugins: {
+      datalabels: false
     }
+  }
 });
 ```
 

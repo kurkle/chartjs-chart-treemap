@@ -1,6 +1,2 @@
 export {default as TreemapController} from './controller';
-export {default as Rect} from './rect';
-export {default as Rectangle} from './element';
-export {default as squarify} from './squarify';
-export {default as StatArray} from './statArray';
-export * from './utils';
+export {default as TreemapElement} from './element';

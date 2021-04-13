@@ -1,4 +1,5 @@
 function round(v, n) {
+  // @ts-ignore
   return (+(Math.round(v + 'e+' + n) + 'e-' + n)) || 0;
 }
 

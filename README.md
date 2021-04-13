@@ -2,7 +2,7 @@
 
 [Chart.js](https://www.chartjs.org/) **v3.0.0** module for creating treemap charts. Implementation for Chart.js v2 is in [2.x branch](https://github.com/kurkle/chartjs-chart-treemap/tree/2.x)
 
-[![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg)](https://www.npmjs.com/package/chartjs-chart-matrix)
+[![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg)](https://www.npmjs.com/package/chartjs-chart-treemap)
 [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest)
 ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg)
 [![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)

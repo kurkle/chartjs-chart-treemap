@@ -1,6 +1,7 @@
 {
   "name": "chartjs-chart-treemap",
-  "version": "1.0.0-beta.4",
+  "homepage": "https://chartjs-chart-treemap.pages.dev/",
+  "version": "1.0.0",
   "description": "Chart.js module for creating treemap charts",
   "main": "dist/chartjs-chart-treemap.js",
   "module": "dist/chartjs-chart-treemap.esm.js",
@@ -36,7 +37,6 @@
   "bugs": {
     "url": "https://github.com/kurkle/chartjs-chart-treemap/issues"
   },
-  "homepage": "https://github.com/kurkle/chartjs-chart-treemap#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-json": "^4.1.0",

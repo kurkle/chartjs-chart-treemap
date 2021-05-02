@@ -7,6 +7,7 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg)
 [![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)
 ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
+[![Coverage Status](https://coveralls.io/repos/github/kurkle/chartjs-chart-treemap/badge.svg)](https://coveralls.io/github/kurkle/chartjs-chart-treemap)
 
 ![TreeMap Example Image](treemap.png)
 

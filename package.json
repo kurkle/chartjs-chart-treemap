@@ -1,7 +1,7 @@
 {
   "name": "chartjs-chart-treemap",
   "homepage": "https://chartjs-chart-treemap.pages.dev/",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Chart.js module for creating treemap charts",
   "main": "dist/chartjs-chart-treemap.js",
   "module": "dist/chartjs-chart-treemap.esm.js",
@@ -30,7 +30,8 @@
     "treemap"
   ],
   "files": [
-    "dist/*.js"
+    "dist/*.js",
+    "types/index.esm.d.ts"
   ],
   "author": "Jukka Kurkela",
   "license": "MIT",
@@ -38,14 +39,14 @@
     "url": "https://github.com/kurkle/chartjs-chart-treemap/issues"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^18.0.0",
+    "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "chart.js": "^3.1.0",
     "chartjs-adapter-date-fns": "^2.0.0",
-    "chartjs-test-utils": "^0.2.2",
+    "chartjs-test-utils": "^0.3.0",
     "concurrently": "^6.0.1",
     "cross-env": "^7.0.3",
     "date-fns": "^2.20.2",
@@ -71,12 +72,11 @@
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.2.4",
     "vuepress": "^1.8.2",
-    "vuepress-plugin-flexsearch": "^0.1.0",
+    "vuepress-plugin-flexsearch": "^0.2.0",
     "vuepress-plugin-redirect": "^1.2.5",
     "vuepress-theme-chartjs": "^0.2.0"
   },
   "peerDependencies": {
     "chart.js": "^3.0.0"
-  },
-  "dependencies": {}
+  }
 }

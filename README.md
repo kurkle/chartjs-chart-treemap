@@ -8,7 +8,6 @@
 [![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)
 ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
 [![Coverage Status](https://coveralls.io/repos/github/kurkle/chartjs-chart-treemap/badge.svg)](https://coveralls.io/github/kurkle/chartjs-chart-treemap)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/kurkle/chartjs-chart-treemap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/kurkle/chartjs-chart-treemap/context:javascript)
 
 ![TreeMap Example Image](treemap.png)
 

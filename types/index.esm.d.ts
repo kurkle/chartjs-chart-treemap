@@ -1,16 +1,14 @@
 import {
   Chart,
   ChartComponent,
-  ChartType,
   CoreChartOptions,
   DatasetController,
   Element,
   ScriptableContext, Color, Scriptable
 } from 'chart.js';
-import {AnyObject} from 'chart.js/types/basic';
 
-export interface TreemapControllerDatasetOptions<TType extends ChartType> {
-  color?: Scriptable<Color, ScriptableContext<TType>>,
+export interface TreemapControllerDatasetOptions<DType> {
+  color?: Scriptable<Color, ScriptableContext<'treemap'>>,
   dividerCapStyle?: string,
   dividerColor?: string,
   dividerDash?: number[],
@@ -21,16 +19,17 @@ export interface TreemapControllerDatasetOptions<TType extends ChartType> {
   spacing?: number,
   rtl?: boolean,
 
-  backgroundColor?: Scriptable<Color, ScriptableContext<TType>>;
-  borderColor?: Scriptable<Color, ScriptableContext<TType>>;
+  backgroundColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
+  borderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
   borderWidth?: number;
 
-  label?: Scriptable<string, ScriptableContext<TType>>;
+  label?: Scriptable<string, ScriptableContext<'treemap'>>;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[], // Unknown makes tsc complain
-  groups?: string[],
-  tree: number[] | AnyObject[],
-  key?: string
+  groups?: Array<keyof DType>;
+  tree: number[] | DType[];
+  key?: keyof DType;
 }
 
 export interface TreemapDataPoint {
@@ -69,8 +68,11 @@ declare module 'chart.js' {
   export interface ChartTypeRegistry {
     treemap: {
       chartOptions: CoreChartOptions<'treemap'>;
-      datasetOptions: TreemapControllerDatasetOptions<'treemap'>;
+      // Must be any, since we don't know what type will be used eventually
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      datasetOptions: TreemapControllerDatasetOptions<any>;
       defaultDataPoint: TreemapDataPoint;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       parsedDataType: any,
       scales: never;
     }
@@ -103,5 +105,4 @@ export type TreemapElement = Element<TreemapConfig, TreemapOptions>;
 export const TreemapElement: ChartComponent & {
   prototype: TreemapElement;
   new(cfg: TreemapConfig): TreemapElement
-}
-
+};

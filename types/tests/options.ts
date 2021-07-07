@@ -16,7 +16,6 @@ function colorFromValue(value: number, border?: boolean) {
 const chart = new Chart('test', {
   type: 'treemap',
   data: {
-    labels: ['a'],
     datasets: [{
       label: 'Basic treemap',
       data: undefined,
@@ -31,6 +30,75 @@ const chart = new Chart('test', {
       spacing: 0.1,
       borderWidth: 2,
       borderColor: 'rgba(180,180,180, 0.15)'
+    }]
+  },
+});
+
+const statsByState = [
+  {
+    state: 'Alabama',
+    code: 'AL',
+    region: 'South',
+    division: 'East South Central',
+    income: 48123,
+    population: 4887871,
+    area: 135767
+  },
+  {
+    state: 'Alaska',
+    code: 'AK',
+    region: 'West',
+    division: 'Pacific',
+    income: 73181,
+    population: 737438,
+    area: 1723337
+  },
+];
+
+const chart2 = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      data: [],
+      tree: statsByState,
+      key: 'population',
+      groups: ['region', 'division', 'code'],
+      backgroundColor(ctx) {
+        const item = ctx.dataset.data[ctx.dataIndex];
+        if (!item) {
+          return 'black';
+        }
+        const a = item.v / (item.gs || item.s) / 2 + 0.5;
+        switch (item.l) {
+        case 0:
+          switch (item.g) {
+          case 'Midwest': return '#4363d8';
+          case 'Northeast': return '#469990';
+          case 'South': return '#9A6324';
+          case 'West': return '#f58231';
+          default: return '#e6beff';
+          }
+        case 1:
+          return colorLib('white').alpha(0.3).rgbString();
+        default:
+          return colorLib('green').alpha(a).rgbString();
+        }
+      },
+      spacing: 2,
+      borderWidth: 0.5,
+      borderColor: 'rgba(160,160,160,0.5)',
+      color: '#FFF',
+      hoverColor: '#F0B90B',
+      font: {
+        family: 'Tahoma',
+        size: 8,
+        weight: 'bold'
+      },
+      hoverFont: {
+        family: 'Tahoma',
+        size: 8,
+        weight: 'bold'
+      }
     }]
   },
 });

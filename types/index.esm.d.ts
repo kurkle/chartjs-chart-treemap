@@ -1,11 +1,11 @@
 import {
   Chart,
   ChartComponent,
-  CoreChartOptions,
   DatasetController,
   Element,
-  ScriptableContext, Color, Scriptable
+  ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
+
 
 export interface TreemapControllerDatasetOptions<DType> {
   color?: Scriptable<Color, ScriptableContext<'treemap'>>,
@@ -14,6 +14,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   dividerDash?: number[],
   dividerDashOffset?: number,
   dividerWidth?: number,
+  font?: FontSpec,
   groupDividers?: boolean,
   groupLabels?: boolean,
   spacing?: number,
@@ -23,10 +24,15 @@ export interface TreemapControllerDatasetOptions<DType> {
   borderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
   borderWidth?: number;
 
+  hoverColor?: Scriptable<Color, ScriptableContext<'treemap'>>,
+  hoverFont?: FontSpec,
+  hoverBackgroundColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
+  hoverBorderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
+  hoverBorderWidth?: number;
+
   label?: Scriptable<string, ScriptableContext<'treemap'>>;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[], // Unknown makes tsc complain
+  data: TreemapDataPoint[]; // This will be auto-generated from `tree`
   groups?: Array<keyof DType>;
   tree: number[] | DType[];
   key?: keyof DType;
@@ -68,12 +74,9 @@ declare module 'chart.js' {
   export interface ChartTypeRegistry {
     treemap: {
       chartOptions: CoreChartOptions<'treemap'>;
-      // Must be any, since we don't know what type will be used eventually
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      datasetOptions: TreemapControllerDatasetOptions<any>;
+      datasetOptions: TreemapControllerDatasetOptions<Record<string, unknown>>;
       defaultDataPoint: TreemapDataPoint;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parsedDataType: any,
+      parsedDataType: unknown,
       scales: never;
     }
   }

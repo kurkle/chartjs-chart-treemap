@@ -122,7 +122,7 @@ function buildData(dataset, mainRect, font) {
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
   const labelsOpts = opts.labels;
-  if (!labelsOpts || !labelsOpts.display || !(rect.$context)) {
+  if (!labelsOpts || !labelsOpts.display || !rect.$context) {
     return;
   }
   const lh = opts.font.lineHeight;

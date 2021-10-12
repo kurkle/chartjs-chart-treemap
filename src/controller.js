@@ -1,5 +1,5 @@
 import {DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, callback as callCallback} from 'chart.js/helpers';
+import {toFont, valueOrDefault} from 'chart.js/helpers';
 import {group} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
@@ -122,8 +122,9 @@ function buildData(dataset, mainRect, font) {
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
   const lh = opts.font.lineHeight;
-  if (opts.formatter || item.g) {
-    const labels = ((opts.formatter || item.g + '\n' + item.v) + '').split('\n');
+  const label = opts.formatter;
+  if (label || item.g) {
+    const labels = ((label || item.g + '\n' + item.v) + '').split('\n');
     const y = rect.y + rect.height / 2 - labels.length * lh / 4;
     labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
   }
@@ -288,7 +289,8 @@ TreemapController.overrides = {
           if (dataItem.g) {
             return dataItem.g + ': ' + dataItem.v;
           }
-          return callCallback(item.element.options.formatter, [item.element.$context]) || dataItem.v;
+          const value = item.element.options.formatter;
+          return value || dataItem.v;
         }
       }
     },

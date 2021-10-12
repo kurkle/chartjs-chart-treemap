@@ -150,9 +150,12 @@ TreemapElement.defaults = {
   groupDividers: false,
   groupLabels: undefined,
   spacing: undefined,
-  formatter: undefined,
   label: undefined,
-  rtl: undefined
+  rtl: undefined,
+  labels: {
+    display: false,
+    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v
+  }
 };
 
 TreemapElement.defaultRoutes = {

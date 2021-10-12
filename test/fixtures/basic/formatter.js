@@ -6,8 +6,11 @@ export default {
         label: 'Simple treemap',
         data: [6, 6, 4, 3, 2, 2, 1],
         backgroundColor: 'red',
-        formatter(ctx) {
-          return ctx.type === 'data' ? ctx.raw.v : '';
+        labels: {
+          display: true,
+          formatter(ctx) {
+            return ctx.type === 'data' ? ctx.raw.v : '';
+          }
         }
       }]
     },

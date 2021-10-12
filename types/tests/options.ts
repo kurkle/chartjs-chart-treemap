@@ -34,6 +34,30 @@ const chart = new Chart('test', {
   },
 });
 
+const chartFormatter = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      label: 'Basic treemap',
+      data: undefined,
+      tree: [15, 6, 6, 5, 4, 3, 2, 2],
+      backgroundColor(ctx) {
+        const item = ctx.dataset.data[ctx.dataIndex];
+        if (!item) {
+          return 'transparent';
+        }
+        return colorFromValue(item.v);
+      },
+      spacing: 0.1,
+      borderWidth: 2,
+      borderColor: 'rgba(180,180,180, 0.15)',
+      labels: {
+        display: true
+      }
+    }]
+  },
+});
+
 const statsByState = [
   {
     state: 'Alabama',
@@ -98,6 +122,57 @@ const chart2 = new Chart('test', {
         family: 'Tahoma',
         size: 8,
         weight: 'bold'
+      }
+    }]
+  },
+});
+
+const chart2Formatter = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      data: [],
+      tree: statsByState,
+      key: 'population',
+      groups: ['region', 'division', 'code'],
+      backgroundColor(ctx) {
+        const item = ctx.dataset.data[ctx.dataIndex];
+        if (!item) {
+          return 'black';
+        }
+        const a = item.v / (item.gs || item.s) / 2 + 0.5;
+        switch (item.l) {
+        case 0:
+          switch (item.g) {
+          case 'Midwest': return '#4363d8';
+          case 'Northeast': return '#469990';
+          case 'South': return '#9A6324';
+          case 'West': return '#f58231';
+          default: return '#e6beff';
+          }
+        case 1:
+          return colorLib('white').alpha(0.3).rgbString();
+        default:
+          return colorLib('green').alpha(a).rgbString();
+        }
+      },
+      spacing: 2,
+      borderWidth: 0.5,
+      borderColor: 'rgba(160,160,160,0.5)',
+      color: '#FFF',
+      hoverColor: '#F0B90B',
+      font: {
+        family: 'Tahoma',
+        size: 8,
+        weight: 'bold'
+      },
+      hoverFont: {
+        family: 'Tahoma',
+        size: 8,
+        weight: 'bold'
+      },
+      labels: {
+        display: true
       }
     }]
   },

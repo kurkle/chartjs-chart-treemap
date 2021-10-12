@@ -6,6 +6,10 @@ import {
   ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
 
+type TreemapControllerDatasetLabelsOptions = {
+  display?: boolean;
+  formatter?: Scriptable<string | Array<string>, ScriptableContext<'treemap'>>
+}
 
 export interface TreemapControllerDatasetOptions<DType> {
   color?: Scriptable<Color, ScriptableContext<'treemap'>>,
@@ -30,7 +34,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   hoverBorderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
   hoverBorderWidth?: number;
 
-  formatter?: Scriptable<string, ScriptableContext<'treemap'>>;
+  labels?: TreemapControllerDatasetLabelsOptions;
   label?: string;
 
   data: TreemapDataPoint[]; // This will be auto-generated from `tree`

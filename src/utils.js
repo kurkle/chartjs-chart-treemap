@@ -98,3 +98,10 @@ export function sum(values, key) {
 
   return s;
 }
+
+export function requireVersion(min, ver) {
+  const parts = ver.split('.');
+  if (!min.split('.').reduce((a, c, i) => a && c <= parts[i], true)) {
+    throw new Error(`Chart.js v${ver} is not supported. v${min} or newer is required.`);
+  }
+}

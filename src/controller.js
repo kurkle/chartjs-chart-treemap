@@ -1,6 +1,6 @@
-import {DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isArray, callback as callCallback} from 'chart.js/helpers';
-import {group} from './utils';
+import {Chart, DatasetController, registry} from 'chart.js';
+import {toFont, valueOrDefault, isArray} from 'chart.js/helpers';
+import {group, requireVersion} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -122,12 +122,11 @@ function buildData(dataset, mainRect, font) {
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
   const labelsOpts = opts.labels;
-  if (!labelsOpts || !labelsOpts.display || !rect.$context) {
+  if (!labelsOpts || !labelsOpts.display) {
     return;
   }
   const lh = opts.font.lineHeight;
-  let label = labelsOpts.formatter;
-  label = typeof label === 'function' ? callCallback(label, [rect.$context]) : label;
+  const label = labelsOpts.formatter;
   if (label) {
     const labels = isArray(label) ? label : [label];
     const y = rect.y + rect.height / 2 - labels.length * lh / 4;
@@ -268,6 +267,11 @@ TreemapController.defaults = {
 
 };
 
+TreemapController.descriptors = {
+  _scriptable: true,
+  _indexable: false
+};
+
 TreemapController.overrides = {
   interaction: {
     mode: 'point',
@@ -307,6 +311,11 @@ TreemapController.overrides = {
       display: false
     }
   },
+};
+
+TreemapController.beforeRegister = function() {
+  // TODO require 3.6 after its released
+  requireVersion('3.5', Chart.version);
 };
 
 TreemapController.afterRegister = function() {

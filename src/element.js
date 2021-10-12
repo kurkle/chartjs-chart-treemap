@@ -158,6 +158,11 @@ TreemapElement.defaults = {
   }
 };
 
+TreemapElement.descriptors = {
+  _scriptable: true,
+  _indexable: false
+};
+
 TreemapElement.defaultRoutes = {
   backgroundColor: 'backgroundColor',
   borderColor: 'borderColor'

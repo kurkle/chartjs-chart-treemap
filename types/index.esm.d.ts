@@ -30,7 +30,8 @@ export interface TreemapControllerDatasetOptions<DType> {
   hoverBorderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
   hoverBorderWidth?: number;
 
-  label?: Scriptable<string, ScriptableContext<'treemap'>>;
+  formatter?: Scriptable<string, ScriptableContext<'treemap'>>;
+  label?: string;
 
   data: TreemapDataPoint[]; // This will be auto-generated from `tree`
   groups?: Array<keyof DType>;

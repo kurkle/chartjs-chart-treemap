@@ -1,5 +1,5 @@
 import {DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault} from 'chart.js/helpers';
+import {toFont, valueOrDefault, callback as callCallback} from 'chart.js/helpers';
 import {group} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
@@ -122,9 +122,11 @@ function buildData(dataset, mainRect, font) {
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
   const lh = opts.font.lineHeight;
-  const labels = (opts.label || item.g + '\n' + item.v).split('\n');
-  const y = rect.y + rect.height / 2 - labels.length * lh / 4;
-  labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+  if (opts.formatter || item.g) {
+    const labels = ((opts.formatter || item.g + '\n' + item.v) + '').split('\n');
+    const y = rect.y + rect.height / 2 - labels.length * lh / 4;
+    labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+  }
 }
 
 export default class TreemapController extends DatasetController {
@@ -225,7 +227,7 @@ export default class TreemapController extends DatasetController {
       if (!rect.hidden) {
         rect.draw(ctx);
         const opts = rect.options;
-        if (shouldDrawCaption(rect, opts.font) && item.g) {
+        if (shouldDrawCaption(rect, opts.font)) {
           drawCaption(ctx, rect, item, opts, levels);
         }
       }
@@ -283,8 +285,10 @@ TreemapController.overrides = {
         label(item) {
           const dataset = item.dataset;
           const dataItem = dataset.data[item.dataIndex];
-          const label = dataItem.g || dataset.label;
-          return (label ? label + ': ' : '') + dataItem.v;
+          if (dataItem.g) {
+            return dataItem.g + ': ' + dataItem.v;
+          }
+          return callCallback(item.element.options.formatter, [item.element.$context]) || dataItem.v;
         }
       }
     },

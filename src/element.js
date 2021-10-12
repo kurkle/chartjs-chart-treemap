@@ -150,6 +150,7 @@ TreemapElement.defaults = {
   groupDividers: false,
   groupLabels: undefined,
   spacing: undefined,
+  formatter: undefined,
   label: undefined,
   rtl: undefined
 };

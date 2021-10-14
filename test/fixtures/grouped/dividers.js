@@ -14,7 +14,7 @@ export default {
         groups: ['category'],
         color: 'transparent',
         groupDividers: true,
-        dividerDash: [[3, 5]],
+        dividerDash: [3, 5],
         dividerWidth: 2,
         borderWidth: 1,
         borderColor: '#777'

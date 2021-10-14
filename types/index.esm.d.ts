@@ -6,13 +6,17 @@ import {
   ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
 
+type TreemapScriptableContext = ScriptableContext<'treemap'> & {
+  raw: TreemapDataPoint
+}
+
 type TreemapControllerDatasetLabelsOptions = {
   display?: boolean;
-  formatter?: Scriptable<string | Array<string>, ScriptableContext<'treemap'>>
+  formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>
 }
 
 export interface TreemapControllerDatasetOptions<DType> {
-  color?: Scriptable<Color, ScriptableContext<'treemap'>>,
+  color?: Scriptable<Color, TreemapScriptableContext>,
   dividerCapStyle?: string,
   dividerColor?: string,
   dividerDash?: number[],
@@ -24,14 +28,14 @@ export interface TreemapControllerDatasetOptions<DType> {
   spacing?: number,
   rtl?: boolean,
 
-  backgroundColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
-  borderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
+  backgroundColor?: Scriptable<Color, TreemapScriptableContext>;
+  borderColor?: Scriptable<Color, TreemapScriptableContext>;
   borderWidth?: number;
 
-  hoverColor?: Scriptable<Color, ScriptableContext<'treemap'>>,
+  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
   hoverFont?: FontSpec,
-  hoverBackgroundColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
-  hoverBorderColor?: Scriptable<Color, ScriptableContext<'treemap'>>;
+  hoverBackgroundColor?: Scriptable<Color, TreemapScriptableContext>;
+  hoverBorderColor?: Scriptable<Color, TreemapScriptableContext>;
   hoverBorderWidth?: number;
 
   labels?: TreemapControllerDatasetLabelsOptions;

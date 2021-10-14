@@ -27,6 +27,10 @@ const chart = new Chart('test', {
         }
         return colorFromValue(item.v);
       },
+      labels: {
+        display: true,
+        formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v.toFixed(1)] : ctx.raw.v.toFixed(1),
+      },
       spacing: 0.1,
       borderWidth: 2,
       borderColor: 'rgba(180,180,180, 0.15)'

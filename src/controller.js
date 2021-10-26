@@ -314,8 +314,7 @@ TreemapController.overrides = {
 };
 
 TreemapController.beforeRegister = function() {
-  // TODO require 3.6 after its released
-  requireVersion('3.5', Chart.version);
+  requireVersion('3.6', Chart.version);
 };
 
 TreemapController.afterRegister = function() {

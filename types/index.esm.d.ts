@@ -76,6 +76,7 @@ declare module 'chart.js' {
       chartOptions: CoreChartOptions<'treemap'>;
       datasetOptions: TreemapControllerDatasetOptions<Record<string, unknown>>;
       defaultDataPoint: TreemapDataPoint;
+      metaExtensions: {};
       parsedDataType: unknown,
       scales: never;
     }

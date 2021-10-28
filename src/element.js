@@ -151,7 +151,16 @@ TreemapElement.defaults = {
   groupLabels: undefined,
   spacing: undefined,
   label: undefined,
-  rtl: undefined
+  rtl: undefined,
+  labels: {
+    display: false,
+    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v
+  }
+};
+
+TreemapElement.descriptors = {
+  _scriptable: true,
+  _indexable: false
 };
 
 TreemapElement.defaultRoutes = {

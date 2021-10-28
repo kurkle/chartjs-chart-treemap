@@ -1,7 +1,9 @@
 const data = [
   {category: 'main', value: 1},
   {category: 'main', value: 2},
+  {category: 'main', value: 3},
   {category: 'other', value: 4},
+  {category: 'other', value: 5},
 ];
 
 export default {
@@ -12,14 +14,15 @@ export default {
         tree: data,
         key: 'value',
         groups: ['category'],
-        color: 'transparent',
-        groupDividers: true,
-        dividerDash: [3, 5],
-        dividerWidth: 2,
-        borderWidth: 1,
-        borderColor: '#777'
+        backgroundColor: 'red',
+        labels: {
+          display: true,
+          formatter(ctx) {
+            return ctx.type === 'data' ? ctx.raw.v : '';
+          }
+        }
       }]
-    },
+    }
   },
   options: {
     canvas: {

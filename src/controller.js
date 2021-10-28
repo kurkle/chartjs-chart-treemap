@@ -1,6 +1,6 @@
-import {DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault} from 'chart.js/helpers';
-import {group} from './utils';
+import {Chart, DatasetController, registry} from 'chart.js';
+import {toFont, valueOrDefault, isArray} from 'chart.js/helpers';
+import {group, requireVersion} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -121,10 +121,17 @@ function buildData(dataset, mainRect, font) {
 
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
+  const labelsOpts = opts.labels;
+  if (!labelsOpts || !labelsOpts.display) {
+    return;
+  }
   const lh = opts.font.lineHeight;
-  const labels = (opts.label || item.g + '\n' + item.v).split('\n');
-  const y = rect.y + rect.height / 2 - labels.length * lh / 4;
-  labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+  const label = labelsOpts.formatter;
+  if (label) {
+    const labels = isArray(label) ? label : [label];
+    const y = rect.y + rect.height / 2 - labels.length * lh / 4;
+    labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+  }
 }
 
 export default class TreemapController extends DatasetController {
@@ -225,7 +232,7 @@ export default class TreemapController extends DatasetController {
       if (!rect.hidden) {
         rect.draw(ctx);
         const opts = rect.options;
-        if (shouldDrawCaption(rect, opts.font) && item.g) {
+        if (shouldDrawCaption(rect, opts.font)) {
           drawCaption(ctx, rect, item, opts, levels);
         }
       }
@@ -258,6 +265,11 @@ TreemapController.defaults = {
   groupDividers: false,
   dividerWidth: 1
 
+};
+
+TreemapController.descriptors = {
+  _scriptable: true,
+  _indexable: false
 };
 
 TreemapController.overrides = {
@@ -299,6 +311,10 @@ TreemapController.overrides = {
       display: false
     }
   },
+};
+
+TreemapController.beforeRegister = function() {
+  requireVersion('3.6', Chart.version);
 };
 
 TreemapController.afterRegister = function() {

@@ -45,8 +45,6 @@ function drawCaption(ctx, rect, item, opts, levels) {
   ctx.rect(rect.x, rect.y, rect.width, rect.height);
   ctx.clip();
   if (!('l' in item) || item.l === levels) {
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
     drawLabels(ctx, item, rect);
   } else if (opts.groupLabels) {
     ctx.textAlign = opts.rtl ? 'end' : 'start';
@@ -125,13 +123,38 @@ function drawLabels(ctx, item, rect) {
   if (!labelsOpts || !labelsOpts.display) {
     return;
   }
-  const lh = opts.font.lineHeight;
+  const font = toFont(labelsOpts.font);
+  const lh = font.lineHeight;
   const label = labelsOpts.formatter;
   if (label) {
     const labels = isArray(label) ? label : [label];
-    const y = rect.y + rect.height / 2 - labels.length * lh / 4;
-    labels.forEach((l, i) => ctx.fillText(l, rect.x + rect.width / 2, y + i * lh));
+    const xyPoint = calculateXYLabel(labelsOpts, rect, labels, lh);
+    ctx.font = font.string;
+    ctx.textAlign = labelsOpts.align;
+    ctx.textBaseline = labelsOpts.position;
+    ctx.fillStyle = labelsOpts.color;
+    labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
   }
+}
+
+function calculateXYLabel(options, rect, labels, lineHeight) {
+  const {align, position, padding} = options;
+  let x, y;
+  if (align === 'left') {
+    x = rect.x + padding;
+  } else if (align === 'right') {
+    x = rect.x + rect.width - padding;
+  } else {
+    x = rect.x + rect.width / 2;
+  }
+  if (position === 'top') {
+    y = rect.y + padding;
+  } else if (position === 'bottom') {
+    y = rect.y + rect.height - padding - (labels.length - 1) * lineHeight;
+  } else {
+    y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
+  }
+  return {x, y};
 }
 
 export default class TreemapController extends DatasetController {

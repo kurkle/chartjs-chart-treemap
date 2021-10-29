@@ -153,8 +153,13 @@ TreemapElement.defaults = {
   label: undefined,
   rtl: undefined,
   labels: {
+    align: 'center',
+    color: undefined,
     display: false,
-    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v
+    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v,
+    font: {},
+    position: 'middle',
+    padding: 6
   }
 };
 

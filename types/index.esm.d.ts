@@ -16,6 +16,7 @@ type TreemapControllerDatasetLabelsOptions = {
   display?: boolean;
   formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>,
   font?: FontSpec,
+  padding?: number,
   position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }
 

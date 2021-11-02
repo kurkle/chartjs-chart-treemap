@@ -123,7 +123,9 @@ function drawLabels(ctx, item, rect) {
   if (!labelsOpts || !labelsOpts.display) {
     return;
   }
-  const font = toFont(labelsOpts.font);
+  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
+  const font = toFont(optFont);
   const lh = font.lineHeight;
   const label = labelsOpts.formatter;
   if (label) {
@@ -132,7 +134,7 @@ function drawLabels(ctx, item, rect) {
     ctx.font = font.string;
     ctx.textAlign = labelsOpts.align;
     ctx.textBaseline = labelsOpts.position;
-    ctx.fillStyle = labelsOpts.color;
+    ctx.fillStyle = optColor;
     labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
   }
 }

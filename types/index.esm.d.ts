@@ -16,6 +16,8 @@ type TreemapControllerDatasetLabelsOptions = {
   display?: boolean;
   formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>,
   font?: FontSpec,
+  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
+  hoverFont?: FontSpec,
   padding?: number,
   position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }

@@ -39,18 +39,25 @@ function shouldDrawCaption(rect, font) {
 
 function drawCaption(ctx, rect, item, opts, levels) {
   ctx.save();
-  ctx.fillStyle = opts.color;
-  ctx.font = opts.font.string;
   ctx.beginPath();
   ctx.rect(rect.x, rect.y, rect.width, rect.height);
   ctx.clip();
   if (!('l' in item) || item.l === levels) {
     drawLabels(ctx, item, rect);
   } else if (opts.groupLabels) {
-    ctx.textAlign = opts.rtl ? 'end' : 'start';
+    const captionsOpts = opts.captions || {};
+    const borderWidth = opts.borderWidth || 0;
+    const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
+    const padding = captionsOpts.padding;
+    const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
+    const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
+    const font = toFont(optFont);
+    const x = calculateX(rect, align, padding, borderWidth);
+    ctx.fillStyle = color;
+    ctx.font = font.string;
+    ctx.textAlign = align;
     ctx.textBaseline = 'top';
-    const x = opts.rtl ? rect.x + rect.width - opts.borderWidth - 3 : rect.x + opts.borderWidth + 3;
-    ctx.fillText(item.g, x, rect.y + opts.borderWidth + 3);
+    ctx.fillText(item.g, x, rect.y + padding + borderWidth);
   }
   ctx.restore();
 }
@@ -80,12 +87,15 @@ function drawDivider(ctx, rect) {
   ctx.restore();
 }
 
-function buildData(dataset, mainRect, font) {
+function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
   let tree = dataset.tree || [];
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = (dataset.spacing || 0) + (dataset.borderWidth || 0);
+  const captionsFont = captions.font || {}; 
+  const font = toFont(captionsFont);
+  const padding = valueOrDefault(captions.padding, 3);
 
   function recur(gidx, rect, parent, gs) {
     const g = groups[gidx];
@@ -99,8 +109,8 @@ function buildData(dataset, mainRect, font) {
         subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
 
         if (valueOrDefault(dataset.groupLabels, true) && shouldDrawCaption(sq, font)) {
-          subRect.y += font.lineHeight;
-          subRect.h -= font.lineHeight;
+          subRect.y += font.lineHeight + padding * 2;
+          subRect.h -= font.lineHeight + padding * 2;
         }
         ret.push(...recur(gidx + 1, subRect, sq.g, sq.s));
       });
@@ -130,7 +140,7 @@ function drawLabels(ctx, item, rect) {
   const label = labelsOpts.formatter;
   if (label) {
     const labels = isArray(label) ? label : [label];
-    const xyPoint = calculateXYLabel(labelsOpts, rect, labels, lh);
+    const xyPoint = calculateXYLabel(opts, rect, labels, lh);
     ctx.font = font.string;
     ctx.textAlign = labelsOpts.align;
     ctx.textBaseline = labelsOpts.position;
@@ -140,23 +150,28 @@ function drawLabels(ctx, item, rect) {
 }
 
 function calculateXYLabel(options, rect, labels, lineHeight) {
-  const {align, position, padding} = options;
-  let x, y;
-  if (align === 'left') {
-    x = rect.x + padding;
-  } else if (align === 'right') {
-    x = rect.x + rect.width - padding;
-  } else {
-    x = rect.x + rect.width / 2;
-  }
+  const labelsOpts = options.labels;
+  const borderWidth = options.borderWidth || 0;
+  const {align, position, padding} = labelsOpts;
+  let x = calculateX(rect, align, padding, borderWidth), y;
   if (position === 'top') {
-    y = rect.y + padding;
+    y = rect.y + padding + borderWidth;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - (labels.length - 1) * lineHeight;
+    y = rect.y + rect.height - padding - borderWidth - (labels.length - 1) * lineHeight;
   } else {
     y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
   }
   return {x, y};
+}
+
+function calculateX(rect, align, padding, borderWidth) {
+  if (align === 'left') {
+    return rect.x + padding + borderWidth;
+  } else if (align === 'right') {
+    return rect.x + rect.width - padding - borderWidth;
+  } else {
+    return rect.x + rect.width / 2;
+  }
 }
 
 export default class TreemapController extends DatasetController {
@@ -178,7 +193,7 @@ export default class TreemapController extends DatasetController {
     const meta = me.getMeta();
     const dataset = me.getDataset();
     const groups = dataset.groups || (dataset.groups = []);
-    const font = toFont(dataset.font);
+    const captions = dataset.captions ? dataset.captions : {}; 
     const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
@@ -189,7 +204,8 @@ export default class TreemapController extends DatasetController {
       me._rect = mainRect;
       me._groups = groups.slice();
       me._key = key;
-      dataset.data = buildData(dataset, mainRect, font);
+      
+      dataset.data = buildData(dataset, mainRect, captions);
       // @ts-ignore using private stuff
       me._dataCheck();
       // @ts-ignore using private stuff
@@ -202,7 +218,7 @@ export default class TreemapController extends DatasetController {
   resolveDataElementOptions(index, mode) {
     const options = super.resolveDataElementOptions(index, mode);
     const result = Object.isFrozen(options) ? Object.assign({}, options) : options;
-    result.font = toFont(options.font);
+    result.font = toFont(options.captions.font);
     return result;
   }
 
@@ -257,7 +273,7 @@ export default class TreemapController extends DatasetController {
       if (!rect.hidden) {
         rect.draw(ctx);
         const opts = rect.options;
-        if (shouldDrawCaption(rect, opts.font)) {
+        if (shouldDrawCaption(rect, opts.captions.font)) {
           drawCaption(ctx, rect, item, opts, levels);
         }
       }
@@ -283,12 +299,11 @@ TreemapController.version = version;
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
-
   groupLabels: true,
   borderWidth: 0,
   spacing: 0.5,
   groupDividers: false,
-  dividerWidth: 1
+  dividerWidth: 1,
 
 };
 

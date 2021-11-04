@@ -102,7 +102,6 @@ export default class TreemapElement extends Element {
       ctx.fillStyle = options.backgroundColor;
       ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
     }
-
     ctx.restore();
   }
 
@@ -152,6 +151,15 @@ TreemapElement.defaults = {
   spacing: undefined,
   label: undefined,
   rtl: undefined,
+  captions: {
+    align: undefined,
+    color: undefined,
+    display: false,
+    formatter: (ctx) => ctx.raw.g,
+    font: {},
+    position: 'middle',
+    padding: 3
+  },
   labels: {
     align: 'center',
     color: undefined,
@@ -159,7 +167,7 @@ TreemapElement.defaults = {
     formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v,
     font: {},
     position: 'middle',
-    padding: 6
+    padding: 3
   }
 };
 

@@ -130,7 +130,7 @@ function drawLabels(ctx, item, rect) {
   const label = labelsOpts.formatter;
   if (label) {
     const labels = isArray(label) ? label : [label];
-    const xyPoint = calculateXYLabel(labelsOpts, rect, labels, lh);
+    const xyPoint = calculateXYLabel(opts, rect, labels, lh);
     ctx.font = font.string;
     ctx.textAlign = labelsOpts.align;
     ctx.textBaseline = labelsOpts.position;
@@ -140,19 +140,21 @@ function drawLabels(ctx, item, rect) {
 }
 
 function calculateXYLabel(options, rect, labels, lineHeight) {
-  const {align, position, padding} = options;
+  const labelsOpts = options.labels;
+  const borderWidth = options.borderWidth || 0;
+  const {align, position, padding} = labelsOpts;
   let x, y;
   if (align === 'left') {
-    x = rect.x + padding;
+    x = rect.x + padding + borderWidth;
   } else if (align === 'right') {
-    x = rect.x + rect.width - padding;
+    x = rect.x + rect.width - padding - borderWidth;
   } else {
     x = rect.x + rect.width / 2;
   }
   if (position === 'top') {
-    y = rect.y + padding;
+    y = rect.y + padding + borderWidth;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - (labels.length - 1) * lineHeight;
+    y = rect.y + rect.height - padding - borderWidth - (labels.length - 1) * lineHeight;
   } else {
     y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
   }

@@ -91,17 +91,72 @@ const chart2 = new Chart('test', {
       spacing: 2,
       borderWidth: 0.5,
       borderColor: 'rgba(160,160,160,0.5)',
-      color: '#FFF',
-      hoverColor: '#F0B90B',
-      font: {
-        family: 'Tahoma',
-        size: 8,
-        weight: 'bold'
+      captions: {
+        color: '#FFF',
+        hoverColor: '#F0B90B',
+        font: {
+          family: 'Tahoma',
+          size: 8,
+          weight: 'bold'
+        },
+        hoverFont: {
+          family: 'Tahoma',
+          size: 8,
+          weight: 'bold'
+        }
+      }
+    }]
+  },
+});
+
+const chart3 = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      data: [],
+      tree: statsByState,
+      key: 'population',
+      groups: ['region', 'division', 'code'],
+      backgroundColor(ctx) {
+        const item = ctx.dataset.data[ctx.dataIndex];
+        if (!item) {
+          return 'black';
+        }
+        const a = item.v / (item.gs || item.s) / 2 + 0.5;
+        switch (item.l) {
+        case 0:
+          switch (item.g) {
+          case 'Midwest': return '#4363d8';
+          case 'Northeast': return '#469990';
+          case 'South': return '#9A6324';
+          case 'West': return '#f58231';
+          default: return '#e6beff';
+          }
+        case 1:
+          return colorLib('white').alpha(0.3).rgbString();
+        default:
+          return colorLib('green').alpha(a).rgbString();
+        }
       },
-      hoverFont: {
-        family: 'Tahoma',
-        size: 8,
-        weight: 'bold'
+      borderWidth: 0.5,
+      borderColor: 'rgba(255,255,255)',
+      captions: {
+        display: false,
+      },
+      labels: {
+        display: false,
+        color: '#FFF',
+        hoverColor: '#F0B90B',
+        font: {
+          family: 'Tahoma',
+          size: 8,
+          weight: 'bold'
+        },
+        hoverFont: {
+          family: 'Tahoma',
+          size: 8,
+          weight: 'bold'
+        }
       }
     }]
   },

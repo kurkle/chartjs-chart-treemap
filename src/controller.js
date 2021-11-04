@@ -44,22 +44,27 @@ function drawCaption(ctx, rect, item, opts, levels) {
   ctx.clip();
   if (!('l' in item) || item.l === levels) {
     drawLabels(ctx, item, rect);
-  } else if (opts.groupLabels) {
-    const captionsOpts = opts.captions || {};
-    const borderWidth = opts.borderWidth || 0;
-    const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
-    const padding = captionsOpts.padding;
-    const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
-    const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
-    const font = toFont(optFont);
-    const x = calculateX(rect, align, padding, borderWidth);
-    ctx.fillStyle = color;
-    ctx.font = font.string;
-    ctx.textAlign = align;
-    ctx.textBaseline = 'top';
-    ctx.fillText(item.g, x, rect.y + padding + borderWidth);
+  } else if (opts.captions && opts.captions.display) {
+    drawCaptionLabel(ctx, item, rect);
   }
   ctx.restore();
+}
+
+function drawCaptionLabel(ctx, item, rect) {
+  const opts = rect.options;
+  const captionsOpts = opts.captions || {};
+  const borderWidth = opts.borderWidth || 0;
+  const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
+  const padding = captionsOpts.padding;
+  const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
+  const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
+  const font = toFont(optFont);
+  const x = calculateX(rect, align, padding, borderWidth);
+  ctx.fillStyle = color;
+  ctx.font = font.string;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'top';
+  ctx.fillText(item.g, x, rect.y + padding + borderWidth + 1.5); // adds 1.5 because the baseline to top, add 3 pixels from the line for normal letters
 }
 
 function drawDivider(ctx, rect) {
@@ -93,7 +98,7 @@ function buildData(dataset, mainRect, captions) {
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = (dataset.spacing || 0) + (dataset.borderWidth || 0);
-  const captionsFont = captions.font || {}; 
+  const captionsFont = captions.font || {};
   const font = toFont(captionsFont);
   const padding = valueOrDefault(captions.padding, 3);
 
@@ -107,8 +112,7 @@ function buildData(dataset, mainRect, captions) {
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
         subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
-
-        if (valueOrDefault(dataset.groupLabels, true) && shouldDrawCaption(sq, font)) {
+        if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, font)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
@@ -153,7 +157,8 @@ function calculateXYLabel(options, rect, labels, lineHeight) {
   const labelsOpts = options.labels;
   const borderWidth = options.borderWidth || 0;
   const {align, position, padding} = labelsOpts;
-  let x = calculateX(rect, align, padding, borderWidth), y;
+  let x, y;
+  x = calculateX(rect, align, padding, borderWidth);
   if (position === 'top') {
     y = rect.y + padding + borderWidth;
   } else if (position === 'bottom') {
@@ -169,9 +174,8 @@ function calculateX(rect, align, padding, borderWidth) {
     return rect.x + padding + borderWidth;
   } else if (align === 'right') {
     return rect.x + rect.width - padding - borderWidth;
-  } else {
-    return rect.x + rect.width / 2;
   }
+  return rect.x + rect.width / 2;
 }
 
 export default class TreemapController extends DatasetController {
@@ -193,7 +197,7 @@ export default class TreemapController extends DatasetController {
     const meta = me.getMeta();
     const dataset = me.getDataset();
     const groups = dataset.groups || (dataset.groups = []);
-    const captions = dataset.captions ? dataset.captions : {}; 
+    const captions = dataset.captions ? dataset.captions : {};
     const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
@@ -204,7 +208,7 @@ export default class TreemapController extends DatasetController {
       me._rect = mainRect;
       me._groups = groups.slice();
       me._key = key;
-      
+
       dataset.data = buildData(dataset, mainRect, captions);
       // @ts-ignore using private stuff
       me._dataCheck();
@@ -299,11 +303,10 @@ TreemapController.version = version;
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
-  groupLabels: true,
   borderWidth: 0,
   spacing: 0.5,
   groupDividers: false,
-  dividerWidth: 1,
+  dividerWidth: 1
 
 };
 

@@ -286,11 +286,11 @@ TreemapController.version = version;
 TreemapController.defaults = {
   dataElementType: 'treemap',
 
-  groupLabels: true,
   borderWidth: 0,
-  spacing: 0.5,
+  dividerWidth: 1,
   groupDividers: false,
-  dividerWidth: 1
+  groupLabels: true,
+  spacing: 0.5
 
 };
 

@@ -251,7 +251,7 @@ A `formatter` can return a string (for a single line) or an array of strings (fo
 In the following example, every label of the treemap would be displayed with the unit.
 
 ```js
-{
+const config = {
   type: 'treemap',
   data: {
     datasets: [{
@@ -262,5 +262,5 @@ In the following example, every label of the treemap would be displayed with the
       }
     }]
   },
-}
+};
 ```

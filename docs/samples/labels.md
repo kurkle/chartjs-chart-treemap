@@ -8,8 +8,8 @@ const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
 const INTL_NUM_FORMAT = new Intl.NumberFormat('us', {
   style: 'unit',
   unit: 'kilometer',
-  unitDisplay: 'short', 
-  minimumFractionDigits: 1, 
+  unitDisplay: 'short',
+  minimumFractionDigits: 1,
   maximumFractionDigits: 1});
 
 // </block:setup>
@@ -42,23 +42,23 @@ const config = {
         spacing: 0,
         backgroundColor: (ctx) => colorFromRaw(ctx),
         labels: {
-           align: 'left',
-           display: true,
-           formatter(ctx) {
-             if (ctx.type !== 'data'){
-               return;
-             }
-             return INTL_NUM_FORMAT.format(ctx.raw.v);
-           },
-           color: 'black',
-           font: {
-             size: 16,
-           },
-           hoverFont: {
-             size: 24,
-             weight: 'bold'
-           },
-           position: 'center'
+          align: 'left',
+          display: true,
+          formatter(ctx) {
+            if (ctx.type !== 'data') {
+              return;
+            }
+            return INTL_NUM_FORMAT.format(ctx.raw.v);
+          },
+          color: 'black',
+          font: {
+            size: 16,
+          },
+          hoverFont: {
+            size: 24,
+            weight: 'bold'
+          },
+          position: 'center'
         }
       }
     ],

@@ -11,9 +11,20 @@ type TreemapScriptableContext = ScriptableContext<'treemap'> & {
 }
 
 type TreemapControllerDatasetLabelsOptions = {
+  align?: Scriptable<LabelAlign, TreemapScriptableContext>,
+  color?: Scriptable<Color, TreemapScriptableContext>,
   display?: boolean;
-  formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>
+  formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>,
+  font?: FontSpec,
+  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
+  hoverFont?: FontSpec,
+  padding?: number,
+  position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }
+
+export type LabelPosition = 'top' | 'middle' | 'bottom';
+
+export type LabelAlign = 'left' | 'center' | 'right';
 
 export interface TreemapControllerDatasetOptions<DType> {
   color?: Scriptable<Color, TreemapScriptableContext>,

@@ -47,6 +47,7 @@ module.exports = {
       sidebar: {
         '/samples/': [
           'basic',
+          'labels',
           'groups',
           'rtl'
         ],

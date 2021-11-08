@@ -10,6 +10,17 @@ type TreemapScriptableContext = ScriptableContext<'treemap'> & {
   raw: TreemapDataPoint
 }
 
+type TreemapControllerDatasetCaptionsOptions = {
+  align?: Scriptable<LabelAlign, TreemapScriptableContext>,
+  color?: Scriptable<Color, TreemapScriptableContext>,
+  display?: boolean;
+  formatter?: Scriptable<string, TreemapScriptableContext>,
+  font?: FontSpec,
+  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
+  hoverFont?: FontSpec,
+  padding?: number,
+}
+
 type TreemapControllerDatasetLabelsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>,
   color?: Scriptable<Color, TreemapScriptableContext>,
@@ -27,15 +38,12 @@ export type LabelPosition = 'top' | 'middle' | 'bottom';
 export type LabelAlign = 'left' | 'center' | 'right';
 
 export interface TreemapControllerDatasetOptions<DType> {
-  color?: Scriptable<Color, TreemapScriptableContext>,
   dividerCapStyle?: string,
   dividerColor?: string,
   dividerDash?: number[],
   dividerDashOffset?: number,
   dividerWidth?: number,
-  font?: FontSpec,
   groupDividers?: boolean,
-  groupLabels?: boolean,
   spacing?: number,
   rtl?: boolean,
 
@@ -43,12 +51,11 @@ export interface TreemapControllerDatasetOptions<DType> {
   borderColor?: Scriptable<Color, TreemapScriptableContext>;
   borderWidth?: number;
 
-  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
-  hoverFont?: FontSpec,
   hoverBackgroundColor?: Scriptable<Color, TreemapScriptableContext>;
   hoverBorderColor?: Scriptable<Color, TreemapScriptableContext>;
   hoverBorderWidth?: number;
 
+  captions?: TreemapControllerDatasetCaptionsOptions;
   labels?: TreemapControllerDatasetLabelsOptions;
   label?: string;
 

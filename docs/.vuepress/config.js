@@ -49,6 +49,7 @@ module.exports = {
           'basic',
           'labels',
           'groups',
+          'captions',
           'rtl'
         ],
         '/': [

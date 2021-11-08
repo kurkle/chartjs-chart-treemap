@@ -102,7 +102,6 @@ export default class TreemapElement extends Element {
       ctx.fillStyle = options.backgroundColor;
       ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
     }
-
     ctx.restore();
   }
 
@@ -140,18 +139,23 @@ TreemapElement.id = 'treemap';
 TreemapElement.defaults = {
   borderSkipped: undefined,
   borderWidth: undefined,
-  color: undefined,
   dividerCapStyle: 'butt',
   dividerColor: 'black',
   dividerDash: undefined,
   dividerDashOffset: 0,
   dividerWidth: 0,
-  font: {},
   groupDividers: false,
-  groupLabels: undefined,
   spacing: undefined,
   label: undefined,
   rtl: undefined,
+  captions: {
+    align: undefined,
+    color: undefined,
+    display: true,
+    formatter: (ctx) => ctx.raw.g || '',
+    font: {},
+    padding: 3
+  },
   labels: {
     align: 'center',
     color: undefined,
@@ -159,7 +163,7 @@ TreemapElement.defaults = {
     formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v,
     font: {},
     position: 'middle',
-    padding: 6
+    padding: 3
   }
 };
 

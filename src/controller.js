@@ -64,7 +64,7 @@ function drawCaptionLabel(ctx, item, rect) {
   ctx.font = font.string;
   ctx.textAlign = align;
   ctx.textBaseline = 'top';
-  ctx.fillText(item.g, x, rect.y + padding + borderWidth + 1.5); // adds 1.5 because the baseline to top, add 3 pixels from the line for normal letters
+  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + borderWidth + 1.5); // adds 1.5 because the baseline to top, add 3 pixels from the line for normal letters
 }
 
 function drawDivider(ctx, rect) {

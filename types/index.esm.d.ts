@@ -14,6 +14,7 @@ type TreemapControllerDatasetCaptionsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>,
   color?: Scriptable<Color, TreemapScriptableContext>,
   display?: boolean;
+  formatter?: Scriptable<string, TreemapScriptableContext>,
   font?: FontSpec,
   hoverColor?: Scriptable<Color, TreemapScriptableContext>,
   hoverFont?: FontSpec,

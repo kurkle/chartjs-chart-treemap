@@ -152,6 +152,7 @@ TreemapElement.defaults = {
     align: undefined,
     color: undefined,
     display: true,
+    formatter: (ctx) => ctx.raw.g || '',
     font: {},
     padding: 3
   },

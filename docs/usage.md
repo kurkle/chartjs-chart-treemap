@@ -89,27 +89,23 @@ These are used to set display properties for a specific dataset.
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`borderWidth`](#styling) | `number`\|`object` | Yes | `0`
-| [`color`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`dividerCapStyle`](#divider) | `string` | Yes | `'butt'`
-| [`dividerColor`](#divider) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `'black'`
-| [`dividerDash`](#divider) | `number[]` | Yes | `undefined`
-| [`dividerDashOffset`](#divider) | `number` | Yes | `0`
-| [`dividerWidth`](#divider) | `number` | Yes | `1`
-| [`font`](#styling) | `Font` | Yes | `{}` 
-| [`groupDividers`](#general) | `boolean` | Yes | `false` |
-| [`groupLabels`](#general) | `boolean` | Yes | `true` |
+| [`borderWidth`](#styling) | `number`\|`object` | - | `0`
+| [`captions`](#captions) | `object` | - | 
+| [`dividerCapStyle`](#divider) | `string` | - | `'butt'`
+| [`dividerColor`](#divider) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | - | `'black'`
+| [`dividerDash`](#divider) | `number[]` | - | `undefined`
+| [`dividerDashOffset`](#divider) | `number` | - | `0`
+| [`dividerWidth`](#divider) | `number` | - | `1`
+| [`groupDividers`](#general) | `boolean` | - | `false` |
 | [`groups`](#general) | `string[]` | - | `undefined` |
-| [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | Yes | `undefined`
-| [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | Yes | `undefined`
-| [`hoverBorderWidth`](#interactions) | `number` | Yes | Yes | `undefined`
-| [`hoverColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | Yes | `undefined`
-| [`hoverFont`](#interactions) | `Font` | Yes | `{}` 
+| [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| [`hoverBorderWidth`](#interactions) | `number` | - | `undefined`
 | [`key`](#general) | `string` | - | `undefined` |
 | [`label`](#general) | `string` | - | `''`
-| [`labels`](#labels) | `object` | Yes | 
-| [`rtl`](#general) | `boolean` | Yes | `false`
-| [`spacing`](#styling) | `number` | Yes | `0.5` |
+| [`labels`](#labels) | `object` | - | 
+| [`rtl`](#general) | `boolean` | - | `false`
+| [`spacing`](#styling) | `number` | - | `0.5`
 | [`tree`](#general) | `number[]` \| `object[]` | - |  **required**
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
@@ -118,7 +114,6 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 
 | Name | Description
 | ---- | ----
-| `groupLabels` | If `true`, the labels of the treemap elements group is shown, only if grouping.
 | `groups` | Define how to display multiple levels of hierarchy. Data is summarized to groups internally.
 | `key` | Define the key name in data objects to use for value.
 | `label` | The label for the dataset which appears in the legend and tooltips.
@@ -128,6 +123,18 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 Only the `tree`, `key` and `groups` options need to be specified in the dataset namespace.
 
 ```js
+function colorFromRaw(ctx) {
+  if (ctx.type !== 'data') {
+    return 'transparent';
+  }
+  const value = ctx.raw.v;
+  let alpha = (1 + Math.log(value)) / 5;
+  const color = 'green';
+  return helpers.color(color)
+    .alpha(alpha)
+    .rgbString();
+}
+
 const data = [
   {category: 'main', value: 1},
   {category: 'main', value: 2},
@@ -143,7 +150,7 @@ const config = {
       tree: data,
       key: 'value',
       groups: ['category'],
-      color: 'black'
+      backgroundColor: (ctx) => colorFromRaw(ctx),
     }]
   },
 };
@@ -158,8 +165,6 @@ The style of the treemap element can be controlled with the following properties
 | `backgroundColor` | The treemap element background color.
 | `borderColor` | The treemap element border color.
 | `borderWidth` | The treemap element border width (in pixels).
-| `color` | The font color, applicable to groups labels.
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | The font configuration, applicable to groups labels.
 | `spacing` | Fixed distance (in pixels) between all treemap elements.
 
 If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
@@ -173,8 +178,6 @@ The interaction with each element can be controlled with the following propertie
 | `hoverBackgroundColor` | The treemap element background color when hovered.
 | `hoverBorderColor` | The treemap element border color when hovered.
 | `hoverBorderWidth` | The treemap element border width (in pixels) when hovered.
-| `hoverColor` | The font color, applicable to groups labels when hovered.
-| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | The font configuration, applicable to groups labels. when hovered.
 
 If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
 
@@ -208,12 +211,12 @@ The labels options can control if and how a label, to represent the data, can be
 | ---- | ---- | :----: | ----
 | [`align`](#align) | `string` | Yes | `center`
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| `display` | `boolean` | Yes | `false`
-| [`formatter`](#divider) | `function` | Yes | 
+| `display` | `boolean` | - | `false`
+| [`formatter`](#formatter) | `function` | Yes | 
 | [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
-| `padding` | `number` | Yes | `6` 
+| `padding` | `number` | - | `3` 
 | [`position`](#position) | `string` | Yes | `middle`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
@@ -258,8 +261,83 @@ const config = {
       tree: [15, 6, 6, 5, 4, 3, 2, 2],
       labels: {
         display: false,
-        formatter: (ctx) => 'Kmq' + ctx.raw.v
+        formatter: (ctx) => 'Kmq ' + ctx.raw.v
       }
+    }]
+  },
+};
+```
+
+## Captions
+
+Namespaces:
+
+* `data.datasets[index].captions` - options for this dataset only
+* `options.datasets.treemap.captions` - options for all treemap datasets
+* `options.elements.treemap.captions` - options for all treemap elements
+* `options` - options for the whole chart
+
+The captions options can control if and how a captions, to represent the group of the chart, can be shown in the rectangle, with the following properties:
+
+| Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
+| ---- | ---- | :----: | ----
+| [`align`](#caption-align) | `string` | Yes | `undefined` but `left` is used because default `rtl` option is `false`.
+| `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| `display` | `boolean` | - | `true`
+| [`formatter`](#caption-formatter) | `function` | Yes | 
+| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| `padding` | `number` | - | `3` 
+
+All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
+
+### Caption Align
+
+The align property specifies the text horizontal alignment used when drawing the caption. The possible values are:
+
+* `left`: the text is left-aligned.
+* `center`: the text is centered. 
+* `right`: the text is right-aligned.
+
+If `undefined`, `right` is used if `rtl` option is set to `true`, otherwise `left`.
+
+### Caption Formatter
+
+If values are grouped, the value of the group is shown in the chart as caption for all elements belonging to the group.
+
+This default behavior can be overridden by the `formatter` which is a [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) option.
+
+A `formatter` can return a string. 
+
+In the following example, every caption of the treemap would be displayed with an additional label.
+
+```js
+const data = [
+  {category: 'main', subcategory: 'one', value: 1},
+  {category: 'main', subcategory: 'one', value: 5},
+  {category: 'main', subcategory: 'one', value: 3},
+  {category: 'main', subcategory: 'two', value: 2},
+  {category: 'main', subcategory: 'two', value: 1},
+  {category: 'main', subcategory: 'two', value: 8},
+  {category: 'other', subcategory: 'one', value: 4},
+  {category: 'other', subcategory: 'one', value: 5},
+  {category: 'other', subcategory: 'two', value: 4},
+  {category: 'other', subcategory: 'two', value: 1},
+];
+const config = {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      tree: data,
+      key: 'value',
+      groups: ['category', 'subcategory', 'value'],
+      captions: {
+        display: true,
+        formatter(ctx) {
+          return ctx.type === 'data' ? 'G: ' + ctx.raw.g : '';
+        }
+      },
     }]
   },
 };

@@ -38,6 +38,29 @@ const chart = new Chart('test', {
   },
 });
 
+const chart1 = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      label: 'Basic treemap',
+      data: undefined,
+      tree: [15, 6, 6, 5, 4, 3, 2, 2],
+      backgroundColor(ctx) {
+        return 'transparent';
+      },
+      labels: {
+        display: true,
+        padding: 25,
+        position: 'bottom',
+        align: 'right'
+      },
+      spacing: 1,
+      borderWidth: 2,
+      borderColor: 'black'
+    }]
+  },
+});
+
 const statsByState = [
   {
     state: 'Alabama',

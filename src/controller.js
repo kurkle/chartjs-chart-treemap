@@ -303,10 +303,11 @@ TreemapController.version = version;
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
+
   borderWidth: 0,
-  spacing: 0.5,
+  dividerWidth: 1,
   groupDividers: false,
-  dividerWidth: 1
+  spacing: 0.5
 
 };
 

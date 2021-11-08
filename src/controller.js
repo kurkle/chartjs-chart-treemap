@@ -97,7 +97,7 @@ function buildData(dataset, mainRect, captions) {
   let tree = dataset.tree || [];
   const groups = dataset.groups || [];
   const glen = groups.length;
-  const sp = (dataset.spacing || 0) + (dataset.borderWidth || 0);
+  const sp = valueOrDefault(dataset.spacing, 0) + valueOrDefault(dataset.borderWidth, 0);
   const captionsFont = captions.font || {};
   const font = toFont(captionsFont);
   const padding = valueOrDefault(captions.padding, 3);

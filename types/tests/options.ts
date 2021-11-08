@@ -148,13 +148,7 @@ const chart3 = new Chart('test', {
         const a = item.v / (item.gs || item.s) / 2 + 0.5;
         switch (item.l) {
         case 0:
-          switch (item.g) {
-          case 'Midwest': return '#4363d8';
-          case 'Northeast': return '#469990';
-          case 'South': return '#9A6324';
-          case 'West': return '#f58231';
-          default: return '#e6beff';
-          }
+          return '#e6beff';
         case 1:
           return colorLib('white').alpha(0.3).rgbString();
         default:

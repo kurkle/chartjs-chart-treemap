@@ -37,13 +37,16 @@ export type LabelPosition = 'top' | 'middle' | 'bottom';
 
 export type LabelAlign = 'left' | 'center' | 'right';
 
+type TreemapControllerDatasetDividersOptions = {
+  display?: boolean,
+  lineCapStyle?: string,
+  lineColor?: string,
+  lineDash?: number[],
+  lineDashOffset?: number,
+  lineWidth?: number,
+}
+
 export interface TreemapControllerDatasetOptions<DType> {
-  dividerCapStyle?: string,
-  dividerColor?: string,
-  dividerDash?: number[],
-  dividerDashOffset?: number,
-  dividerWidth?: number,
-  groupDividers?: boolean,
   spacing?: number,
   rtl?: boolean,
 
@@ -56,6 +59,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   hoverBorderWidth?: number;
 
   captions?: TreemapControllerDatasetCaptionsOptions;
+  dividers?: TreemapControllerDatasetDividersOptions;
   labels?: TreemapControllerDatasetLabelsOptions;
   label?: string;
 

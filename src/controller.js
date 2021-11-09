@@ -69,15 +69,16 @@ function drawCaptionLabel(ctx, item, rect) {
 
 function drawDivider(ctx, rect) {
   const opts = rect.options;
+  const dividersOpts = opts.dividers || {};
   const w = rect.width || rect.w;
   const h = rect.height || rect.h;
 
   ctx.save();
-  ctx.strokeStyle = opts.dividerColor || 'black';
-  ctx.lineCap = opts.dividerCapStyle;
-  ctx.setLineDash(opts.dividerDash || []);
-  ctx.lineDashOffset = opts.dividerDashOffset;
-  ctx.lineWidth = opts.dividerWidth;
+  ctx.strokeStyle = dividersOpts.lineColor || 'black';
+  ctx.lineCap = dividersOpts.lineCapStyle;
+  ctx.setLineDash(dividersOpts.lineDash || []);
+  ctx.lineDashOffset = dividersOpts.lineDashOffset;
+  ctx.lineWidth = dividersOpts.lineWidth;
   ctx.beginPath();
   if (w > h) {
     const w2 = w / 2;
@@ -261,12 +262,10 @@ export default class TreemapController extends DatasetController {
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       const item = data[i];
-      if (rect.options.groupDividers && item._data.children.length > 1) {
+      const dividersOpts = rect.options.dividers || {};
+      if (dividersOpts.display && item._data.children.length > 1) {
         drawDivider(ctx, rect);
       }
-    }
-    if (this.getDataset().groupDividers) {
-      drawDivider(ctx, this._rect);
     }
   }
 
@@ -305,9 +304,11 @@ TreemapController.defaults = {
   dataElementType: 'treemap',
 
   borderWidth: 0,
-  dividerWidth: 1,
-  groupDividers: false,
-  spacing: 0.5
+  spacing: 0.5,
+  dividers: {
+    display: false,
+    lineWidth: 1,
+  }
 
 };
 

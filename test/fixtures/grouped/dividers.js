@@ -12,12 +12,13 @@ export default {
         tree: data,
         key: 'value',
         groups: ['category'],
-        color: 'transparent',
-        groupDividers: true,
-        dividerDash: [3, 5],
-        dividerWidth: 2,
         borderWidth: 1,
-        borderColor: '#777'
+        borderColor: '#777',
+        dividers: {
+          display: true,
+          lineDash: [3, 5],
+          lineWidth: 2,
+        }
       }]
     },
   },

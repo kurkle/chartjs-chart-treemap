@@ -91,12 +91,7 @@ These are used to set display properties for a specific dataset.
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
 | [`captions`](#captions) | `object` | - | 
-| [`dividerCapStyle`](#divider) | `string` | - | `'butt'`
-| [`dividerColor`](#divider) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | - | `'black'`
-| [`dividerDash`](#divider) | `number[]` | - | `undefined`
-| [`dividerDashOffset`](#divider) | `number` | - | `0`
-| [`dividerWidth`](#divider) | `number` | - | `1`
-| [`groupDividers`](#general) | `boolean` | - | `false` |
+| [`dividers`](#dividers) | `object` | - | 
 | [`groups`](#general) | `string[]` | - | `undefined` |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
@@ -178,21 +173,6 @@ The interaction with each element can be controlled with the following propertie
 | `hoverBackgroundColor` | The treemap element background color when hovered.
 | `hoverBorderColor` | The treemap element border color when hovered.
 | `hoverBorderWidth` | The treemap element border width (in pixels) when hovered.
-
-If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
-
-### Divider
-
-The divider is a line which splits a treemap elements in inner subelements and can be controlled with the following properties:
-
-| Name | Description
-| ---- | -----------
-| `dividerCapStyle` | Cap style of the divider line. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap).
-| `dividerColor` | Color of the divider line.
-| `dividerDash` | Length and spacing of divider dashes. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash).
-| `dividerDashOffset` | Offset for divider line dashes. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset).
-| `dividerWidth` | Divider line width (in pixels).
-| `groupDividers` | If `true`, the dividers will be applied to the grouped treemap elements, only if grouping.
 
 If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
 
@@ -342,3 +322,40 @@ const config = {
   },
 };
 ```
+
+## Dividers
+
+Namespaces:
+
+* `data.datasets[index].dividers` - options for this dataset only
+* `options.datasets.treemap.dividers` - options for all treemap datasets
+* `options.elements.treemap.dividers` - options for all treemap elements
+* `options` - options for the whole chart
+
+The divider is a line which splits a treemap elements in grouped elements and can be controlled with the following properties:
+
+| Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
+| ---- | ---- | :----: | ----
+| `display` | `boolean` | - | `false` |
+| [`lineCapStyle`](#line-styling) | `string` | - | `'butt'`
+| [`lineColor`](#line-styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | - | `'black'`
+| [`lineDash`](#line-styling) | `number[]` | - | `undefined`
+| [`lineDashOffset`](#line-styling) | `number` | - | `0`
+| [`lineWidth`](#line-styling) | `number` | - | `1`
+
+All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
+
+### Line Styling
+
+The style of the divider line can be controlled with the following properties:
+
+| Name | Description
+| ---- | -----------
+| `display` | If `true`, the dividers will be applied to the grouped treemap elements, only if grouping.
+| `lineCapStyle` | Cap style of the divider line. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap).
+| `lineColor` | Color of the divider line.
+| `lineDash` | Length and spacing of divider dashes. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash).
+| `lineDashOffset` | Offset for divider line dashes. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset).
+| `lineWidth` | Divider line width (in pixels).
+
+If the value is `undefined`, fallbacks to the associated `elements.treemap.dividers.*` options.

@@ -28,16 +28,18 @@
 							{category: 'main', value: 1},
 							{category: 'main', value: 2},
 							{category: 'other', value: 4},
+							{category: 'other', value: 4},
 						],
 						key: 'value',
 						groups: ['category'],
 						spacing: 0.1,
 						borderWidth: 2,
 						borderColor: 'rgba(180,180,180, 0.15)',
-						dividerWidth: 2,
-						dividerDash: [[2, 3]],
-						groupDividers: true,
-						color: 'transparent'
+						dividers: {
+							display: true,
+							lineWidth: 2,
+							lineDash: [2, 3],
+						}
 					}]
 				},
 				options: {

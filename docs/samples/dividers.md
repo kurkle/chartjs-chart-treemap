@@ -43,7 +43,7 @@ const config = {
         lineWidth: 2,
       }
     }]
-   },
+  },
   options: options
 };
 

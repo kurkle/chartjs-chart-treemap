@@ -178,3 +178,26 @@ const chart3 = new Chart('test', {
     }]
   },
 });
+
+const chart4 = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      data: [],
+      tree: statsByState,
+      key: 'population',
+      groups: ['region', 'division', 'code'],
+      backgroundColor(ctx) {
+        return '#e6beff';
+      },
+      dividers: {
+        display: false,
+        lineWidth: 12,
+        lineDash: [1, 3]
+      },
+      labels: {
+        display: false,
+      }
+    }]
+  },
+});

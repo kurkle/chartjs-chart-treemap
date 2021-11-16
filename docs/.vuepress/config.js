@@ -50,6 +50,7 @@ module.exports = {
           'labels',
           'groups',
           'captions',
+          'dividers',
           'rtl'
         ],
         '/': [

@@ -138,15 +138,17 @@ TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
   borderWidth: undefined,
-  dividerCapStyle: 'butt',
-  dividerColor: 'black',
-  dividerDash: undefined,
-  dividerDashOffset: 0,
-  dividerWidth: 0,
-  groupDividers: false,
   spacing: undefined,
   label: undefined,
   rtl: undefined,
+  dividers: {
+    display: false,
+    lineCapStyle: 'butt',
+    lineColor: 'black',
+    lineDash: undefined,
+    lineDashOffset: 0,
+    lineWidth: 0,
+  },
   captions: {
     align: undefined,
     color: undefined,

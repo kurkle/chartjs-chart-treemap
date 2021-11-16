@@ -54,6 +54,7 @@ function drawCaptionLabel(ctx, item, rect) {
   const opts = rect.options;
   const captionsOpts = opts.captions || {};
   const borderWidth = opts.borderWidth || 0;
+  const spacing = valueOrDefault(opts.spacing, 0) + borderWidth;
   const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
   const padding = captionsOpts.padding;
   const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
@@ -63,8 +64,8 @@ function drawCaptionLabel(ctx, item, rect) {
   ctx.fillStyle = color;
   ctx.font = font.string;
   ctx.textAlign = align;
-  ctx.textBaseline = 'top';
-  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + borderWidth + 1.5); // adds 1.5 because the baseline to top, add 3 pixels from the line for normal letters
+  ctx.textBaseline = 'middle';
+  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
 }
 
 function drawDivider(ctx, rect) {

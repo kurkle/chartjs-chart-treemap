@@ -137,7 +137,6 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
-  borderSkipped: undefined,
   borderWidth: undefined,
   spacing: undefined,
   label: undefined,

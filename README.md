@@ -11,6 +11,10 @@
 
 ![TreeMap Example Image](treemap.png)
 
+## Documentation
+
+You can find documentation for chartjs-chart-treemap at [https://chartjs-chart-treemap.pages.dev/](https://chartjs-chart-treemap.pages.dev/).
+
 ## Development
 
 You first need to install node dependencies  (requires [Node.js](https://nodejs.org/)):

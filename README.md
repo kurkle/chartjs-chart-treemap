@@ -5,9 +5,9 @@
 [![npm](https://img.shields.io/npm/v/chartjs-chart-treemap.svg)](https://www.npmjs.com/package/chartjs-chart-treemap)
 [![release](https://img.shields.io/github/release/kurkle/chartjs-chart-treemap.svg?style=flat-square)](https://github.com/kurkle/chartjs-chart-treemap/releases/latest)
 ![npm bundle size](https://img.shields.io/bundlephobia/min/chartjs-chart-treemap.svg)
-[![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)
 ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
-[![Coverage Status](https://coveralls.io/repos/github/kurkle/chartjs-chart-treemap/badge.svg)](https://coveralls.io/github/kurkle/chartjs-chart-treemap)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kurkle_chartjs-chart-treemap&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kurkle_chartjs-chart-treemap)
+[![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)
 
 ![TreeMap Example Image](treemap.png)
 

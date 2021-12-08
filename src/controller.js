@@ -304,6 +304,13 @@ TreemapController.version = version;
 TreemapController.defaults = {
   dataElementType: 'treemap',
 
+  animations: {
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'width', 'height']
+    },
+  },
+
   borderWidth: 0,
   spacing: 0.5,
   dividers: {

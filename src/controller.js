@@ -239,15 +239,14 @@ export default class TreemapController extends DatasetController {
     for (let i = start; i < start + count; i++) {
       const sq = dataset.data[i];
       const options = sharedOptions || me.resolveDataElementOptions(i, mode);
-      const height = reset ? 0 : sq.h - options.spacing * 2;
-      const width = reset ? 0 : sq.w - options.spacing * 2;
-      const x = sq.x + options.spacing;
-      const y = sq.y + options.spacing;
+      const sp = options.spacing;
+      const sp2 = sp * 2;
       const properties = {
-        x,
-        y,
-        width,
-        height
+        x: sq.x + sp,
+        y: sq.y + sp,
+        width: reset ? 0 : sq.w - sp2,
+        height: reset ? 0 : sq.h - sp2,
+        hidden: sp2 > sq.w || sp2 > sq.h,
       };
 
       if (includeOptions) {

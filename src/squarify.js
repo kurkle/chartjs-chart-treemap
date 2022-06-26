@@ -1,6 +1,6 @@
-import {sum, index, sort, flatten} from './utils';
-import Rect from './rect';
-import StatArray from './statArray';
+import { sum, index, sort, flatten } from "./utils";
+import Rect from "./rect";
+import StatArray from "./statArray";
 
 function compareAspectRatio(oldStat, newStat, args) {
   if (oldStat.sum === 0) {
@@ -11,8 +11,8 @@ function compareAspectRatio(oldStat, newStat, args) {
   const os2 = oldStat.nsum * oldStat.nsum;
   const ns2 = newStat.nsum * newStat.nsum;
   const l2 = length * length;
-  const or = Math.max(l2 * oldStat.nmax / os2, os2 / (l2 * oldStat.nmin));
-  const nr = Math.max(l2 * newStat.nmax / ns2, ns2 / (l2 * newStat.nmin));
+  const or = Math.max((l2 * oldStat.nmax) / os2, os2 / (l2 * oldStat.nmin));
+  const nr = Math.max((l2 * newStat.nmax) / ns2, ns2 / (l2 * newStat.nmin));
   return nr <= or;
 }
 
@@ -29,7 +29,7 @@ export default function squarify(values, rectangle, key, grp, lvl, gsum) {
   values = values || [];
   const rows = [];
   const rect = new Rect(rectangle);
-  const row = new StatArray('value', rect.area / sum(values, key));
+  const row = new StatArray("value", rect.area / sum(values, key));
   let length = rect.side;
   const n = values.length;
   let i, o;
@@ -40,13 +40,18 @@ export default function squarify(values, rectangle, key, grp, lvl, gsum) {
 
   const tmp = values.slice();
   key = index(tmp, key);
-  sort(tmp, key);
 
-  const val = (idx) => key ? +tmp[idx][key] : +tmp[idx];
+  const val = (idx) => (key ? +tmp[idx][key] : +tmp[idx]);
   const gval = (idx) => grp && tmp[idx][grp];
 
   for (i = 0; i < n; ++i) {
-    o = {value: val(i), groupSum: gsum, _data: values[tmp[i]._idx], level: undefined, group: undefined};
+    o = {
+      value: val(i),
+      groupSum: gsum,
+      _data: values[tmp[i]._idx],
+      level: undefined,
+      group: undefined,
+    };
     if (grp) {
       o.level = lvl;
       o.group = gval(i);

@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kurkle/chartjs-chart-treemap.git"
+    "url": "git+https://github.com/Beshr7/chartjs-chart-treemap.git"
   },
   "keywords": [
     "chart.js",

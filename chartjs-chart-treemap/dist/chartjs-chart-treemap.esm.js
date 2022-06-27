@@ -1,30 +1,40 @@
-import "./chunk-ZHQA7ZDO.js";
-import {
-  Chart,
-  DatasetController,
-  Element,
-  registry,
-} from "./chunk-DFBXX5HI.js";
-import { isArray, toFont, valueOrDefault } from "./chunk-VQLMT2RO.js";
-import "./chunk-M5PF3ZFT.js";
+/*!
+ * chartjs-chart-treemap v2.0.2
+ * https://chartjs-chart-treemap.pages.dev/
+ * (c) 2021 Jukka Kurkela
+ * Released under the MIT license
+ */
+import { Chart, registry, DatasetController, Element } from "chart.js";
+import { toFont, valueOrDefault, isArray } from "chart.js/helpers";
 
-// node_modules/chartjs-chart-treemap/dist/chartjs-chart-treemap.esm.js
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
 function flatten(input) {
   const stack = [...input];
   const res = [];
   while (stack.length) {
+    // pop value from stack
     const next = stack.pop();
     if (Array.isArray(next)) {
+      // push back array items, won't modify the original input
       stack.push(...next);
     } else {
       res.push(next);
     }
   }
+  // reverse to restore input order
   return res.reverse();
 }
+
+/**
+ * @param {[]} values
+ * @param {string} grp
+ * @param {string} key
+ * @param {string} [mainGrp]
+ * @param {*} [mainValue]
+ */
 function group(values, grp, key, mainGrp, mainValue) {
-  const tmp = /* @__PURE__ */ Object.create(null);
-  const data = /* @__PURE__ */ Object.create(null);
+  const tmp = Object.create(null);
+  const data = Object.create(null);
   const ret = [];
   let g, i, n, v;
   for (i = 0, n = values.length; i < n; ++i) {
@@ -40,6 +50,7 @@ function group(values, grp, key, mainGrp, mainValue) {
     tmp[g] += +v[key];
     data[g].push(v);
   }
+
   Object.keys(tmp).forEach((k) => {
     v = { children: data[k] };
     v[key] = +tmp[k];
@@ -49,20 +60,26 @@ function group(values, grp, key, mainGrp, mainValue) {
     }
     ret.push(v);
   });
+
   return ret;
 }
+
 function isObject(obj) {
   const type = typeof obj;
   return type === "function" || (type === "object" && !!obj);
 }
+
 function index(values, key) {
   let n = values.length;
   let i;
+
   if (!n) {
     return key;
   }
+
   const obj = isObject(values[0]);
   key = obj ? key : "v";
+
   for (i = 0, n = values.length; i < n; ++i) {
     if (obj) {
       values[i]._idx = i;
@@ -72,6 +89,7 @@ function index(values, key) {
   }
   return key;
 }
+
 function sort(values, key) {
   if (key) {
     values.sort((a, b) => +b[key] - +a[key]);
@@ -79,24 +97,31 @@ function sort(values, key) {
     values.sort((a, b) => +b - +a);
   }
 }
+
 function sum(values, key) {
   let s, i, n;
+
   for (s = 0, i = 0, n = values.length; i < n; ++i) {
     s += key ? +values[i][key] : +values[i];
   }
+
   return s;
 }
-function requireVersion(min2, ver) {
+
+function requireVersion(min, ver) {
   const parts = ver.split(".");
-  if (!min2.split(".").reduce((a, c, i) => a && c <= parts[i], true)) {
+  if (!min.split(".").reduce((a, c, i) => a && c <= parts[i], true)) {
     throw new Error(
-      `Chart.js v${ver} is not supported. v${min2} or newer is required.`
+      `Chart.js v${ver} is not supported. v${min} or newer is required.`
     );
   }
 }
+
 function round(v, n) {
+  // @ts-ignore
   return +(Math.round(v + "e+" + n) + "e-" + n) || 0;
 }
+
 function getDims(itm, w2, s2, key) {
   const a = itm._normalized;
   const ar = (w2 * a) / s2;
@@ -104,11 +129,14 @@ function getDims(itm, w2, s2, key) {
   const d2 = a / d1;
   const w = key === "_ix" ? d1 : d2;
   const h = key === "_ix" ? d2 : d1;
+
   return { d1, d2, w, h };
 }
-var getX = (rect, w) =>
+
+const getX = (rect, w) =>
   round(rect.rtl ? rect.x + rect.w - rect._ix - w : rect.x + rect._ix, 4);
-function buildRow(rect, itm, dims, sum2) {
+
+function buildRow(rect, itm, dims, sum) {
   const r = {
     x: getX(rect, dims.w),
     y: round(rect.y + rect._iy, 4),
@@ -116,7 +144,7 @@ function buildRow(rect, itm, dims, sum2) {
     h: round(dims.h, 4),
     a: round(itm._normalized, 4),
     v: itm.value,
-    s: sum2,
+    s: sum,
     _data: itm._data,
   };
   if (itm.group) {
@@ -126,7 +154,8 @@ function buildRow(rect, itm, dims, sum2) {
   }
   return r;
 }
-var Rect = class {
+
+class Rect {
   constructor(r) {
     const me = this;
     r = r || { w: 1, h: 1 };
@@ -138,32 +167,38 @@ var Rect = class {
     me.w = r.w || r.width || r.right - r.left;
     me.h = r.h || r.height || r.bottom - r.top;
   }
+
   get area() {
     return this.w * this.h;
   }
+
   get iw() {
     return this.w - this._ix;
   }
+
   get ih() {
     return this.h - this._iy;
   }
+
   get dir() {
     const ih = this.ih;
     return ih <= this.iw && ih > 0 ? "y" : "x";
   }
+
   get side() {
     return this.dir === "x" ? this.iw : this.ih;
   }
+
   map(arr) {
     const me = this;
     const ret = [];
-    const sum2 = arr.nsum;
+    const sum = arr.nsum;
     const row = arr.get();
     const dir = me.dir;
     const side = me.side;
     const w2 = side * side;
     const key = dir === "x" ? "_ix" : "_iy";
-    const s2 = sum2 * sum2;
+    const s2 = sum * sum;
     let maxd2 = 0;
     let totd1 = 0;
     for (const itm of row) {
@@ -177,9 +212,11 @@ var Rect = class {
     me[key] -= totd1;
     return ret;
   }
-};
-var min = Math.min;
-var max = Math.max;
+}
+
+const min = Math.min;
+const max = Math.max;
+
 function getStat(sa) {
   return {
     min: sa.min,
@@ -190,10 +227,12 @@ function getStat(sa) {
     nsum: sa.nsum,
   };
 }
+
 function getNewStat(sa, o) {
   const v = +o[sa.key];
   const n = v * sa.ratio;
   o._normalized = n;
+
   return {
     min: min(sa.min, v),
     max: max(sa.max, v),
@@ -203,23 +242,28 @@ function getNewStat(sa, o) {
     nsum: sa.nsum + n,
   };
 }
+
 function setStat(sa, stat) {
   Object.assign(sa, stat);
 }
+
 function push(sa, o, stat) {
   sa._arr.push(o);
   setStat(sa, stat);
 }
-var StatArray = class {
+
+class StatArray {
   constructor(key, ratio) {
     const me = this;
     me.key = key;
     me.ratio = ratio;
     me.reset();
   }
+
   get length() {
     return this._arr.length;
   }
+
   reset() {
     const me = this;
     me._arr = [];
@@ -231,9 +275,11 @@ var StatArray = class {
     me.nmin = Infinity;
     me.nmax = -Infinity;
   }
+
   push(o) {
     push(this, o, getNewStat(this, o));
   }
+
   pushIf(o, fn, ...args) {
     const nstat = getNewStat(this, o);
     if (!fn(getStat(this), nstat, args)) {
@@ -241,14 +287,17 @@ var StatArray = class {
     }
     push(this, o, nstat);
   }
+
   get() {
     return this._arr;
   }
-};
+}
+
 function compareAspectRatio(oldStat, newStat, args) {
   if (oldStat.sum === 0) {
     return true;
   }
+
   const [length] = args;
   const os2 = oldStat.nsum * oldStat.nsum;
   const ns2 = newStat.nsum * newStat.nsum;
@@ -257,6 +306,16 @@ function compareAspectRatio(oldStat, newStat, args) {
   const nr = Math.max((l2 * newStat.nmax) / ns2, ns2 / (l2 * newStat.nmin));
   return nr <= or;
 }
+
+/**
+ *
+ * @param {number[]|object[]} values
+ * @param {object} rectangle
+ * @param {string} key
+ * @param {*} grp
+ * @param {*} lvl
+ * @param {*} gsum
+ */
 function squarify(values, rectangle, key, grp, lvl, gsum) {
   values = values || [];
   const rows = [];
@@ -265,21 +324,24 @@ function squarify(values, rectangle, key, grp, lvl, gsum) {
   let length = rect.side;
   const n = values.length;
   let i, o;
+
   if (!n) {
     return rows;
   }
+
   const tmp = values.slice();
   key = index(tmp, key);
 
   const val = (idx) => (key ? +tmp[idx][key] : +tmp[idx]);
   const gval = (idx) => grp && tmp[idx][grp];
+
   for (i = 0; i < n; ++i) {
     o = {
       value: val(i),
       groupSum: gsum,
       _data: values[tmp[i]._idx],
-      level: void 0,
-      group: void 0,
+      level: undefined,
+      group: undefined,
     };
     if (grp) {
       o.level = lvl;
@@ -298,7 +360,9 @@ function squarify(values, rectangle, key, grp, lvl, gsum) {
   }
   return flatten(rows);
 }
+
 var version = "2.0.2";
+
 function rectNotEqual(r1, r2) {
   return (
     !r1 ||
@@ -309,11 +373,14 @@ function rectNotEqual(r1, r2) {
     r1.h !== r2.h
   );
 }
+
 function arrayNotEqual(a1, a2) {
   let i, n;
+
   if (a1.lenght !== a2.length) {
     return true;
   }
+
   for (i = 0, n = a1.length; i < n; ++i) {
     if (a1[i] !== a2[i]) {
       return true;
@@ -321,15 +388,17 @@ function arrayNotEqual(a1, a2) {
   }
   return false;
 }
+
 function shouldDrawCaption(rect, font) {
   if (!font) {
     return false;
   }
   const w = rect.width || rect.w;
   const h = rect.height || rect.h;
-  const min2 = font.lineHeight * 2;
-  return w > min2 && h > min2;
+  const min = font.lineHeight * 2;
+  return w > min && h > min;
 }
+
 function drawCaption(ctx, rect, item, opts, levels) {
   ctx.save();
   ctx.beginPath();
@@ -342,6 +411,7 @@ function drawCaption(ctx, rect, item, opts, levels) {
   }
   ctx.restore();
 }
+
 function drawCaptionLabel(ctx, item, rect) {
   const opts = rect.options;
   const captionsOpts = opts.captions || {};
@@ -367,11 +437,13 @@ function drawCaptionLabel(ctx, item, rect) {
     rect.y + padding + spacing + font.lineHeight / 2
   );
 }
+
 function drawDivider(ctx, rect) {
   const opts = rect.options;
   const dividersOpts = opts.dividers || {};
   const w = rect.width || rect.w;
   const h = rect.height || rect.h;
+
   ctx.save();
   ctx.strokeStyle = dividersOpts.lineColor || "black";
   ctx.lineCap = dividersOpts.lineCapStyle;
@@ -391,6 +463,7 @@ function drawDivider(ctx, rect) {
   ctx.stroke();
   ctx.restore();
 }
+
 function buildData(dataset, mainRect, captions) {
   const key = dataset.key || "";
   let tree = dataset.tree || [];
@@ -401,6 +474,7 @@ function buildData(dataset, mainRect, captions) {
   const captionsFont = captions.font || {};
   const font = toFont(captionsFont);
   const padding = valueOrDefault(captions.padding, 3);
+
   function recur(gidx, rect, parent, gs) {
     const g = groups[gidx];
     const pg = gidx > 0 && groups[gidx - 1];
@@ -428,11 +502,14 @@ function buildData(dataset, mainRect, captions) {
     }
     return ret;
   }
+
   if (!tree.length && dataset.data.length) {
     tree = dataset.tree = dataset.data;
   }
+
   return glen ? recur(0, mainRect) : squarify(tree, mainRect, key);
 }
+
 function drawLabels(ctx, item, rect) {
   const opts = rect.options;
   const labelsOpts = opts.labels;
@@ -457,6 +534,7 @@ function drawLabels(ctx, item, rect) {
     labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
   }
 }
+
 function calculateXYLabel(options, rect, labels, lineHeight) {
   const labelsOpts = options.labels;
   const borderWidth = options.borderWidth || 0;
@@ -477,6 +555,7 @@ function calculateXYLabel(options, rect, labels, lineHeight) {
   }
   return { x, y };
 }
+
 function calculateX(rect, align, padding, borderWidth) {
   if (align === "left") {
     return rect.x + padding + borderWidth;
@@ -485,17 +564,21 @@ function calculateX(rect, align, padding, borderWidth) {
   }
   return rect.x + rect.width / 2;
 }
-var TreemapController = class extends DatasetController {
+
+class TreemapController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
-    this._rect = void 0;
-    this._key = void 0;
-    this._groups = void 0;
+
+    this._rect = undefined;
+    this._key = undefined;
+    this._groups = undefined;
   }
+
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
   }
+
   update(mode) {
     const me = this;
     const meta = me.getMeta();
@@ -505,6 +588,7 @@ var TreemapController = class extends DatasetController {
     const area = me.chart.chartArea;
     const key = dataset.key || "";
     const rtl = !!dataset.rtl;
+
     const mainRect = {
       x: area.left,
       y: area.top,
@@ -512,6 +596,7 @@ var TreemapController = class extends DatasetController {
       h: area.bottom - area.top,
       rtl,
     };
+
     if (
       mode === "reset" ||
       rectNotEqual(me._rect, mainRect) ||
@@ -521,20 +606,26 @@ var TreemapController = class extends DatasetController {
       me._rect = mainRect;
       me._groups = groups.slice();
       me._key = key;
+
       dataset.data = buildData(dataset, mainRect, captions);
+      // @ts-ignore using private stuff
       me._dataCheck();
+      // @ts-ignore using private stuff
       me._resyncElements();
     }
+
     me.updateElements(meta.data, 0, meta.data.length, mode);
   }
-  resolveDataElementOptions(index2, mode) {
-    const options = super.resolveDataElementOptions(index2, mode);
+
+  resolveDataElementOptions(index, mode) {
+    const options = super.resolveDataElementOptions(index, mode);
     const result = Object.isFrozen(options)
       ? Object.assign({}, options)
       : options;
     result.font = toFont(options.captions.font);
     return result;
   }
+
   updateElements(rects, start, count, mode) {
     const me = this;
     const reset = mode === "reset";
@@ -545,6 +636,7 @@ var TreemapController = class extends DatasetController {
     ));
     const sharedOptions = me.getSharedOptions(firstOpts);
     const includeOptions = me.includeOptions(mode, sharedOptions);
+
     for (let i = start; i < start + count; i++) {
       const sq = dataset.data[i];
       const options = sharedOptions || me.resolveDataElementOptions(i, mode);
@@ -557,13 +649,16 @@ var TreemapController = class extends DatasetController {
         height: reset ? 0 : sq.h - sp2,
         hidden: sp2 > sq.w || sp2 > sq.h,
       };
+
       if (includeOptions) {
         properties.options = options;
       }
       me.updateElement(rects[i], i, properties, mode);
     }
+
     me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
+
   _drawDividers(ctx, data, metadata) {
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
@@ -574,6 +669,7 @@ var TreemapController = class extends DatasetController {
       }
     }
   }
+
   _drawRects(ctx, data, metadata, levels) {
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
@@ -587,6 +683,7 @@ var TreemapController = class extends DatasetController {
       }
     }
   }
+
   draw() {
     const me = this;
     const ctx = me.chart.ctx;
@@ -594,20 +691,26 @@ var TreemapController = class extends DatasetController {
     const dataset = me.getDataset();
     const levels = (dataset.groups || []).length - 1;
     const data = dataset.data || [];
+
     me._drawRects(ctx, data, metadata, levels);
     me._drawDividers(ctx, data, metadata);
   }
-};
+}
+
 TreemapController.id = "treemap";
+
 TreemapController.version = version;
+
 TreemapController.defaults = {
   dataElementType: "treemap",
+
   animations: {
     numbers: {
       type: "number",
       properties: ["x", "y", "width", "height"],
     },
   },
+
   borderWidth: 0,
   spacing: 0.5,
   dividers: {
@@ -615,16 +718,20 @@ TreemapController.defaults = {
     lineWidth: 1,
   },
 };
+
 TreemapController.descriptors = {
   _scriptable: true,
   _indexable: false,
 };
+
 TreemapController.overrides = {
   interaction: {
     mode: "point",
     intersect: true,
   },
+
   hover: {},
+
   plugins: {
     tooltip: {
       position: "treemap",
@@ -657,9 +764,11 @@ TreemapController.overrides = {
     },
   },
 };
+
 TreemapController.beforeRegister = function () {
   requireVersion("3.6", Chart.version);
 };
+
 TreemapController.afterRegister = function () {
   const tooltipPlugin = registry.plugins.get("tooltip");
   if (tooltipPlugin) {
@@ -667,18 +776,29 @@ TreemapController.afterRegister = function () {
       if (!active.length) {
         return false;
       }
+
       const item = active[active.length - 1];
       const el = item.element;
+
       return el.tooltipPosition();
     };
   }
 };
+
 TreemapController.afterUnregister = function () {
   const tooltipPlugin = registry.plugins.get("tooltip");
   if (tooltipPlugin) {
     delete tooltipPlugin.positioners.treemap;
   }
 };
+
+/**
+ * Helper function to get the bounds of the rect
+ * @param {TreemapElement} rect the rect
+ * @param {boolean} [useFinalPosition]
+ * @return {object} bounds of the rect
+ * @private
+ */
 function getBounds(rect, useFinalPosition) {
   const { x, y, width, height } = rect.getProps(
     ["x", "y", "width", "height"],
@@ -686,11 +806,14 @@ function getBounds(rect, useFinalPosition) {
   );
   return { left: x, top: y, right: x + width, bottom: y + height };
 }
-function limit(value, min2, max2) {
-  return Math.max(Math.min(value, max2), min2);
+
+function limit(value, min, max) {
+  return Math.max(Math.min(value, max), min);
 }
+
 function parseBorderWidth(value, maxW, maxH) {
   let t, r, b, l;
+
   if (isObject(value)) {
     t = +value.top || 0;
     r = +value.right || 0;
@@ -699,6 +822,7 @@ function parseBorderWidth(value, maxW, maxH) {
   } else {
     t = r = b = l = +value || 0;
   }
+
   return {
     t: limit(t, 0, maxH),
     r: limit(r, 0, maxW),
@@ -706,6 +830,7 @@ function parseBorderWidth(value, maxW, maxH) {
     l: limit(l, 0, maxW),
   };
 }
+
 function boundingRects(rect) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
@@ -715,6 +840,7 @@ function boundingRects(rect) {
     width / 2,
     height / 2
   );
+
   return {
     outer: {
       x: bounds.left,
@@ -730,31 +856,39 @@ function boundingRects(rect) {
     },
   };
 }
+
 function inRange(rect, x, y, useFinalPosition) {
   const skipX = x === null;
   const skipY = y === null;
   const bounds =
     !rect || (skipX && skipY) ? false : getBounds(rect, useFinalPosition);
+
   return (
     bounds &&
     (skipX || (x >= bounds.left && x <= bounds.right)) &&
     (skipY || (y >= bounds.top && y <= bounds.bottom))
   );
 }
-var TreemapElement = class extends Element {
+
+class TreemapElement extends Element {
   constructor(cfg) {
     super();
-    this.options = void 0;
-    this.width = void 0;
-    this.height = void 0;
+
+    this.options = undefined;
+    this.width = undefined;
+    this.height = undefined;
+
     if (cfg) {
       Object.assign(this, cfg);
     }
   }
+
   draw(ctx) {
     const options = this.options;
     const { inner, outer } = boundingRects(this);
+
     ctx.save();
+
     if (outer.w !== inner.w || outer.h !== inner.h) {
       ctx.beginPath();
       ctx.rect(outer.x, outer.y, outer.w, outer.h);
@@ -770,15 +904,19 @@ var TreemapElement = class extends Element {
     }
     ctx.restore();
   }
+
   inRange(mouseX, mouseY, useFinalPosition) {
     return inRange(this, mouseX, mouseY, useFinalPosition);
   }
+
   inXRange(mouseX, useFinalPosition) {
     return inRange(this, mouseX, null, useFinalPosition);
   }
+
   inYRange(mouseY, useFinalPosition) {
     return inRange(this, null, mouseY, useFinalPosition);
   }
+
   getCenterPoint(useFinalPosition) {
     const { x, y, width, height } = this.getProps(
       ["x", "y", "width", "height"],
@@ -789,30 +927,34 @@ var TreemapElement = class extends Element {
       y: y + height / 2,
     };
   }
+
   tooltipPosition() {
     return this.getCenterPoint();
   }
+
   getRange(axis) {
     return axis === "x" ? this.width / 2 : this.height / 2;
   }
-};
+}
+
 TreemapElement.id = "treemap";
+
 TreemapElement.defaults = {
-  borderWidth: void 0,
-  spacing: void 0,
-  label: void 0,
-  rtl: void 0,
+  borderWidth: undefined,
+  spacing: undefined,
+  label: undefined,
+  rtl: undefined,
   dividers: {
     display: false,
     lineCapStyle: "butt",
     lineColor: "black",
-    lineDash: void 0,
+    lineDash: undefined,
     lineDashOffset: 0,
     lineWidth: 0,
   },
   captions: {
-    align: void 0,
-    color: void 0,
+    align: undefined,
+    color: undefined,
     display: true,
     formatter: (ctx) => ctx.raw.g || "",
     font: {},
@@ -820,7 +962,7 @@ TreemapElement.defaults = {
   },
   labels: {
     align: "center",
-    color: void 0,
+    color: undefined,
     display: false,
     formatter: (ctx) => (ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v),
     font: {},
@@ -828,19 +970,15 @@ TreemapElement.defaults = {
     padding: 3,
   },
 };
+
 TreemapElement.descriptors = {
   _scriptable: true,
   _indexable: false,
 };
+
 TreemapElement.defaultRoutes = {
   backgroundColor: "backgroundColor",
   borderColor: "borderColor",
 };
+
 export { TreemapController, TreemapElement };
-/*!
- * chartjs-chart-treemap v2.0.2
- * https://chartjs-chart-treemap.pages.dev/
- * (c) 2021 Jukka Kurkela
- * Released under the MIT license
- */
-//# sourceMappingURL=chartjs-chart-treemap.js.map

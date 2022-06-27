@@ -270,7 +270,7 @@ function squarify(values, rectangle, key, grp, lvl, gsum) {
   }
   const tmp = values.slice();
   key = index(tmp, key);
-  sort(tmp, key);
+
   const val = (idx) => (key ? +tmp[idx][key] : +tmp[idx]);
   const gval = (idx) => grp && tmp[idx][grp];
   for (i = 0; i < n; ++i) {

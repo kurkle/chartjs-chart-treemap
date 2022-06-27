@@ -1,7 +1,0 @@
-.DS_Store
-.vscode/
-coverage/
-dist/
-build/
-node_modules/
-*.stackdump

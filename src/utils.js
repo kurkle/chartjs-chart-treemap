@@ -34,7 +34,7 @@ export function normalizeTreeToArray(key, obj) {
     // minus 2 because _leaf and value properties are added
     // on top to groups ones
     const keys = Object.keys(element).length - 2;
-    return (maxValue > keys ? maxValue : keys);
+    return maxValue > keys ? maxValue : keys;
   });
   data.forEach(function(element) {
     for (let i = 0; i < max; i++) {
@@ -65,6 +65,19 @@ export function flatten(input) {
   return res.reverse();
 }
 
+function getPath(groups, value, defaultValue) {
+  if (!groups.length) {
+    return;
+  }
+  const path = groups.map(k => value[k]).reduce(function(result, item) {
+    if (item !== '') {
+      result.push(item);
+    }
+    return result;
+  }, []);
+  return path.length ? path.join('.') : defaultValue;
+}
+
 /**
  * @param {[]} values
  * @param {string} grp
@@ -72,7 +85,7 @@ export function flatten(input) {
  * @param {string} [mainGrp]
  * @param {*} [mainValue]
  */
-export function group(values, grp, key, mainGrp, mainValue, groups) {
+export function group(values, grp, key, mainGrp, mainValue, groups = []) {
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];
@@ -89,16 +102,7 @@ export function group(values, grp, key, mainGrp, mainValue, groups) {
     }
     tmp[g].value += +v[key];
     tmp[g].label = v[grp] || '';
-
-    if (groups && groups.length) {
-      const path = groups.map(k => v[k]).reduce(function(result, item) {
-        if (item !== '') {
-          result.push(item);
-        }
-        return result;
-      }, []);
-      tmp[g].path = path.length ? path.join('.') : g;
-    }
+    tmp[g].path = getPath(groups, v, g);
     data[g].push(v);
   }
 

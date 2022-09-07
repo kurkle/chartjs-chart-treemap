@@ -101,7 +101,7 @@ These are used to set display properties for a specific dataset.
 | [`labels`](#labels) | `object` | - | 
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
-| [`tree`](#general) | `number[]` \| `object[]` | - |  **required**
+| [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
 

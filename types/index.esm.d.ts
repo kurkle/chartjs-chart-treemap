@@ -5,6 +5,7 @@ import {
   Element,
   ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
+import { AnyObject } from 'chart.js/types/basic';
 
 type TreemapScriptableContext = ScriptableContext<'treemap'> & {
   raw: TreemapDataPoint
@@ -65,7 +66,7 @@ export interface TreemapControllerDatasetOptions<DType> {
 
   data: TreemapDataPoint[]; // This will be auto-generated from `tree`
   groups?: Array<keyof DType>;
-  tree: number[] | DType[];
+  tree: number[] | DType[] | AnyObject;
   key?: keyof DType;
 }
 

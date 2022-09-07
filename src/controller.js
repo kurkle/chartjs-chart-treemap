@@ -1,6 +1,6 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isArray} from 'chart.js/helpers';
-import {group, requireVersion} from './utils';
+import {group, requireVersion, normalizeTreeToArray} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -97,6 +97,9 @@ function drawDivider(ctx, rect) {
 function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
   let tree = dataset.tree || [];
+  if (!isArray(tree)) {
+    tree = normalizeTreeToArray(key, tree);
+  }
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = valueOrDefault(dataset.spacing, 0) + valueOrDefault(dataset.borderWidth, 0);
@@ -107,7 +110,7 @@ function buildData(dataset, mainRect, captions) {
   function recur(gidx, rect, parent, gs) {
     const g = groups[gidx];
     const pg = (gidx > 0) && groups[gidx - 1];
-    const gdata = group(tree, g, key, pg, parent);
+    const gdata = group(tree, g, key, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);
     const ret = gsq.slice();
     let subRect;
@@ -347,7 +350,7 @@ TreemapController.overrides = {
         label(item) {
           const dataset = item.dataset;
           const dataItem = dataset.data[item.dataIndex];
-          const label = dataItem.g || dataset.label;
+          const label = dataItem.g || dataItem._data.label || dataset.label;
           return (label ? label + ': ' : '') + dataItem.v;
         }
       }

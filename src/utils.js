@@ -1,3 +1,52 @@
+const getKey = (lvl) => 'g' + lvl;
+
+function scanTreeObject(key, obj, tree = [], lvl = 0, result = []) {
+  const objIndex = lvl - 1;
+  if (key in obj && lvl > 0) {
+    const groups = tree.reduce(function(reduced, item, i) {
+      if (i !== objIndex) {
+        reduced[getKey(i)] = item;
+      }
+      return reduced;
+    }, {});
+    const record = {
+      ...groups,
+      _leaf: tree[objIndex]
+    };
+    record[key] = obj[key];
+    result.push(record);
+  } else {
+    for (const childKey of Object.keys(obj)) {
+      const child = obj[childKey];
+      if (isObject(child)) {
+        tree.push(childKey);
+        scanTreeObject(key, child, tree, lvl + 1, result);
+      }
+    }
+  }
+  tree.splice(objIndex, 1);
+  return result;
+}
+
+export function normalizeTreeToArray(key, obj) {
+  const data = scanTreeObject(key, obj);
+  const max = data.reduce(function(maxValue, element) {
+    // minus 2 because _leaf and value properties are added
+    // on top to groups ones
+    const keys = Object.keys(element).length - 2;
+    return (maxValue > keys ? maxValue : keys);
+  });
+  data.forEach(function(element) {
+    for (let i = 0; i < max; i++) {
+      const groupKey = getKey(i);
+      if (!element[groupKey]) {
+        element[groupKey] = '';
+      }
+    }
+  });
+  return data;
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
 export function flatten(input) {
   const stack = [...input];
@@ -23,29 +72,43 @@ export function flatten(input) {
  * @param {string} [mainGrp]
  * @param {*} [mainValue]
  */
-export function group(values, grp, key, mainGrp, mainValue) {
+export function group(values, grp, key, mainGrp, mainValue, groups) {
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];
-  let g, i, n, v;
+  let g, i, n;
   for (i = 0, n = values.length; i < n; ++i) {
-    v = values[i];
+    const v = values[i];
     if (mainGrp && v[mainGrp] !== mainValue) {
       continue;
     }
-    g = v[grp] || '';
+    g = v[grp] || v._leaf || '';
     if (!(g in tmp)) {
-      tmp[g] = 0;
+      tmp[g] = {value: 0};
       data[g] = [];
     }
-    tmp[g] += +v[key];
+    tmp[g].value += +v[key];
+    tmp[g].label = v[grp] || '';
+
+    if (groups && groups.length) {
+      const path = groups.map(k => v[k]).reduce(function(result, item) {
+        if (item !== '') {
+          result.push(item);
+        }
+        return result;
+      }, []);
+      tmp[g].path = path.length ? path.join('.') : g;
+    }
     data[g].push(v);
   }
 
   Object.keys(tmp).forEach((k) => {
-    v = {children: data[k]};
-    v[key] = +tmp[k];
-    v[grp] = k;
+    const v = {children: data[k]};
+    v[key] = +tmp[k].value;
+    v[grp] = tmp[k].label;
+    v.label = k;
+    v.path = tmp[k].path;
+
     if (mainGrp) {
       v[mainGrp] = mainValue;
     }

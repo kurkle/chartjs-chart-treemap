@@ -109,7 +109,7 @@ function buildData(dataset, mainRect, captions) {
 
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
-    const pg = (gidx > 0) && groups[gidx - 1];
+    const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
     const gdata = group(tree, g, key, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);
     const ret = gsq.slice();

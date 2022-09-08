@@ -1,18 +1,15 @@
 export const getGroupKey = (lvl) => '' + lvl;
 
-function scanTreeObject(key, obj, tree = [], lvl = 0, result = []) {
+function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
   const objIndex = lvl - 1;
   if (key in obj && lvl > 0) {
-    const groups = tree.reduce(function(reduced, item, i) {
+    const record = tree.reduce(function(reduced, item, i) {
       if (i !== objIndex) {
         reduced[getGroupKey(i)] = item;
       }
       return reduced;
     }, {});
-    const record = {
-      ...groups,
-      _leaf: tree[objIndex]
-    };
+    record[treeLeafKey] = tree[objIndex];
     record[key] = obj[key];
     result.push(record);
   } else {
@@ -20,7 +17,7 @@ function scanTreeObject(key, obj, tree = [], lvl = 0, result = []) {
       const child = obj[childKey];
       if (isObject(child)) {
         tree.push(childKey);
-        scanTreeObject(key, child, tree, lvl + 1, result);
+        scanTreeObject(key, treeLeafKey, child, tree, lvl + 1, result);
       }
     }
   }
@@ -28,8 +25,11 @@ function scanTreeObject(key, obj, tree = [], lvl = 0, result = []) {
   return result;
 }
 
-export function normalizeTreeToArray(key, obj) {
-  const data = scanTreeObject(key, obj);
+export function normalizeTreeToArray(key, treeLeafKey, obj) {
+  const data = scanTreeObject(key, treeLeafKey, obj);
+  if (!data.length) {
+    return data;
+  }
   const max = data.reduce(function(maxValue, element) {
     // minus 2 because _leaf and value properties are added
     // on top to groups ones
@@ -85,7 +85,7 @@ function getPath(groups, value, defaultValue) {
  * @param {string} [mainGrp]
  * @param {*} [mainValue]
  */
-export function group(values, grp, key, mainGrp, mainValue, groups = []) {
+export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups = []) {
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];
@@ -95,7 +95,7 @@ export function group(values, grp, key, mainGrp, mainValue, groups = []) {
     if (mainGrp && v[mainGrp] !== mainValue) {
       continue;
     }
-    g = v[grp] || v._leaf || '';
+    g = v[grp] || v[treeLeafKey] || '';
     if (!(g in tmp)) {
       tmp[g] = {value: 0};
       data[g] = [];

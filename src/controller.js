@@ -96,9 +96,10 @@ function drawDivider(ctx, rect) {
 
 function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
+  const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
   if (!isArray(tree)) {
-    tree = normalizeTreeToArray(key, tree);
+    tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
   const groups = dataset.groups || [];
   const glen = groups.length;
@@ -110,7 +111,7 @@ function buildData(dataset, mainRect, captions) {
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
-    const gdata = group(tree, g, key, pg, parent, groups.filter((item, index) => index <= gidx));
+    const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);
     const ret = gsq.slice();
     let subRect;

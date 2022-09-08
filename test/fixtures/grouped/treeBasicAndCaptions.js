@@ -34,7 +34,7 @@ export default {
       datasets: [{
         tree: data,
         key: 'value',
-        groups: ['g0', 'g1', 'g2', '_leaf'],
+        groups: ['0', '1', '2', '_leaf'],
         captions: {
           display: true
         },

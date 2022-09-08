@@ -1,6 +1,6 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isArray} from 'chart.js/helpers';
-import {group, requireVersion, normalizeTreeToArray} from './utils';
+import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -108,7 +108,7 @@ function buildData(dataset, mainRect, captions) {
   const padding = valueOrDefault(captions.padding, 3);
 
   function recur(gidx, rect, parent, gs) {
-    const g = groups[gidx];
+    const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && groups[gidx - 1];
     const gdata = group(tree, g, key, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);

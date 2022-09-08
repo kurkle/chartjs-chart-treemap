@@ -1,11 +1,11 @@
-const getKey = (lvl) => 'g' + lvl;
+export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, obj, tree = [], lvl = 0, result = []) {
   const objIndex = lvl - 1;
   if (key in obj && lvl > 0) {
     const groups = tree.reduce(function(reduced, item, i) {
       if (i !== objIndex) {
-        reduced[getKey(i)] = item;
+        reduced[getGroupKey(i)] = item;
       }
       return reduced;
     }, {});
@@ -38,7 +38,7 @@ export function normalizeTreeToArray(key, obj) {
   });
   data.forEach(function(element) {
     for (let i = 0; i < max; i++) {
-      const groupKey = getKey(i);
+      const groupKey = getGroupKey(i);
       if (!element[groupKey]) {
         element[groupKey] = '';
       }

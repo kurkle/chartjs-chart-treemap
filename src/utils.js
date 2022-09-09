@@ -69,12 +69,15 @@ function getPath(groups, value, defaultValue) {
   if (!groups.length) {
     return;
   }
-  const path = groups.map(k => value[k]).reduce(function(result, item) {
-    if (item !== '') {
-      result.push(item);
+  const path = [];
+  for (const grp of groups) {
+    const item = value[grp];
+    if (item === '') {
+      path.push(defaultValue);
+      break;
     }
-    return result;
-  }, []);
+    path.push(item);
+  }
   return path.length ? path.join('.') : defaultValue;
 }
 
@@ -82,8 +85,10 @@ function getPath(groups, value, defaultValue) {
  * @param {[]} values
  * @param {string} grp
  * @param {string} key
+ * @param {string} treeeLeafKey
  * @param {string} [mainGrp]
  * @param {*} [mainValue]
+ * @param {[]} groups
  */
 export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups = []) {
   const tmp = Object.create(null);

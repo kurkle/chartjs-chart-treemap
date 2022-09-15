@@ -90,14 +90,14 @@ function drawText(ctx, rect, item, levels) {
   ctx.clip();
   const isLeaf = (!('l' in item) || item.l === levels);
   if (isLeaf && opts.labels.display) {
-    drawLabels(ctx, rect);
+    drawLabel(ctx, rect);
   } else if (!isLeaf && captions.display && shouldDrawCaption(rect, captions)) {
-    drawCaptions(ctx, rect, item);
+    drawCaption(ctx, rect, item);
   }
   ctx.restore();
 }
 
-function drawCaptions(ctx, rect, item) {
+function drawCaption(ctx, rect, item) {
   const opts = rect.options;
   const captionsOpts = opts.captions;
   const borderWidth = opts.borderWidth;
@@ -115,7 +115,7 @@ function drawCaptions(ctx, rect, item) {
   ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
 }
 
-function drawLabels(ctx, rect) {
+function drawLabel(ctx, rect) {
   const opts = rect.options;
   const labelsOpts = opts.labels;
   const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;

@@ -1,6 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isArray, isObject} from 'chart.js/helpers';
+import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
+import {shouldDrawCaption} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -27,73 +28,6 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function shouldDrawCaption(rect, font) {
-  if (!font) {
-    return false;
-  }
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
-  const min = font.lineHeight * 2;
-  return w > min && h > min;
-}
-
-function drawCaption(ctx, rect, item, opts, levels) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(rect.x, rect.y, rect.width, rect.height);
-  ctx.clip();
-  if (!('l' in item) || item.l === levels) {
-    drawLabels(ctx, item, rect);
-  } else if (opts.captions && opts.captions.display) {
-    drawCaptionLabel(ctx, item, rect);
-  }
-  ctx.restore();
-}
-
-function drawCaptionLabel(ctx, item, rect) {
-  const opts = rect.options;
-  const captionsOpts = opts.captions || {};
-  const borderWidth = opts.borderWidth || 0;
-  const spacing = valueOrDefault(opts.spacing, 0) + borderWidth;
-  const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
-  const padding = captionsOpts.padding;
-  const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
-  const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
-  const font = toFont(optFont);
-  const x = calculateX(rect, align, padding, borderWidth);
-  ctx.fillStyle = color;
-  ctx.font = font.string;
-  ctx.textAlign = align;
-  ctx.textBaseline = 'middle';
-  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
-}
-
-function drawDivider(ctx, rect) {
-  const opts = rect.options;
-  const dividersOpts = opts.dividers || {};
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
-
-  ctx.save();
-  ctx.strokeStyle = dividersOpts.lineColor || 'black';
-  ctx.lineCap = dividersOpts.lineCapStyle;
-  ctx.setLineDash(dividersOpts.lineDash || []);
-  ctx.lineDashOffset = dividersOpts.lineDashOffset;
-  ctx.lineWidth = dividersOpts.lineWidth;
-  ctx.beginPath();
-  if (w > h) {
-    const w2 = w / 2;
-    ctx.moveTo(rect.x + w2, rect.y);
-    ctx.lineTo(rect.x + w2, rect.y + h);
-  } else {
-    const h2 = h / 2;
-    ctx.moveTo(rect.x, rect.y + h2);
-    ctx.lineTo(rect.x + w, rect.y + h2);
-  }
-  ctx.stroke();
-  ctx.restore();
-}
-
 function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
@@ -118,7 +52,7 @@ function buildData(dataset, mainRect, captions) {
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
         subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
-        if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, font)) {
+        if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
@@ -135,53 +69,6 @@ function buildData(dataset, mainRect, captions) {
   return glen
     ? recur(0, mainRect)
     : squarify(tree, mainRect, key);
-}
-
-function drawLabels(ctx, item, rect) {
-  const opts = rect.options;
-  const labelsOpts = opts.labels;
-  if (!labelsOpts || !labelsOpts.display) {
-    return;
-  }
-  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
-  const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
-  const font = toFont(optFont);
-  const lh = font.lineHeight;
-  const label = labelsOpts.formatter;
-  if (label) {
-    const labels = isArray(label) ? label : [label];
-    const xyPoint = calculateXYLabel(opts, rect, labels, lh);
-    ctx.font = font.string;
-    ctx.textAlign = labelsOpts.align;
-    ctx.textBaseline = labelsOpts.position;
-    ctx.fillStyle = optColor;
-    labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
-  }
-}
-
-function calculateXYLabel(options, rect, labels, lineHeight) {
-  const labelsOpts = options.labels;
-  const borderWidth = options.borderWidth || 0;
-  const {align, position, padding} = labelsOpts;
-  let x, y;
-  x = calculateX(rect, align, padding, borderWidth);
-  if (position === 'top') {
-    y = rect.y + padding + borderWidth;
-  } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - borderWidth - (labels.length - 1) * lineHeight;
-  } else {
-    y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
-  }
-  return {x, y};
-}
-
-function calculateX(rect, align, padding, borderWidth) {
-  if (align === 'left') {
-    return rect.x + padding + borderWidth;
-  } else if (align === 'right') {
-    return rect.x + rect.width - padding - borderWidth;
-  }
-  return rect.x + rect.width / 2;
 }
 
 export default class TreemapController extends DatasetController {
@@ -203,7 +90,7 @@ export default class TreemapController extends DatasetController {
     const meta = me.getMeta();
     const dataset = me.getDataset();
     const groups = dataset.groups || (dataset.groups = []);
-    const captions = dataset.captions ? dataset.captions : {};
+    const captions = dataset.captions || {};
     const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
@@ -223,13 +110,6 @@ export default class TreemapController extends DatasetController {
     }
 
     me.updateElements(meta.data, 0, meta.data.length, mode);
-  }
-
-  resolveDataElementOptions(index, mode) {
-    const options = super.resolveDataElementOptions(index, mode);
-    const result = Object.isFrozen(options) ? Object.assign({}, options) : options;
-    result.font = toFont(options.captions.font);
-    return result;
   }
 
   updateElements(rects, start, count, mode) {
@@ -262,41 +142,20 @@ export default class TreemapController extends DatasetController {
     me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
 
-  _drawDividers(ctx, data, metadata) {
-    for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
-      const rect = metadata[i];
-      const item = data[i];
-      const dividersOpts = rect.options.dividers || {};
-      if (dividersOpts.display && item._data.children.length > 1) {
-        drawDivider(ctx, rect);
-      }
-    }
-  }
-
-  _drawRects(ctx, data, metadata, levels) {
-    for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
-      const rect = metadata[i];
-      const item = data[i];
-      if (!rect.hidden) {
-        rect.draw(ctx);
-        const opts = rect.options;
-        if (shouldDrawCaption(rect, opts.captions.font)) {
-          drawCaption(ctx, rect, item, opts, levels);
-        }
-      }
-    }
-  }
-
   draw() {
     const me = this;
     const ctx = me.chart.ctx;
     const metadata = me.getMeta().data || [];
     const dataset = me.getDataset();
     const levels = (dataset.groups || []).length - 1;
-    const data = dataset.data || [];
+    const data = dataset.data;
 
-    me._drawRects(ctx, data, metadata, levels);
-    me._drawDividers(ctx, data, metadata);
+    for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
+      const rect = metadata[i];
+      if (!rect.hidden) {
+        rect.draw(ctx, data[i], levels);
+      }
+    }
   }
 }
 
@@ -313,13 +172,6 @@ TreemapController.defaults = {
       properties: ['x', 'y', 'width', 'height']
     },
   },
-
-  borderWidth: 0,
-  spacing: 0.5,
-  dividers: {
-    display: false,
-    lineWidth: 1,
-  }
 
 };
 

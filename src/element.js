@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {isObject} from 'chart.js/helpers';
+import {toFont, isArray, isObject} from 'chart.js/helpers';
 
 /**
  * Helper function to get the bounds of the rect
@@ -69,6 +69,124 @@ function inRange(rect, x, y, useFinalPosition) {
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
+export function shouldDrawCaption(rect, options) {
+  if (!options) {
+    return false;
+  }
+  const font = toFont(options.font);
+  const w = rect.width || rect.w;
+  const h = rect.height || rect.h;
+  const min = font.lineHeight * 2;
+  return w > min && h > min;
+}
+
+function drawText(ctx, rect, item, levels) {
+  const opts = rect.options;
+  const captions = opts.captions;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(rect.x, rect.y, rect.width, rect.height);
+  ctx.clip();
+  const isLeaf = (!('l' in item) || item.l === levels);
+  if (isLeaf && opts.labels.display) {
+    drawLabel(ctx, rect);
+  } else if (!isLeaf && captions.display && shouldDrawCaption(rect, captions)) {
+    drawCaption(ctx, rect, item);
+  }
+  ctx.restore();
+}
+
+function drawCaption(ctx, rect, item) {
+  const opts = rect.options;
+  const captionsOpts = opts.captions;
+  const borderWidth = opts.borderWidth;
+  const spacing = opts.spacing + borderWidth;
+  const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
+  const padding = captionsOpts.padding;
+  const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
+  const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
+  const font = toFont(optFont);
+  const x = calculateX(rect, align, padding, borderWidth);
+  ctx.fillStyle = color;
+  ctx.font = font.string;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
+}
+
+function drawLabel(ctx, rect) {
+  const opts = rect.options;
+  const labelsOpts = opts.labels;
+  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
+  const font = toFont(optFont);
+  const lh = font.lineHeight;
+  const label = labelsOpts.formatter;
+  if (label) {
+    const labels = isArray(label) ? label : [label];
+    const xyPoint = calculateXYLabel(opts, rect, labels, lh);
+    ctx.font = font.string;
+    ctx.textAlign = labelsOpts.align;
+    ctx.textBaseline = labelsOpts.position;
+    ctx.fillStyle = optColor;
+    labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
+  }
+}
+
+function drawDivider(ctx, rect, item) {
+  const opts = rect.options;
+  const dividersOpts = opts.dividers;
+  if (!dividersOpts.display || !item._data.children.length) {
+    return;
+  }
+  const w = rect.width || rect.w;
+  const h = rect.height || rect.h;
+
+  ctx.save();
+  ctx.strokeStyle = dividersOpts.lineColor;
+  ctx.lineCap = dividersOpts.lineCapStyle;
+  ctx.setLineDash(dividersOpts.lineDash);
+  ctx.lineDashOffset = dividersOpts.lineDashOffset;
+  ctx.lineWidth = dividersOpts.lineWidth;
+  ctx.beginPath();
+  if (w > h) {
+    const w2 = w / 2;
+    ctx.moveTo(rect.x + w2, rect.y);
+    ctx.lineTo(rect.x + w2, rect.y + h);
+  } else {
+    const h2 = h / 2;
+    ctx.moveTo(rect.x, rect.y + h2);
+    ctx.lineTo(rect.x + w, rect.y + h2);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function calculateXYLabel(options, rect, labels, lineHeight) {
+  const labelsOpts = options.labels;
+  const borderWidth = options.borderWidth || 0;
+  const {align, position, padding} = labelsOpts;
+  let x, y;
+  x = calculateX(rect, align, padding, borderWidth);
+  if (position === 'top') {
+    y = rect.y + padding + borderWidth;
+  } else if (position === 'bottom') {
+    y = rect.y + rect.height - padding - borderWidth - (labels.length - 1) * lineHeight;
+  } else {
+    y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
+  }
+  return {x, y};
+}
+
+function calculateX(rect, align, padding, borderWidth) {
+  if (align === 'left') {
+    return rect.x + padding + borderWidth;
+  } else if (align === 'right') {
+    return rect.x + rect.width - padding - borderWidth;
+  }
+  return rect.x + rect.width / 2;
+}
+
 export default class TreemapElement extends Element {
 
   constructor(cfg) {
@@ -83,7 +201,10 @@ export default class TreemapElement extends Element {
     }
   }
 
-  draw(ctx) {
+  draw(ctx, data, levels = 0) {
+    if (!data) {
+      return;
+    }
     const options = this.options;
     const {inner, outer} = boundingRects(this);
 
@@ -102,6 +223,8 @@ export default class TreemapElement extends Element {
       ctx.fillStyle = options.backgroundColor;
       ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
     }
+    drawDivider(ctx, this, data);
+    drawText(ctx, this, data, levels);
     ctx.restore();
   }
 
@@ -137,21 +260,21 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
-  borderWidth: undefined,
-  spacing: undefined,
+  borderWidth: 0,
+  spacing: 0.5,
   label: undefined,
-  rtl: undefined,
+  rtl: false,
   dividers: {
     display: false,
     lineCapStyle: 'butt',
     lineColor: 'black',
-    lineDash: undefined,
+    lineDash: [],
     lineDashOffset: 0,
-    lineWidth: 0,
+    lineWidth: 1,
   },
   captions: {
     align: undefined,
-    color: undefined,
+    color: 'black',
     display: true,
     formatter: (ctx) => ctx.raw.g || '',
     font: {},
@@ -159,7 +282,7 @@ TreemapElement.defaults = {
   },
   labels: {
     align: 'center',
-    color: undefined,
+    color: 'black',
     display: false,
     formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v,
     font: {},
@@ -169,6 +292,12 @@ TreemapElement.defaults = {
 };
 
 TreemapElement.descriptors = {
+  labels: {
+    _fallback: true
+  },
+  captions: {
+    _fallback: true
+  },
   _scriptable: true,
   _indexable: false
 };

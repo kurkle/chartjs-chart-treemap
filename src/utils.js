@@ -1,3 +1,5 @@
+import {isObject} from 'chart.js/helpers';
+
 export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
@@ -125,11 +127,6 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
   });
 
   return ret;
-}
-
-export function isObject(obj) {
-  const type = typeof obj;
-  return type === 'function' || type === 'object' && !!obj;
 }
 
 export function index(values, key) {

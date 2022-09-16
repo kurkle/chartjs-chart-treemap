@@ -2,7 +2,7 @@ import {
   Chart,
   ChartComponent,
   DatasetController,
-  Element,
+  Element, VisualElement,
   ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
 import { AnyObject } from 'chart.js/types/basic';
@@ -109,7 +109,7 @@ declare module 'chart.js' {
       chartOptions: CoreChartOptions<'treemap'>;
       datasetOptions: TreemapControllerDatasetOptions<Record<string, unknown>>;
       defaultDataPoint: TreemapDataPoint;
-      metaExtensions: {};
+      metaExtensions: AnyObject;
       parsedDataType: unknown,
       scales: never;
     }
@@ -119,13 +119,13 @@ declare module 'chart.js' {
   // }
 }
 
-type TreemapOptions = {
+export interface TreemapOptions {
   backgroundColor: Color;
   borderColor: Color;
   borderWidth: number | { top?: number, right?: number, bottom?: number, left?: number }
 }
 
-type TreemapConfig = {
+export interface TreemapConfig {
   x: number;
   y: number;
   width: number;
@@ -138,7 +138,11 @@ export const TreemapController: ChartComponent & {
   new(chart: Chart, datasetIndex: number): TreemapController
 };
 
-export type TreemapElement = Element<TreemapConfig, TreemapOptions>;
+export interface TreemapElement<
+  T extends TreemapConfig = TreemapConfig,
+  O extends TreemapOptions = TreemapOptions
+> extends Element<T, O>, VisualElement {}
+
 export const TreemapElement: ChartComponent & {
   prototype: TreemapElement;
   new(cfg: TreemapConfig): TreemapElement

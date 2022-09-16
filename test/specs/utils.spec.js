@@ -1,4 +1,4 @@
-import {flatten, group, sort, sum, normalizeTreeToArray, isObject} from '../../src/utils';
+import {flatten, group, sort, sum, normalizeTreeToArray} from '../../src/utils';
 
 describe('utils', function() {
 
@@ -82,12 +82,6 @@ describe('utils', function() {
       var a = [{x: 8, y: 1}, {x: 3, y: 2}, {x: 5, y: 3}];
       expect(sum(a, 'x')).toEqual(16);
       expect(sum(a, 'y')).toEqual(6);
-    });
-  });
-
-  describe('isObject', function() {
-    it('should detect objects', function() {
-      expect(isObject({})).toBeTrue();
     });
   });
 });

@@ -1,5 +1,5 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isArray} from 'chart.js/helpers';
+import {toFont, valueOrDefault, isArray, isObject} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
@@ -98,7 +98,7 @@ function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
-  if (!isArray(tree)) {
+  if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
   const groups = dataset.groups || [];

@@ -1,3 +1,5 @@
+import {isObject} from 'chart.js/helpers';
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
 export function flatten(input) {
   const stack = [...input];
@@ -53,11 +55,6 @@ export function group(values, grp, key, mainGrp, mainValue) {
   });
 
   return ret;
-}
-
-export function isObject(obj) {
-  const type = typeof obj;
-  return type === 'function' || type === 'object' && !!obj;
 }
 
 export function index(values, key) {

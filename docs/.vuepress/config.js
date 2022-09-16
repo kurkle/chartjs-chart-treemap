@@ -49,6 +49,7 @@ module.exports = {
           'basic',
           'labels',
           'groups',
+          'tree',
           'captions',
           'dividers',
           'rtl'

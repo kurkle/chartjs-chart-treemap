@@ -139,9 +139,7 @@ function labelToDraw(ctx, rect, options, {labels, font}) {
   if (overflow === 'hidden') {
     const padding = options.padding;
     const labelSize = measureLabelSize(ctx, labels, font);
-    if ((labelSize.width + padding) > rect.width || (labelSize.height + padding) > rect.height) {
-      return false;
-    }
+    return !((labelSize.width + padding * 2) > rect.width || (labelSize.height + padding * 2) > rect.height);
   }
   return true;
 }

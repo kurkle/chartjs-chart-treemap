@@ -142,8 +142,6 @@ function labelToDraw(ctx, rect, options, {labels, font}) {
     if ((labelSize.width + padding) > rect.width || (labelSize.height + padding) > rect.height) {
       return false;
     }
-  } else if (overflow === 'visible') {
-    ctx.restore();
   }
   return true;
 }

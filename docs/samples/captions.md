@@ -63,14 +63,31 @@ const config = {
           weight: 'bold'
         },
         padding: 5
+      },
+      labels: {
+        display: false,
+        overflow: 'hidden'
       }
     }]
   },
   options: options
 };
 // </block:config>
+function toggle(chart) {
+  const labels = chart.data.datasets[0].labels;
+  labels.display = !labels.display;
+  chart.update();
+}
+
+const actions = [
+  {
+    name: 'Toggle labels',
+    handler: (chart) => toggle(chart, 'region')
+  }
+];
 
 module.exports = {
   config,
+  actions
 };
 ```

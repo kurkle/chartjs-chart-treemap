@@ -1,7 +1,9 @@
 import Chart from 'chart.js/auto';
 import {TreemapController, TreemapElement} from '../../dist/chartjs-chart-treemap.esm';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-Chart.register(TreemapController, TreemapElement);
+Chart.register(TreemapController, TreemapElement, ChartDataLabels);
+Chart.defaults.plugins.datalabels.display = false;
 
 Chart.register({
   id: 'version',

@@ -47,6 +47,7 @@
     "chart.js": "^3.6.0",
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-test-utils": "^0.4.0",
+    "chartjs-plugin-datalabels": "^2.0.0", 
     "concurrently": "^7.4.0",
     "cross-env": "^7.0.3",
     "date-fns": "^2.20.2",

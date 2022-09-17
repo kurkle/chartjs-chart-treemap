@@ -51,7 +51,8 @@ module.exports = {
           'groups',
           'captions',
           'dividers',
-          'rtl'
+          'rtl',
+          'datalabels'
         ],
         '/': [
           '',

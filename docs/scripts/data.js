@@ -460,3 +460,84 @@ export const statsByState = [
     area: 253335
   }
 ];
+
+export const objectsTree = {
+  analytics: {
+    cluster: {
+      agglomerative: {
+        value: 3938
+      },
+      communityStructure: {
+        value: 3812
+      },
+      hierarchical: {
+        value: 6714
+      },
+      mergeEdge: {
+        value: 743
+      },
+    },
+    graph: {
+      betweennessCentrality: {
+        value: 3534
+      },
+      linkDistance: {
+        value: 5731
+      },
+      maxFlowMinCut: {
+        value: 7840
+      },
+      shortestPaths: {
+        value: 5914
+      },
+      spanningTree: {
+        value: 3416
+      },
+    },
+    optimization: {
+      aspectRatioBanker: {
+        value: 7074
+      }
+    }
+  },
+  animate: {
+    easing: {
+      value: 17010
+    },
+    functionSequence: {
+      vaue: 5842
+    },
+    interpolate: {
+      arrayInterpolator: {
+        value: 1983
+      },
+      colorInterpolator: {
+        value: 2047
+      },
+      dateInterpolator: {
+        value: 1375
+      },
+      interpolator: {
+        value: 8746
+      },
+      matrixInterpolator: {
+        value: 2202
+      },
+      numberInterpolator: {
+        value: 1382
+      },
+      objectInterpolator: {
+        value: 1629
+      },
+      pointInterpolator: {
+        value: 1675
+      },
+      rectangleInterpolator: {
+        value: 2042
+      },
+    },
+    schedulable: {
+      value: 1041
+    }
+  }
+};

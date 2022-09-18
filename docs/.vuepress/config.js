@@ -52,7 +52,8 @@ module.exports = {
           'tree',
           'captions',
           'dividers',
-          'rtl'
+          'rtl',
+          'datalabels'
         ],
         '/': [
           '',

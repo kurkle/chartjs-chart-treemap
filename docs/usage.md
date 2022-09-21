@@ -54,25 +54,6 @@ module.exports = {
 };
 ```
 
-:::tip
-
-`chartjs-chart-treemap` is not using any scales currently and thats why [chartjs-plugin-datalabels](https://chartjs-plugin-datalabels.netlify.app/) does not work with it.
-When other charts are using datalables on the same page, you'll need to disable the plugin for treemap charts:
-
-```js
-const chart = new Chart(ctx, {
-  type: 'treemap',
-  data: [/* (...) */],
-  options: {
-    plugins: {
-      datalabels: false
-    }
-  }
-});
-```
-
-:::
-
 ## Dataset Options
 
 Namespaces:

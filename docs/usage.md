@@ -89,6 +89,7 @@ These are used to set display properties for a specific dataset.
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
 | [`captions`](#captions) | `object` | - | 
 | [`dividers`](#dividers) | `object` | - | 
@@ -161,10 +162,15 @@ The style of the treemap element can be controlled with the following properties
 | ---- | ----
 | `backgroundColor` | The treemap element background color.
 | `borderColor` | The treemap element border color.
+| [`borderRadius`](#borderradius) | Radius of the rectangle of treemap element (in pixels).
 | `borderWidth` | The treemap element border width (in pixels).
 | `spacing` | Fixed distance (in pixels) between all treemap elements.
 
 If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
+
+#### borderRadius
+
+If this value is a number, it is applied to all corners of the rectangle (topLeft, topRight, bottomLeft, bottomRight). If this value is an object, the `topLeft` property defines the top-left corners border radius. Similarly, the `topRight`, `bottomLeft`, and `bottomRight` properties can also be specified. Omitted corners have radius of 0.
 
 ### Interactions
 

@@ -35,6 +35,7 @@ const config = {
       groups: ['category'],
       borderWidth: 1,
       borderColor: 'rgba(200,200,200,1)',
+      borderRadius: 10,
       backgroundColor: 'rgba(220,230,220,0.3)',
       hoverBackgroundColor: 'rgba(220,230,220,0.5)',
       dividers: {

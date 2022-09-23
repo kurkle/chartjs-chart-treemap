@@ -238,6 +238,8 @@ TreemapController.afterRegister = function() {
 
       return el.tooltipPosition();
     };
+  } else {
+    console.warn('Unable to register the treemap positioner because tooltip plugin is not registered');
   }
 };
 

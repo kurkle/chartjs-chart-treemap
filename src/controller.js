@@ -1,7 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption} from './element';
+import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -37,7 +37,7 @@ function buildData(dataset, mainRect, captions) {
   }
   const groups = dataset.groups || [];
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0) + valueOrDefault(dataset.borderWidth, 0);
+  const sp = valueOrDefault(dataset.spacing, 0);
   const captionsFont = captions.font || {};
   const font = toFont(captionsFont);
   const padding = valueOrDefault(captions.padding, 3);
@@ -51,7 +51,8 @@ function buildData(dataset, mainRect, captions) {
     let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
+        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b};
         if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;

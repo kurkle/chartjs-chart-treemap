@@ -7,8 +7,18 @@ categories:
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
+  - title: 'Types'
+    labels:
+      - 'types'
+  - title: 'Documentation'
+    labels:
+      - 'documentation'
   - title: '🧰 Maintenance'
-    label: 'chore'
+    labels: 
+      - 'chore'
+      - 'dependencies'
+exclude-labels:
+  - 'infrastructure'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&`#@'
 version-resolver:
@@ -24,6 +34,10 @@ version-resolver:
       - 'patch'
   default: patch
 template: |
-  ## Changes
+  # Essential Links
+
+  * [npm](https://www.npmjs.com/package/chartjs-chart-treemap)
+  * [Docs](https://chartjs-chart-treemap.pages.dev/)
+  * [Samples](https://chartjs-chart-treemap.pages.dev/samples/basic.html)
 
   $CHANGES

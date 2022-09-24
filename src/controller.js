@@ -1,7 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault} from 'chart.js/helpers';
-import {group, requireVersion} from './utils';
-import {shouldDrawCaption} from './element';
+import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
+import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
+import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -30,24 +30,29 @@ function arrayNotEqual(a1, a2) {
 
 function buildData(dataset, mainRect, captions) {
   const key = dataset.key || '';
+  const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
+  if (isObject(tree)) {
+    tree = normalizeTreeToArray(key, treeLeafKey, tree);
+  }
   const groups = dataset.groups || [];
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0) + valueOrDefault(dataset.borderWidth, 0);
+  const sp = valueOrDefault(dataset.spacing, 0);
   const captionsFont = captions.font || {};
   const font = toFont(captionsFont);
   const padding = valueOrDefault(captions.padding, 3);
 
   function recur(gidx, rect, parent, gs) {
-    const g = groups[gidx];
-    const pg = (gidx > 0) && groups[gidx - 1];
-    const gdata = group(tree, g, key, pg, parent);
+    const g = getGroupKey(groups[gidx]);
+    const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
+    const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);
     const ret = gsq.slice();
     let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        subRect = {x: sq.x + sp, y: sq.y + sp, w: sq.w - 2 * sp, h: sq.h - 2 * sp};
+        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b};
         if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
@@ -199,7 +204,7 @@ TreemapController.overrides = {
         label(item) {
           const dataset = item.dataset;
           const dataItem = dataset.data[item.dataIndex];
-          const label = dataItem.g || dataset.label;
+          const label = dataItem.g || dataItem._data.label || dataset.label;
           return (label ? label + ': ' : '') + dataItem.v;
         }
       }
@@ -234,6 +239,8 @@ TreemapController.afterRegister = function() {
 
       return el.tooltipPosition();
     };
+  } else {
+    console.warn('Unable to register the treemap positioner because tooltip plugin is not registered');
   }
 };
 

@@ -101,8 +101,8 @@ function drawText(ctx, rect, item, levels) {
 function drawCaption(ctx, rect, item) {
   const opts = rect.options;
   const captionsOpts = opts.captions;
-  const borderWidth = opts.borderWidth;
-  const spacing = opts.spacing + borderWidth;
+  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
+  const spacing = opts.spacing + borderWidth.t;
   const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
   const padding = captionsOpts.padding;
   const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
@@ -157,9 +157,10 @@ function drawLabel(ctx, rect) {
   if (!labelToDraw(ctx, rect, labelsOpts, {labels, font})) {
     return;
   }
+  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
   const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
   const lh = font.lineHeight;
-  const xyPoint = calculateXYLabel(opts, rect, labels, lh);
+  const xyPoint = calculateXYLabel(opts, rect, labels, lh, borderWidth);
   ctx.font = font.string;
   ctx.textAlign = labelsOpts.align;
   ctx.textBaseline = labelsOpts.position;
@@ -196,16 +197,15 @@ function drawDivider(ctx, rect, item) {
   ctx.restore();
 }
 
-function calculateXYLabel(options, rect, labels, lineHeight) {
+function calculateXYLabel(options, rect, labels, lineHeight, borderWidth) {
   const labelsOpts = options.labels;
-  const borderWidth = options.borderWidth || 0;
   const {align, position, padding} = labelsOpts;
   let x, y;
   x = calculateX(rect, align, padding, borderWidth);
   if (position === 'top') {
-    y = rect.y + padding + borderWidth;
+    y = rect.y + padding + borderWidth.t;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - borderWidth - (labels.length - 1) * lineHeight;
+    y = rect.y + rect.height - padding - borderWidth.b - (labels.length - 1) * lineHeight;
   } else {
     y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
   }
@@ -214,9 +214,9 @@ function calculateXYLabel(options, rect, labels, lineHeight) {
 
 function calculateX(rect, align, padding, borderWidth) {
   if (align === 'left') {
-    return rect.x + padding + borderWidth;
+    return rect.x + padding + borderWidth.l;
   } else if (align === 'right') {
-    return rect.x + rect.width - padding - borderWidth;
+    return rect.x + rect.width - padding - borderWidth.r;
   }
   return rect.x + rect.width / 2;
 }
@@ -310,7 +310,7 @@ TreemapElement.defaults = {
     align: undefined,
     color: 'black',
     display: true,
-    formatter: (ctx) => ctx.raw.g || '',
+    formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
     font: {},
     padding: 3
   },
@@ -318,7 +318,7 @@ TreemapElement.defaults = {
     align: 'center',
     color: 'black',
     display: false,
-    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : ctx.raw.v,
+    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v] : ctx.raw.v),
     font: {},
     overflow: 'clip',
     position: 'middle',

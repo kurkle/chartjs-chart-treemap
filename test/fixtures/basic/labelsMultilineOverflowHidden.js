@@ -1,4 +1,5 @@
 export default {
+  tolerance: 0.0025,
   config: {
     type: 'treemap',
     data: {
@@ -22,6 +23,7 @@ export default {
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

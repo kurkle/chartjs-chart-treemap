@@ -3,7 +3,7 @@ name: Node.js CI
 on:
   push:
     branches: [ main, 2.x ]
-  pull_request_target:
+  pull_request:
     branches: [ main, 2.x ]
 
 jobs:
@@ -27,6 +27,7 @@ jobs:
           xvfb-run --auto-servernum npm test
         shell: bash
       - name: SonarCloud Scan
+        if: github.event.repository.fork == false
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

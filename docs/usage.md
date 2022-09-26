@@ -70,7 +70,7 @@ These are used to set display properties for a specific dataset.
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
+| [`borderRadius`](#styling) | `number` \| `object` | - | `0`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
 | [`captions`](#captions) | `object` | - | 
 | [`dividers`](#dividers) | `object` | - | 

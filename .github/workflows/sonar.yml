@@ -15,6 +15,16 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}        
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - name: Generate coverage
+        run: |
+          npm ci
+          npm run build
+          xvfb-run --auto-servernum npm test
+        shell: bash
       - name: SonarCloud Scan
         if: github.event.repository.fork == false
         uses: SonarSource/sonarcloud-github-action@master

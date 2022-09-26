@@ -52,7 +52,7 @@ function buildData(dataset, mainRect, captions) {
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
         const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
-        subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b};
+        subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b, rtl: rect.rtl};
         if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;

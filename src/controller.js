@@ -28,18 +28,14 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function buildData(dataset, mainRect, captions) {
-  const key = dataset.key || '';
-  const treeLeafKey = dataset.treeLeafKey || '_leaf';
+function buildData(dataset, mainRect, options) {
+  const {captions = {}, groups = [], key, spacing: sp, treeLeafKey} = options;
   let tree = dataset.tree || [];
   if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
-  const groups = dataset.groups || [];
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0);
-  const captionsFont = captions.font || {};
-  const font = toFont(captionsFont);
+  const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
   function recur(gidx, rect, parent, gs) {
@@ -87,43 +83,38 @@ export default class TreemapController extends DatasetController {
   }
 
   update(mode) {
-    const me = this;
-    const meta = me.getMeta();
-    const dataset = me.getDataset();
-    const groups = dataset.groups || (dataset.groups = []);
-    const captions = dataset.captions || {};
-    const area = me.chart.chartArea;
-    const key = dataset.key || '';
-    const rtl = !!dataset.rtl;
+    const meta = this.getMeta();
+    const dataset = this.getDataset();
+    const {key, rtl, groups = []} = this.options;
+    const area = this.chart.chartArea;
 
     const mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top, rtl};
 
-    if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
-      me._rect = mainRect;
-      me._groups = groups.slice();
-      me._key = key;
+    if (mode === 'reset' || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups)) {
+      this._rect = mainRect;
+      this._groups = groups.slice();
+      this._key = key;
 
-      dataset.data = buildData(dataset, mainRect, captions);
+      dataset.data = buildData(dataset, mainRect, this.options);
       // @ts-ignore using private stuff
-      me._dataCheck();
+      this._dataCheck();
       // @ts-ignore using private stuff
-      me._resyncElements();
+      this._resyncElements();
     }
 
-    me.updateElements(meta.data, 0, meta.data.length, mode);
+    this.updateElements(meta.data, 0, meta.data.length, mode);
   }
 
   updateElements(rects, start, count, mode) {
-    const me = this;
     const reset = mode === 'reset';
-    const dataset = me.getDataset();
-    const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
-    const sharedOptions = me.getSharedOptions(firstOpts);
-    const includeOptions = me.includeOptions(mode, sharedOptions);
+    const dataset = this.getDataset();
+    const firstOpts = this._rect.options = this.resolveDataElementOptions(start, mode);
+    const sharedOptions = this.getSharedOptions(firstOpts);
+    const includeOptions = this.includeOptions(mode, sharedOptions);
 
     for (let i = start; i < start + count; i++) {
       const sq = dataset.data[i];
-      const options = sharedOptions || me.resolveDataElementOptions(i, mode);
+      const options = sharedOptions || this.resolveDataElementOptions(i, mode);
       const sp = options.spacing;
       const sp2 = sp * 2;
       const properties = {
@@ -137,17 +128,16 @@ export default class TreemapController extends DatasetController {
       if (includeOptions) {
         properties.options = options;
       }
-      me.updateElement(rects[i], i, properties, mode);
+      this.updateElement(rects[i], i, properties, mode);
     }
 
-    me.updateSharedOptions(sharedOptions, mode, firstOpts);
+    this.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
 
   draw() {
-    const me = this;
-    const ctx = me.chart.ctx;
-    const metadata = me.getMeta().data || [];
-    const dataset = me.getDataset();
+    const ctx = this.chart.ctx;
+    const metadata = this.getMeta().data || [];
+    const dataset = this.getDataset();
     const levels = (dataset.groups || []).length - 1;
     const data = dataset.data;
 
@@ -173,12 +163,19 @@ TreemapController.defaults = {
       properties: ['x', 'y', 'width', 'height']
     },
   },
-
+  key: '',
+  spacing: 0,
+  treeLeafKey: '_leaf',
 };
 
 TreemapController.descriptors = {
   _scriptable: true,
-  _indexable: false
+  _indexable: false,
+  captions: {
+    font: {
+      _fallback: 'font'
+    }
+  }
 };
 
 TreemapController.overrides = {

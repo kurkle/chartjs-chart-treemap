@@ -1,33 +1,27 @@
-name: Node.js CI
+name: CI
 
 on:
   push:
-    branches: [ next, 2.x ]
-  pull_request_target:
-    branches: [ next, 2.x ]
+    branches: [ main, 2.x ]
+  pull_request:
+    branches: [ main, 2.x ]
 
 jobs:
   ci:
     name: Continuous Integration
-
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          cache: npm
       - name: Build & test
         run: |
           npm ci
           npm run build
           xvfb-run --auto-servernum npm test
         shell: bash
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+

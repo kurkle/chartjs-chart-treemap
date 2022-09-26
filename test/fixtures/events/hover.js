@@ -18,7 +18,7 @@ export default {
       width: 512
     },
     run: (chart) => {
-      var elem = chart.getDatasetMeta(0).data[0];
+      const elem = chart.getDatasetMeta(0).data[0];
       return triggerMouseEvent(chart, 'mousemove', elem.tooltipPosition());
     }
   }

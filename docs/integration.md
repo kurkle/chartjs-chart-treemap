@@ -8,7 +8,7 @@
 <script src="path/to/chartjs/dist/chart.min.js"></script>
 <script src="path/to/chartjs-chart-treemap/dist/chartjs-chart-treemap.min.js"></script>
 <script>
-    var myChart = new Chart(ctx, {type: 'treemap', ...});
+    let myChart = new Chart(ctx, {type: 'treemap', ...});
 </script>
 ```
 

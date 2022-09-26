@@ -1,7 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption, parseBorderWidth} from './element';
+import {shouldDrawCaption, parseBorderWidth, isBoxesOverlapped} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -51,8 +51,15 @@ function buildData(dataset, mainRect, captions) {
     let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
+        const bwRatio = isBoxesOverlapped(dataset) ? 1 : 2;
         const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
-        subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b, rtl: rect.rtl};
+        subRect = {
+          x: sq.x + sp + bw.l / bwRatio,
+          y: sq.y + sp + bw.t / bwRatio,
+          w: sq.w - 2 * sp - bw.l / bwRatio - bw.r / bwRatio,
+          h: sq.h - 2 * sp - bw.t / bwRatio - bw.b / bwRatio,
+          rtl: rect.rtl
+        };
         if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;

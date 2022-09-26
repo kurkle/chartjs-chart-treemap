@@ -39,6 +39,10 @@ export function parseBorderWidth(value, maxW, maxH) {
   };
 }
 
+export function isBoxesOverlapped(options) {
+  return options && (!options.borderRadius || isObject(options.borderWidth));
+}
+
 function boundingRects(rect, overlapBoxes) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
@@ -291,7 +295,7 @@ export default class TreemapElement extends Element {
       return;
     }
     const options = this.options;
-    const overlapBoxes = !options.borderRadius || isObject(options.borderWidth);
+    const overlapBoxes = isBoxesOverlapped(options);
     const {inner, outer} = boundingRects(this, overlapBoxes);
 
     ctx.save();

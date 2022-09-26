@@ -1,5 +1,6 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, isObject} from 'chart.js/helpers';
+import {toFont, isArray} from 'chart.js/helpers';
+import {toBorderWidth, shouldDrawCaption} from './helpers';
 
 /**
  * Helper function to get the bounds of the rect
@@ -13,35 +14,11 @@ function getBounds(rect, useFinalPosition) {
   return {left: x, top: y, right: x + width, bottom: y + height};
 }
 
-function limit(value, min, max) {
-  return Math.max(Math.min(value, max), min);
-}
-
-export function parseBorderWidth(value, maxW, maxH) {
-  let t, r, b, l;
-
-  if (isObject(value)) {
-    t = +value.top || 0;
-    r = +value.right || 0;
-    b = +value.bottom || 0;
-    l = +value.left || 0;
-  } else {
-    t = r = b = l = +value || 0;
-  }
-
-  return {
-    t: limit(t, 0, maxH),
-    r: limit(r, 0, maxW),
-    b: limit(b, 0, maxH),
-    l: limit(l, 0, maxW)
-  };
-}
-
 function boundingRects(rect) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
-  const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
+  const border = toBorderWidth(rect.options.borderWidth, width / 2, height / 2);
 
   return {
     outer: {
@@ -69,17 +46,6 @@ function inRange(rect, x, y, useFinalPosition) {
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
-export function shouldDrawCaption(rect, options) {
-  if (!options) {
-    return false;
-  }
-  const font = toFont(options.font);
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
-  const min = font.lineHeight * 2;
-  return w > min && h > min;
-}
-
 function drawText(ctx, rect, item, levels) {
   const opts = rect.options;
   const captions = opts.captions;
@@ -99,7 +65,7 @@ function drawText(ctx, rect, item, levels) {
 function drawCaption(ctx, rect, item) {
   const opts = rect.options;
   const captionsOpts = opts.captions;
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
+  const borderWidth = toBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
   const spacing = opts.spacing + borderWidth.t;
   const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
   const padding = captionsOpts.padding;
@@ -121,7 +87,7 @@ function drawLabel(ctx, rect) {
   const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
   const font = toFont(optFont);
   const lh = font.lineHeight;
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
+  const borderWidth = toBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
   const label = labelsOpts.formatter;
   if (label) {
     const labels = isArray(label) ? label : [label];

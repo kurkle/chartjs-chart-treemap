@@ -1,4 +1,4 @@
-import {flatten, group, sort, sum, normalizeTreeToArray} from '../../src/utils';
+import {flatten, sort, sum, group, normalizeTreeToArray} from '../../src/helpers';
 
 describe('utils', function() {
 

@@ -1,8 +1,6 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
-import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption, parseBorderWidth} from './element';
-import squarify from './squarify';
+import {group, requireVersion, normalizeTreeToArray, getGroupKey, squarify, toBorderWidth, shouldDrawCaption} from './helpers';
 import {version} from '../package.json';
 
 function rectNotEqual(r1, r2) {
@@ -51,7 +49,7 @@ function buildData(dataset, mainRect, captions) {
     let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        const bw = toBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
         subRect = {x: sq.x + sp + bw.l, y: sq.y + sp + bw.t, w: sq.w - 2 * sp - bw.l - bw.r, h: sq.h - 2 * sp - bw.t - bw.b};
         if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
           subRect.y += font.lineHeight + padding * 2;

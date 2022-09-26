@@ -1,4 +1,4 @@
-import squarify from '../../src/squarify';
+import {squarify} from '../../src/helpers';
 
 describe('squarify', function() {
 

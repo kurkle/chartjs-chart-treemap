@@ -1,6 +1,6 @@
+const json = require('@rollup/plugin-json');
 const resolve = require('@rollup/plugin-node-resolve').default;
 const terser = require('rollup-plugin-terser').terser;
-const json = require('@rollup/plugin-json');
 const pkg = require('./package.json');
 
 const banner = `/*!
@@ -61,13 +61,15 @@ module.exports = [
   {
     input: inputESM,
     output: {
+      name: pkg.name,
       file: pkg.module,
       banner,
       format: 'esm',
       indent: false,
     },
     plugins: [
-      json()
+      json(),
+      resolve()
     ],
     external
   },

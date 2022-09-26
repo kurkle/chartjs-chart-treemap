@@ -1,4 +1,4 @@
-name: Node.js CI
+name: CI
 
 on:
   push:
@@ -9,11 +9,9 @@ on:
 jobs:
   ci:
     name: Continuous Integration
-
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
       - name: Use Node.js
@@ -26,9 +24,4 @@ jobs:
           npm run build
           xvfb-run --auto-servernum npm test
         shell: bash
-      - name: SonarCloud Scan
-        if: github.event.repository.fork == false
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+

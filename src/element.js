@@ -1,6 +1,8 @@
 import {Element} from 'chart.js';
 import {toFont, isArray, isObject} from 'chart.js/helpers';
 
+const widthCache = new Map();
+
 /**
  * Helper function to get the bounds of the rect
  * @param {TreemapElement} rect the rect
@@ -114,24 +116,56 @@ function drawCaption(ctx, rect, item) {
   ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
 }
 
+function measureLabelSize(ctx, lines, font) {
+  const mapKey = lines.join() + font.string + (ctx._measureText ? '-spriting' : '');
+  if (!widthCache.has(mapKey)) {
+    ctx.save();
+    ctx.font = font.string;
+    const count = lines.length;
+    let width = 0;
+    for (let i = 0; i < count; i++) {
+      const text = lines[i];
+      width = Math.max(width, ctx.measureText(text).width);
+    }
+    ctx.restore();
+    const height = count * font.lineHeight;
+    widthCache.set(mapKey, {width, height});
+  }
+  return widthCache.get(mapKey);
+}
+
+function labelToDraw(ctx, rect, options, {labels, font}) {
+  const overflow = options.overflow;
+  if (overflow === 'hidden') {
+    const padding = options.padding;
+    const labelSize = measureLabelSize(ctx, labels, font);
+    return !((labelSize.width + padding * 2) > rect.width || (labelSize.height + padding * 2) > rect.height);
+  }
+  return true;
+}
+
 function drawLabel(ctx, rect) {
   const opts = rect.options;
   const labelsOpts = opts.labels;
-  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const label = labelsOpts.formatter;
+  if (!label) {
+    return;
+  }
+  const labels = isArray(label) ? label : [label];
   const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
   const font = toFont(optFont);
-  const lh = font.lineHeight;
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
-  const label = labelsOpts.formatter;
-  if (label) {
-    const labels = isArray(label) ? label : [label];
-    const xyPoint = calculateXYLabel(opts, rect, labels, lh, borderWidth);
-    ctx.font = font.string;
-    ctx.textAlign = labelsOpts.align;
-    ctx.textBaseline = labelsOpts.position;
-    ctx.fillStyle = optColor;
-    labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
+  if (!labelToDraw(ctx, rect, labelsOpts, {labels, font})) {
+    return;
   }
+  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
+  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const lh = font.lineHeight;
+  const xyPoint = calculateXYLabel(opts, rect, labels, lh, borderWidth);
+  ctx.font = font.string;
+  ctx.textAlign = labelsOpts.align;
+  ctx.textBaseline = labelsOpts.position;
+  ctx.fillStyle = optColor;
+  labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
 }
 
 function drawDivider(ctx, rect, item) {
@@ -286,6 +320,7 @@ TreemapElement.defaults = {
     display: false,
     formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v] : ctx.raw.v),
     font: {},
+    overflow: 'clip',
     position: 'middle',
     padding: 3
   }

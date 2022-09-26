@@ -30,6 +30,7 @@ type TreemapControllerDatasetLabelsOptions = {
   font?: FontSpec,
   hoverColor?: Scriptable<Color, TreemapScriptableContext>,
   hoverFont?: FontSpec,
+  overflow?: Scriptable<LabelOverflow, TreemapScriptableContext>
   padding?: number,
   position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }
@@ -37,6 +38,8 @@ type TreemapControllerDatasetLabelsOptions = {
 export type LabelPosition = 'top' | 'middle' | 'bottom';
 
 export type LabelAlign = 'left' | 'center' | 'right';
+
+export type LabelOverflow = 'cut' | 'hidden';
 
 type TreemapControllerDatasetDividersOptions = {
   display?: boolean,

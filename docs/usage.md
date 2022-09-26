@@ -176,9 +176,10 @@ The labels options can control if and how a label, to represent the data, can be
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | `display` | `boolean` | - | `false`
 | [`formatter`](#formatter) | `function` | Yes | 
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
+| [`overflow`](#overflow) | `string` | Yes | `cut`
 | `padding` | `number` | - | `3` 
 | [`position`](#position) | `string` | Yes | `middle`
 
@@ -197,6 +198,13 @@ The align property specifies the text horizontal alignment used when drawing the
 * `center`: the text is centered. It is the default.
 * `left`: the text is left-aligned.
 * `right`: the text is right-aligned.
+
+### Overflow
+
+The overflow property controls what happens to a label that is too big to fit into a rectangle. The possible values are:
+
+* `cut`: if the label is too big, it will be cut to stay inside the rectangle. It is the default.
+* `hidden`:  the label is removed altogether if the rectangle is too small for it.
 
 ### Position
 

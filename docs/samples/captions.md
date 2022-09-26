@@ -63,6 +63,10 @@ const config = {
           weight: 'bold'
         },
         padding: 5
+      },
+      labels: {
+        display: false,
+        overflow: 'hidden'
       }
     }]
   },
@@ -70,7 +74,19 @@ const config = {
 };
 // </block:config>
 
+const actions = [
+  {
+    name: 'Toggle labels',
+    handler(chart) {
+      const labels = chart.data.datasets[0].labels;
+      labels.display = !labels.display;
+      chart.update();
+    }
+  }
+];
+
 module.exports = {
   config,
+  actions
 };
 ```

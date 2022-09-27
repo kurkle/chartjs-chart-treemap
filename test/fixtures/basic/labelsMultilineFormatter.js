@@ -12,7 +12,7 @@ export default {
           align: 'left',
           position: 'top',
           formatter(ctx) {
-            return ctx.type === 'data' ? ['The value is', ctx.raw.v] : [];
+            return ctx.type === 'data' ? ['The value is', ctx.raw.v + ''] : [];
           }
         }
       }]
@@ -24,6 +24,7 @@ export default {
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

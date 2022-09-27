@@ -34,7 +34,7 @@ export default {
         labels: {
           display: true,
           formatter(ctx) {
-            return ctx.type === 'data' ? ctx.raw.v : '';
+            return ctx.type === 'data' ? ctx.raw.v + '' : '';
           }
         }
       }]
@@ -46,6 +46,7 @@ export default {
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

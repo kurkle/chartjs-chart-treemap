@@ -134,11 +134,10 @@ function measureLabelSize(ctx, lines, font) {
   return widthCache.get(mapKey);
 }
 
-function labelToDraw(ctx, rect, options, {labels, font}) {
+function labelToDraw(ctx, rect, options, labelSize) {
   const overflow = options.overflow;
   if (overflow === 'hidden') {
     const padding = options.padding;
-    const labelSize = measureLabelSize(ctx, labels, font);
     return !((labelSize.width + padding * 2) > rect.width || (labelSize.height + padding * 2) > rect.height);
   }
   return true;
@@ -154,18 +153,19 @@ function drawLabel(ctx, rect) {
   const labels = isArray(label) ? label : [label];
   const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
   const font = toFont(optFont);
-  if (!labelToDraw(ctx, rect, labelsOpts, {labels, font})) {
+  const labelSize = measureLabelSize(ctx, labels, font);
+  if (!labelToDraw(ctx, rect, labelsOpts, labelSize)) {
     return;
   }
   const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
   const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
   const lh = font.lineHeight;
-  const xyPoint = calculateXYLabel(opts, rect, labels, lh, borderWidth);
+  const xyPoint = calculateXYLabel(opts, rect, labelSize, borderWidth);
   ctx.font = font.string;
   ctx.textAlign = labelsOpts.align;
-  ctx.textBaseline = labelsOpts.position;
+  ctx.textBaseline = 'middle';
   ctx.fillStyle = optColor;
-  labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
+  labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + i * lh));
 }
 
 function drawDivider(ctx, rect, item) {
@@ -197,7 +197,7 @@ function drawDivider(ctx, rect, item) {
   ctx.restore();
 }
 
-function calculateXYLabel(options, rect, labels, lineHeight, borderWidth) {
+function calculateXYLabel(options, rect, labelSize, borderWidth) {
   const labelsOpts = options.labels;
   const {align, position, padding} = labelsOpts;
   let x, y;
@@ -205,9 +205,9 @@ function calculateXYLabel(options, rect, labels, lineHeight, borderWidth) {
   if (position === 'top') {
     y = rect.y + padding + borderWidth.t;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - borderWidth.b - (labels.length - 1) * lineHeight;
+    y = rect.y + rect.height - padding - borderWidth.b - labelSize.height;
   } else {
-    y = rect.y + rect.height / 2 - labels.length * lineHeight / 4;
+    y = rect.y + (rect.height - labelSize.height) / 2 + padding + borderWidth.t;
   }
   return {x, y};
 }

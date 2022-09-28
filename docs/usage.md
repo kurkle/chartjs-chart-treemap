@@ -179,12 +179,12 @@ The labels options can control if and how a label, to represent the data, can be
 | Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
 | ---- | ---- | :----: | ----
 | [`align`](#align) | `string` | Yes | `center`
-| `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
+| [`color`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `undefined`
 | `display` | `boolean` | - | `false`
 | [`formatter`](#formatter) | `function` | Yes | 
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
-| `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
+| [`font`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
+| [`hoverColor`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `undefined`
+| [`hoverFont`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
 | [`overflow`](#overflow) | `string` | Yes | `cut`
 | `padding` | `number` | - | `3` 
 | [`position`](#position) | `string` | Yes | `middle`
@@ -244,6 +244,12 @@ const config = {
   },
 };
 ```
+
+### Fonts and colors
+
+When the label to draw has multiple lines, you can use different font and color for each row of the label. This is enabled configuring an array of fonts or colors for those options. When the lines are more than the configured fonts of colors, the last configuration of those options is used for all remaining lines.
+
+See on Chart.js documentation more details about [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) and [`color`](https://www.chartjs.org/docs/latest/general/colors.html) options.
 
 ## Captions
 

@@ -1,15 +1,20 @@
 export default {
+  tolerance: 0.0150,
   config: {
     type: 'treemap',
     data: {
       datasets: [{
         label: 'Simple treemap',
-        data: [6, 6, 4, 3, 2, 2, 1],
+        data: [16, 16, 14, 13, 12, 12],
         backgroundColor: 'red',
         labels: {
           display: true,
           align: 'left',
-          formatter: (ctx) => ctx.raw.v + ''
+          position: 'top',
+          font: () => [{size: 24}, {size: 12}],
+          formatter(ctx) {
+            return ctx.type === 'data' ? ['The value is', ctx.raw.v + '', 'The value is', ctx.raw.v + ''] : [];
+          }
         }
       }]
     },
@@ -18,7 +23,6 @@ export default {
     }
   },
   options: {
-    spriteText: true,
     canvas: {
       height: 256,
       width: 512

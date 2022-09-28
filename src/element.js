@@ -139,19 +139,25 @@ function drawCaption(ctx, rect, options, item) {
   ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
 }
 
-function measureLabelSize(ctx, lines, font) {
-  const mapKey = lines.join() + font.string + (ctx._measureText ? '-spriting' : '');
+function measureLabelSize(ctx, lines, fonts) {
+  const fontsKey = fonts.reduce(function(prev, item) {
+    prev += item.string;
+    return prev;
+  }, '');
+  const mapKey = lines.join() + fontsKey + (ctx._measureText ? '-spriting' : '');
   if (!widthCache.has(mapKey)) {
     ctx.save();
-    ctx.font = font.string;
     const count = lines.length;
     let width = 0;
+    let height = 0;
     for (let i = 0; i < count; i++) {
+      const font = fonts[Math.min(i, fonts.length - 1)];
+      ctx.font = font.string;
       const text = lines[i];
       width = Math.max(width, ctx.measureText(text).width);
+      height += font.lineHeight;
     }
     ctx.restore();
-    const height = count * font.lineHeight;
     widthCache.set(mapKey, {width, height});
   }
   return widthCache.get(mapKey);
@@ -174,19 +180,26 @@ function drawLabel(ctx, rect, options) {
   }
   const labels = isArray(label) ? label : [label];
   const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
-  const font = toFont(optFont);
-  const labelSize = measureLabelSize(ctx, labels, font);
+  const fonts = isArray(optFont) ? optFont.map(font => toFont(font)) : [toFont(optFont)];
+  const labelSize = measureLabelSize(ctx, labels, fonts);
   if (!labelToDraw(ctx, rect, labelsOpts, labelSize)) {
     return;
   }
   const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
-  const lh = font.lineHeight;
+  const colors = isArray(optColor) ? optColor : [optColor];
   const xyPoint = calculateXYLabel(options, rect, labelSize);
-  ctx.font = font.string;
   ctx.textAlign = labelsOpts.align;
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = optColor;
-  labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + i * lh));
+  let lhs = 0;
+  labels.forEach(function(l, i) {
+    const color = colors[Math.min(i, colors.length - 1)];
+    const font = fonts[Math.min(i, fonts.length - 1)];
+    const lh = font.lineHeight;
+    ctx.font = font.string;
+    ctx.fillStyle = color;
+    ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + lhs);
+    lhs += lh;
+  });
 }
 
 function drawDivider(ctx, rect, options, item) {
@@ -341,7 +354,7 @@ TreemapElement.defaults = {
     align: 'center',
     color: 'black',
     display: false,
-    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v] : ctx.raw.v),
+    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v + ''] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + ''),
     font: {},
     overflow: 'clip',
     position: 'middle',

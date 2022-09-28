@@ -1,5 +1,5 @@
 export default {
-  tolerance: 0.0025,
+  tolerance: 0.0055,
   config: {
     type: 'treemap',
     data: {
@@ -15,11 +15,7 @@ export default {
       }]
     },
     options: {
-      layout: {
-        padding: {
-          bottom: 10
-        }
-      }
+      events: []
     }
   },
   options: {

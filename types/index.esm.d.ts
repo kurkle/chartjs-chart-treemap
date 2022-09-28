@@ -24,12 +24,12 @@ type TreemapControllerDatasetCaptionsOptions = {
 
 type TreemapControllerDatasetLabelsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>,
-  color?: Scriptable<Color, TreemapScriptableContext>,
+  color?: Scriptable<Color | Color[], TreemapScriptableContext>,
   display?: boolean;
   formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>,
-  font?: FontSpec,
-  hoverColor?: Scriptable<Color, TreemapScriptableContext>,
-  hoverFont?: FontSpec,
+  font?: Scriptable<FontSpec | FontSpec[], TreemapScriptableContext>,
+  hoverColor?: Scriptable<Color | Color[], TreemapScriptableContext>,
+  hoverFont?: Scriptable<FontSpec | FontSpec[], TreemapScriptableContext>,
   overflow?: Scriptable<LabelOverflow, TreemapScriptableContext>
   padding?: number,
   position?: Scriptable<LabelPosition, TreemapScriptableContext>

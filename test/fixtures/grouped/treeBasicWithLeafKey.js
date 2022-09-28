@@ -46,10 +46,10 @@ export default {
     },
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512
-    },
-    spriteText: true
+    }
   }
 };

@@ -39,16 +39,16 @@ export default {
           display: false
         },
         labels: {
-          display: true
+          display: true,
         }
       }]
     },
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512
-    },
-    spriteText: true
+    }
   }
 };

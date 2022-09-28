@@ -77,7 +77,7 @@ These are used to set display properties for a specific dataset.
 | [`groups`](#general) | `string[]` | - | `undefined` |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverBorderWidth`](#interactions) | `number` | - | `undefined`
+| [`hoverBorderWidth`](#interactions) | `number` | Yes | `undefined`
 | [`key`](#general) | `string` | - | `undefined` |
 | [`label`](#general) | `string` | - | `''`
 | [`labels`](#labels) | `object` | - | 
@@ -268,7 +268,7 @@ The captions options can control if and how a captions, to represent the group o
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | `display` | `boolean` | - | `true`
 | [`formatter`](#caption-formatter) | `function` | Yes | 
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | - | `{}` 
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
 | `padding` | `number` | - | `3` 

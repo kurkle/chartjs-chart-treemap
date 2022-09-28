@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath} from 'chart.js/helpers';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -102,12 +102,13 @@ export function shouldDrawCaption(rect, options) {
   const font = toFont(options.font);
   const w = rect.width || rect.w;
   const h = rect.height || rect.h;
-  const min = font.lineHeight * 2;
-  return w > min && h > min;
+  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+  const min = font.lineHeight;
+  return (w - padding) > min && (h - padding) > min;
 }
 
 function drawText(ctx, rect, options, item, levels) {
-  const captions = options.captions;
+  const {captions, labels} = options;
   ctx.save();
   ctx.beginPath();
   // TODO clip adding the padding and creating new rect with padding,
@@ -115,7 +116,7 @@ function drawText(ctx, rect, options, item, levels) {
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   const isLeaf = (!('l' in item) || item.l === levels);
-  if (isLeaf && options.labels.display) {
+  if (isLeaf && labels.display) {
     drawLabel(ctx, rect, options);
   } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
     drawCaption(ctx, rect, options, item);
@@ -124,19 +125,19 @@ function drawText(ctx, rect, options, item, levels) {
 }
 
 function drawCaption(ctx, rect, options, item) {
-  const captionsOpts = options.captions;
-  const spacing = options.spacing;
-  const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
-  const padding = captionsOpts.padding;
-  const align = captionsOpts.align || (options.rtl ? 'right' : 'left');
-  const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
-  const font = toFont(optFont);
-  const x = calculateX(rect, align, padding);
-  ctx.fillStyle = color;
-  ctx.font = font.string;
-  ctx.textAlign = align;
+  const {captions, spacing, rtl} = options;
+  const {color, hoverColor, font, hoverFont, padding, align, formatter} = captions;
+  const textColor = (rect.active ? hoverColor : color) || color;
+  const textAlign = align || (rtl ? 'right' : 'left');
+  const optFont = (rect.active ? hoverFont : font) || font;
+  const textFont = toFont(optFont);
+  const lh = textFont.lineHeight / 2;
+  const x = calculateX(rect, textAlign, padding);
+  ctx.fillStyle = textColor;
+  ctx.font = textFont.string;
+  ctx.textAlign = textAlign;
   ctx.textBaseline = 'middle';
-  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
+  ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
 }
 
 function measureLabelSize(ctx, lines, fonts) {

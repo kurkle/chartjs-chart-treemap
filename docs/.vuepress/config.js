@@ -48,6 +48,7 @@ module.exports = {
         '/samples/': [
           'basic',
           'labels',
+          'labelsFontsAndColors',
           'groups',
           'tree',
           'captions',

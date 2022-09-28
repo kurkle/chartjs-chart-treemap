@@ -15,11 +15,7 @@ export default {
       }]
     },
     options: {
-      layout: {
-        padding: {
-          bottom: 10
-        }
-      }
+      events: []
     }
   },
   options: {

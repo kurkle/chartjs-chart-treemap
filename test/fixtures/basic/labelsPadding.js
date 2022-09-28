@@ -10,17 +10,17 @@ export default {
           display: true,
           align: 'center',
           position: 'top',
-          padding: 25
+          padding: 25,
+          formatter: (ctx) => ctx.raw.v + ''
         }
       }]
     },
     options: {
-      layout: {
-        padding: 20
-      }
+      events: []
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

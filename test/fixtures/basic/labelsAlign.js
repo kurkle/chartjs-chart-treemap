@@ -8,17 +8,17 @@ export default {
         backgroundColor: 'red',
         labels: {
           display: true,
-          align: 'left'
+          align: 'left',
+          formatter: (ctx) => ctx.raw.v + ''
         }
       }]
     },
     options: {
-      layout: {
-        padding: 20
-      }
+      events: []
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

@@ -9,7 +9,8 @@ export default {
         labels: {
           display: true,
           align: 'center',
-          position: 'top'
+          position: 'top',
+          formatter: (ctx) => ctx.raw.v + ''
         }
       }]
     },
@@ -20,6 +21,7 @@ export default {
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

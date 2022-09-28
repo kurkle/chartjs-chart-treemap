@@ -10,6 +10,7 @@
     "autobuild": "rollup -c -w",
     "build": "rollup -c",
     "dev": "karma start --no-signle-run --auto-watch --browsers chrome",
+    "dev:ff": "karma start --no-signle-run --auto-watch --browsers firefox",
     "docs": "npm run build && vuepress build docs --no-cache",
     "docs:dev": "npm run build && vuepress dev docs --no-cache",
     "lint": "concurrently -r \"npm:lint-*\"",

@@ -111,8 +111,6 @@ function drawText(ctx, rect, options, item, levels) {
   const {captions, labels} = options;
   ctx.save();
   ctx.beginPath();
-  // TODO clip adding the padding and creating new rect with padding,
-  // in order to remove the padding for further calculation
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   const isLeaf = (!('l' in item) || item.l === levels);

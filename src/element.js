@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, isObject} from 'chart.js/helpers';
+import {toFont, isArray, isObject, toTRBLCorners, addRoundedRectPath} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -39,11 +39,16 @@ export function parseBorderWidth(value, maxW, maxH) {
   };
 }
 
-function boundingRects(rect) {
+export function isBoxesOverlapped(options) {
+  return options && (!options.borderRadius || isObject(options.borderWidth));
+}
+
+function boundingRects(rect, overlapBoxes) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
+  const borderDivider = overlapBoxes ? 1 : 2;
 
   return {
     outer: {
@@ -53,10 +58,10 @@ function boundingRects(rect) {
       h: height
     },
     inner: {
-      x: bounds.left + border.l,
-      y: bounds.top + border.t,
-      w: width - border.l - border.r,
-      h: height - border.t - border.b
+      x: bounds.left + border.l / borderDivider,
+      y: bounds.top + border.t / borderDivider,
+      w: width - border.l / borderDivider - border.r / borderDivider,
+      h: height - border.t / borderDivider - border.b / borderDivider
     }
   };
 }
@@ -168,14 +173,12 @@ function drawLabel(ctx, rect) {
   labels.forEach((l, i) => ctx.fillText(l, xyPoint.x, xyPoint.y + i * lh));
 }
 
-function drawDivider(ctx, rect, item) {
-  const opts = rect.options;
-  const dividersOpts = opts.dividers;
+function drawDivider(ctx, rect, options, item) {
+  const dividersOpts = options.dividers;
   if (!dividersOpts.display || !item._data.children.length) {
     return;
   }
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
+  const {w, h} = rect;
 
   ctx.save();
   ctx.strokeStyle = dividersOpts.lineColor;
@@ -221,6 +224,58 @@ function calculateX(rect, align, padding, borderWidth) {
   return rect.x + rect.width / 2;
 }
 
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Object} options
+ * @returns {boolean|undefined}
+ */
+function setBorderStyle(ctx, options) {
+  if (options && options.borderWidth && !isObject(options.borderWidth)) {
+    ctx.lineWidth = options.borderWidth;
+    ctx.strokeStyle = options.borderColor;
+    return true;
+  }
+}
+
+const clamp = (x, from, to) => Math.min(to, Math.max(from, x));
+
+/**
+ * @param {Object} obj
+ * @param {number} from
+ * @param {number} to
+ * @returns {Object}
+ */
+function clampAll(obj, from, to) {
+  for (const key of Object.keys(obj)) {
+    obj[key] = clamp(obj[key], from, to);
+  }
+  return obj;
+}
+
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {{x: number, y: number, width: number, height: number}} rect
+ * @param {Object} options
+ */
+function drawBox(ctx, rect, options) {
+  const {x, y, w, h} = rect;
+  ctx.save();
+  const stroke = setBorderStyle(ctx, options);
+  ctx.fillStyle = options.backgroundColor;
+  ctx.beginPath();
+  addRoundedRectPath(ctx, {
+    x, y, w, h,
+    radius: clampAll(toTRBLCorners(options.borderRadius), 0, Math.min(w, h) / 2)
+  });
+  ctx.closePath();
+  ctx.fill();
+  if (stroke) {
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 export default class TreemapElement extends Element {
 
   constructor(cfg) {
@@ -240,24 +295,29 @@ export default class TreemapElement extends Element {
       return;
     }
     const options = this.options;
-    const {inner, outer} = boundingRects(this);
+    const overlapBoxes = isBoxesOverlapped(options);
+    const {inner, outer} = boundingRects(this, overlapBoxes);
 
     ctx.save();
 
-    if (outer.w !== inner.w || outer.h !== inner.h) {
-      ctx.beginPath();
-      ctx.rect(outer.x, outer.y, outer.w, outer.h);
-      ctx.clip();
-      ctx.rect(inner.x, inner.y, inner.w, inner.h);
-      ctx.fillStyle = options.backgroundColor;
-      ctx.fill();
-      ctx.fillStyle = options.borderColor;
-      ctx.fill('evenodd');
+    if (overlapBoxes) {
+      if (outer.w !== inner.w || outer.h !== inner.h) {
+        ctx.beginPath();
+        ctx.rect(outer.x, outer.y, outer.w, outer.h);
+        ctx.clip();
+        ctx.rect(inner.x, inner.y, inner.w, inner.h);
+        ctx.fillStyle = options.backgroundColor;
+        ctx.fill();
+        ctx.fillStyle = options.borderColor;
+        ctx.fill('evenodd');
+      } else {
+        ctx.fillStyle = options.backgroundColor;
+        ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+      }
     } else {
-      ctx.fillStyle = options.backgroundColor;
-      ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+      drawBox(ctx, inner, options);
     }
-    drawDivider(ctx, this, data);
+    drawDivider(ctx, inner, options, data);
     drawText(ctx, this, data, levels);
     ctx.restore();
   }
@@ -295,6 +355,7 @@ TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
   borderWidth: 0,
+  borderRadius: 0,
   spacing: 0.5,
   label: undefined,
   rtl: false,

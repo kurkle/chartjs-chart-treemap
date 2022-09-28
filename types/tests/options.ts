@@ -216,7 +216,7 @@ const chart5 = new Chart('test', {
       labels: {
         display: false,
         color: ['red', 'green'],
-        font: [{size: 24}, {size: 12}]
+        font: [{ size: 24 }, { size: 12 }]
       }
     }]
   },

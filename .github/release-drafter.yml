@@ -17,6 +17,7 @@ categories:
     labels: 
       - 'chore'
       - 'dependencies'
+      - 'refactoring'
 exclude-labels:
   - 'infrastructure'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'

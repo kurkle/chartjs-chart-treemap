@@ -122,7 +122,11 @@ function drawCaption(ctx, rect, item) {
 }
 
 function measureLabelSize(ctx, lines, fonts) {
-  const mapKey = lines.join() + fonts.join() + (ctx._measureText ? '-spriting' : '');
+  const fontsKey = fonts.reduce(function(prev, item) {
+    prev += item.string;
+    return prev;
+  }, '');
+  const mapKey = lines.join() + fontsKey + (ctx._measureText ? '-spriting' : '');
   if (!widthCache.has(mapKey)) {
     ctx.save();
     const count = lines.length;

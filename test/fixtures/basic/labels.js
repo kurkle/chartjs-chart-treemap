@@ -7,12 +7,14 @@ export default {
         data: [6, 6, 4, 3, 2, 2, 1],
         backgroundColor: 'red',
         labels: {
-          display: true
+          display: true,
+          formatter: (ctx) => ctx.raw.v + ''
         }
       }]
     }
   },
   options: {
+    spriteText: true,
     canvas: {
       height: 256,
       width: 512

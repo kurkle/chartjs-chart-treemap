@@ -20,9 +20,7 @@ export default {
       }]
     },
     options: {
-      layout: {
-        padding: 20
-      }
+      events: []
     }
   },
   options: {

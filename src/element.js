@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, isObject, toTRBLCorners, addRoundedRectPath} from 'chart.js/helpers';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -20,48 +20,54 @@ function limit(value, min, max) {
 }
 
 export function parseBorderWidth(value, maxW, maxH) {
-  let t, r, b, l;
-
-  if (isObject(value)) {
-    t = +value.top || 0;
-    r = +value.right || 0;
-    b = +value.bottom || 0;
-    l = +value.left || 0;
-  } else {
-    t = r = b = l = +value || 0;
-  }
+  const o = toTRBL(value);
 
   return {
-    t: limit(t, 0, maxH),
-    r: limit(r, 0, maxW),
-    b: limit(b, 0, maxH),
-    l: limit(l, 0, maxW)
+    t: limit(o.top, 0, maxH),
+    r: limit(o.right, 0, maxW),
+    b: limit(o.bottom, 0, maxH),
+    l: limit(o.left, 0, maxW)
   };
 }
 
-export function isBoxesOverlapped(options) {
-  return options && (!options.borderRadius || isObject(options.borderWidth));
+function parseBorderRadius(value, maxW, maxH) {
+  const o = toTRBLCorners(value);
+  const maxR = Math.min(maxW, maxH);
+
+  return {
+    topLeft: limit(o.topLeft, 0, maxR),
+    topRight: limit(o.topRight, 0, maxR),
+    bottomLeft: limit(o.bottomLeft, 0, maxR),
+    bottomRight: limit(o.bottomRight, 0, maxR)
+  };
 }
 
-function boundingRects(rect, overlapBoxes) {
+function boundingRects(rect) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
-  const borderDivider = overlapBoxes ? 1 : 2;
+  const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
 
   return {
     outer: {
       x: bounds.left,
       y: bounds.top,
       w: width,
-      h: height
+      h: height,
+      radius
     },
     inner: {
-      x: bounds.left + border.l / borderDivider,
-      y: bounds.top + border.t / borderDivider,
-      w: width - border.l / borderDivider - border.r / borderDivider,
-      h: height - border.t / borderDivider - border.b / borderDivider
+      x: bounds.left + border.l,
+      y: bounds.top + border.t,
+      w: width - border.l - border.r,
+      h: height - border.t - border.b,
+      radius: {
+        topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
+        topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
+        bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
+        bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
+      }
     }
   };
 }
@@ -76,8 +82,21 @@ function inRange(rect, x, y, useFinalPosition) {
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
+function hasRadius(radius) {
+  return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
+}
+
+/**
+ * Add a path of a rectangle to the current sub-path
+ * @param {CanvasRenderingContext2D} ctx Context
+ * @param {*} rect Bounding rect
+ */
+function addNormalRectPath(ctx, rect) {
+  ctx.rect(rect.x, rect.y, rect.w, rect.h);
+}
+
 export function shouldDrawCaption(rect, options) {
-  if (!options) {
+  if (!options || !options.display) {
     return false;
   }
   const font = toFont(options.font);
@@ -87,33 +106,32 @@ export function shouldDrawCaption(rect, options) {
   return w > min && h > min;
 }
 
-function drawText(ctx, rect, item, levels) {
-  const opts = rect.options;
-  const captions = opts.captions;
+function drawText(ctx, rect, options, item, levels) {
+  const captions = options.captions;
   ctx.save();
   ctx.beginPath();
-  ctx.rect(rect.x, rect.y, rect.width, rect.height);
+  // TODO clip adding the padding and creating new rect with padding,
+  // in order to remove the padding for further calculation
+  ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   const isLeaf = (!('l' in item) || item.l === levels);
-  if (isLeaf && opts.labels.display) {
-    drawLabel(ctx, rect);
-  } else if (!isLeaf && captions.display && shouldDrawCaption(rect, captions)) {
-    drawCaption(ctx, rect, item);
+  if (isLeaf && options.labels.display) {
+    drawLabel(ctx, rect, options);
+  } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
+    drawCaption(ctx, rect, options, item);
   }
   ctx.restore();
 }
 
-function drawCaption(ctx, rect, item) {
-  const opts = rect.options;
-  const captionsOpts = opts.captions;
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
-  const spacing = opts.spacing + borderWidth.t;
+function drawCaption(ctx, rect, options, item) {
+  const captionsOpts = options.captions;
+  const spacing = options.spacing;
   const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
   const padding = captionsOpts.padding;
-  const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
+  const align = captionsOpts.align || (options.rtl ? 'right' : 'left');
   const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
   const font = toFont(optFont);
-  const x = calculateX(rect, align, padding, borderWidth);
+  const x = calculateX(rect, align, padding);
   ctx.fillStyle = color;
   ctx.font = font.string;
   ctx.textAlign = align;
@@ -143,14 +161,13 @@ function labelToDraw(ctx, rect, options, labelSize) {
   const overflow = options.overflow;
   if (overflow === 'hidden') {
     const padding = options.padding;
-    return !((labelSize.width + padding * 2) > rect.width || (labelSize.height + padding * 2) > rect.height);
+    return !((labelSize.width + padding * 2) > rect.w || (labelSize.height + padding * 2) > rect.h);
   }
   return true;
 }
 
-function drawLabel(ctx, rect) {
-  const opts = rect.options;
-  const labelsOpts = opts.labels;
+function drawLabel(ctx, rect, options) {
+  const labelsOpts = options.labels;
   const label = labelsOpts.formatter;
   if (!label) {
     return;
@@ -162,10 +179,9 @@ function drawLabel(ctx, rect) {
   if (!labelToDraw(ctx, rect, labelsOpts, labelSize)) {
     return;
   }
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
   const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
   const lh = font.lineHeight;
-  const xyPoint = calculateXYLabel(opts, rect, labelSize, borderWidth);
+  const xyPoint = calculateXYLabel(options, rect, labelSize);
   ctx.font = font.string;
   ctx.textAlign = labelsOpts.align;
   ctx.textBaseline = 'middle';
@@ -200,80 +216,28 @@ function drawDivider(ctx, rect, options, item) {
   ctx.restore();
 }
 
-function calculateXYLabel(options, rect, labelSize, borderWidth) {
+function calculateXYLabel(options, rect, labelSize) {
   const labelsOpts = options.labels;
   const {align, position, padding} = labelsOpts;
   let x, y;
-  x = calculateX(rect, align, padding, borderWidth);
+  x = calculateX(rect, align, padding);
   if (position === 'top') {
-    y = rect.y + padding + borderWidth.t;
+    y = rect.y + padding;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - borderWidth.b - labelSize.height;
+    y = rect.y + rect.h - padding - labelSize.height;
   } else {
-    y = rect.y + (rect.height - labelSize.height) / 2 + padding + borderWidth.t;
+    y = rect.y + (rect.h - labelSize.height) / 2 + padding;
   }
   return {x, y};
 }
 
-function calculateX(rect, align, padding, borderWidth) {
+function calculateX(rect, align, padding) {
   if (align === 'left') {
-    return rect.x + padding + borderWidth.l;
+    return rect.x + padding;
   } else if (align === 'right') {
-    return rect.x + rect.width - padding - borderWidth.r;
+    return rect.x + rect.w - padding;
   }
-  return rect.x + rect.width / 2;
-}
-
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {Object} options
- * @returns {boolean|undefined}
- */
-function setBorderStyle(ctx, options) {
-  if (options && options.borderWidth && !isObject(options.borderWidth)) {
-    ctx.lineWidth = options.borderWidth;
-    ctx.strokeStyle = options.borderColor;
-    return true;
-  }
-}
-
-const clamp = (x, from, to) => Math.min(to, Math.max(from, x));
-
-/**
- * @param {Object} obj
- * @param {number} from
- * @param {number} to
- * @returns {Object}
- */
-function clampAll(obj, from, to) {
-  for (const key of Object.keys(obj)) {
-    obj[key] = clamp(obj[key], from, to);
-  }
-  return obj;
-}
-
-
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {{x: number, y: number, width: number, height: number}} rect
- * @param {Object} options
- */
-function drawBox(ctx, rect, options) {
-  const {x, y, w, h} = rect;
-  ctx.save();
-  const stroke = setBorderStyle(ctx, options);
-  ctx.fillStyle = options.backgroundColor;
-  ctx.beginPath();
-  addRoundedRectPath(ctx, {
-    x, y, w, h,
-    radius: clampAll(toTRBLCorners(options.borderRadius), 0, Math.min(w, h) / 2)
-  });
-  ctx.closePath();
-  ctx.fill();
-  if (stroke) {
-    ctx.stroke();
-  }
-  ctx.restore();
+  return rect.x + rect.w / 2;
 }
 
 export default class TreemapElement extends Element {
@@ -295,30 +259,28 @@ export default class TreemapElement extends Element {
       return;
     }
     const options = this.options;
-    const overlapBoxes = isBoxesOverlapped(options);
-    const {inner, outer} = boundingRects(this, overlapBoxes);
+    const {inner, outer} = boundingRects(this);
+
+    const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 
     ctx.save();
 
-    if (overlapBoxes) {
-      if (outer.w !== inner.w || outer.h !== inner.h) {
-        ctx.beginPath();
-        ctx.rect(outer.x, outer.y, outer.w, outer.h);
-        ctx.clip();
-        ctx.rect(inner.x, inner.y, inner.w, inner.h);
-        ctx.fillStyle = options.backgroundColor;
-        ctx.fill();
-        ctx.fillStyle = options.borderColor;
-        ctx.fill('evenodd');
-      } else {
-        ctx.fillStyle = options.backgroundColor;
-        ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
-      }
-    } else {
-      drawBox(ctx, inner, options);
+    if (outer.w !== inner.w || outer.h !== inner.h) {
+      ctx.beginPath();
+      addRectPath(ctx, outer);
+      ctx.clip();
+      addRectPath(ctx, inner);
+      ctx.fillStyle = options.borderColor;
+      ctx.fill('evenodd');
     }
+
+    ctx.beginPath();
+    addRectPath(ctx, inner);
+    ctx.fillStyle = options.backgroundColor;
+    ctx.fill();
+
     drawDivider(ctx, inner, options, data);
-    drawText(ctx, this, data, levels);
+    drawText(ctx, inner, options, data, levels);
     ctx.restore();
   }
 

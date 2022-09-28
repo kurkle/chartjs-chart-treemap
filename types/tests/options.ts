@@ -201,3 +201,23 @@ const chart4 = new Chart('test', {
     }]
   },
 });
+
+const chart5 = new Chart('test', {
+  type: 'treemap',
+  data: {
+    datasets: [{
+      data: [],
+      tree: statsByState,
+      key: 'population',
+      groups: ['region', 'division', 'code'],
+      backgroundColor(ctx) {
+        return '#e6beff';
+      },
+      labels: {
+        display: false,
+        color: ['red', 'green'],
+        font: [{size: 24}, {size: 12}]
+      }
+    }]
+  },
+});

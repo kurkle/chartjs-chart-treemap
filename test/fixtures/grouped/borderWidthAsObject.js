@@ -19,6 +19,7 @@ export default {
         tree,
         groups: ['p1', 'p2'],
         key: 'value',
+        borderColor: 'rgba(0,0,0,0.5)',
         borderWidth: {
           left: 10,
           right: 10,

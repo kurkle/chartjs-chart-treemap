@@ -79,7 +79,7 @@ These are used to set display properties for a specific dataset.
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderWidth`](#interactions) | `number` | - | `undefined`
 | [`key`](#general) | `string` | - | `undefined` |
-| [`label`](#general) | `string` | - | `''`
+| [`label`](#general) | `string` | - | `undefined`
 | [`labels`](#labels) | `object` | - | 
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
@@ -181,8 +181,8 @@ The labels options can control if and how a label, to represent the data, can be
 | [`align`](#align) | `string` | Yes | `center`
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | `display` | `boolean` | - | `false`
-| [`formatter`](#formatter) | `function` | Yes | 
 | [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
+| [`formatter`](#formatter) | `function` | Yes | 
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
 | [`overflow`](#overflow) | `string` | Yes | `cut`
@@ -261,8 +261,8 @@ The captions options can control if and how a captions, to represent the group o
 | [`align`](#caption-align) | `string` | Yes | `undefined` but `left` is used because default `rtl` option is `false`.
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | `display` | `boolean` | - | `true`
-| [`formatter`](#caption-formatter) | `function` | Yes | 
 | [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
+| [`formatter`](#caption-formatter) | `function` | Yes | 
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
 | `padding` | `number` | - | `3` 
@@ -336,7 +336,7 @@ The divider is a line which splits a treemap elements in grouped elements and ca
 | `display` | `boolean` | - | `false` |
 | [`lineCapStyle`](#line-styling) | `string` | - | `'butt'`
 | [`lineColor`](#line-styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | - | `'black'`
-| [`lineDash`](#line-styling) | `number[]` | - | `undefined`
+| [`lineDash`](#line-styling) | `number[]` | - | `[]`
 | [`lineDashOffset`](#line-styling) | `number` | - | `0`
 | [`lineWidth`](#line-styling) | `number` | - | `1`
 

@@ -369,7 +369,7 @@ TreemapElement.defaults = {
   },
   captions: {
     align: undefined,
-    color: 'black',
+    color: undefined,
     display: true,
     formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
     font: {},
@@ -377,11 +377,11 @@ TreemapElement.defaults = {
   },
   labels: {
     align: 'center',
-    color: 'black',
+    color: undefined,
     display: false,
     formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v] : ctx.raw.v),
     font: {},
-    overflow: 'clip',
+    overflow: 'cut',
     position: 'middle',
     padding: 3
   }

@@ -125,15 +125,15 @@ function drawText(ctx, rect, options, item, levels) {
 function drawCaption(ctx, rect, options, item) {
   const {captions, spacing, rtl} = options;
   const {color, hoverColor, font, hoverFont, padding, align, formatter} = captions;
-  const textColor = (rect.active ? hoverColor : color) || color;
-  const textAlign = align || (rtl ? 'right' : 'left');
+  const oColor = (rect.active ? hoverColor : color) || color;
+  const oAlign = align || (rtl ? 'right' : 'left');
   const optFont = (rect.active ? hoverFont : font) || font;
-  const textFont = toFont(optFont);
-  const lh = textFont.lineHeight / 2;
-  const x = calculateX(rect, textAlign, padding);
-  ctx.fillStyle = textColor;
-  ctx.font = textFont.string;
-  ctx.textAlign = textAlign;
+  const oFont = toFont(optFont);
+  const lh = oFont.lineHeight / 2;
+  const x = calculateX(rect, oAlign, padding);
+  ctx.fillStyle = oColor;
+  ctx.font = oFont.string;
+  ctx.textAlign = oAlign;
   ctx.textBaseline = 'middle';
   ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
 }
@@ -163,74 +163,75 @@ function measureLabelSize(ctx, lines, fonts) {
 }
 
 function labelToDraw(ctx, rect, options, labelSize) {
-  const overflow = options.overflow;
+  const {overflow, padding} = options;
+  const {width, height} = labelSize;
   if (overflow === 'hidden') {
-    const padding = options.padding;
-    return !((labelSize.width + padding * 2) > rect.w || (labelSize.height + padding * 2) > rect.h);
+    return !((width + padding * 2) > rect.w || (height + padding * 2) > rect.h);
   }
   return true;
 }
 
 function drawLabel(ctx, rect, options) {
-  const labelsOpts = options.labels;
-  const label = labelsOpts.formatter;
-  if (!label) {
+  const labels = options.labels;
+  const content = labels.formatter;
+  if (!content) {
     return;
   }
-  const labels = isArray(label) ? label : [label];
-  const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
-  const fonts = isArray(optFont) ? optFont.map(font => toFont(font)) : [toFont(optFont)];
-  const labelSize = measureLabelSize(ctx, labels, fonts);
-  if (!labelToDraw(ctx, rect, labelsOpts, labelSize)) {
+  const contents = isArray(content) ? content : [content];
+  const {font, hoverFont} = labels;
+  const optFont = (rect.active ? hoverFont : font) || font;
+  const fonts = isArray(optFont) ? optFont.map(f => toFont(f)) : [toFont(optFont)];
+  const labelSize = measureLabelSize(ctx, contents, fonts);
+  if (!labelToDraw(ctx, rect, labels, labelSize)) {
     return;
   }
-  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const {color, hoverColor, align} = labels;
+  const optColor = (rect.active ? hoverColor : color) || color;
   const colors = isArray(optColor) ? optColor : [optColor];
-  const xyPoint = calculateXYLabel(options, rect, labelSize);
-  ctx.textAlign = labelsOpts.align;
+  const xyPoint = calculateXYLabel(rect, labels, labelSize);
+  ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   let lhs = 0;
-  labels.forEach(function(l, i) {
-    const color = colors[Math.min(i, colors.length - 1)];
-    const font = fonts[Math.min(i, fonts.length - 1)];
-    const lh = font.lineHeight;
-    ctx.font = font.string;
-    ctx.fillStyle = color;
+  contents.forEach(function(l, i) {
+    const c = colors[Math.min(i, colors.length - 1)];
+    const f = fonts[Math.min(i, fonts.length - 1)];
+    const lh = f.lineHeight;
+    ctx.font = f.string;
+    ctx.fillStyle = c;
     ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + lhs);
     lhs += lh;
   });
 }
 
 function drawDivider(ctx, rect, options, item) {
-  const dividersOpts = options.dividers;
-  if (!dividersOpts.display || !item._data.children.length) {
+  const dividers = options.dividers;
+  if (!dividers.display || !item._data.children.length) {
     return;
   }
-  const {w, h} = rect;
-
+  const {x, y, w, h} = rect;
+  const {lineColor, lineCapStyle, lineDash, lineDashOffset, lineWidth} = dividers;
   ctx.save();
-  ctx.strokeStyle = dividersOpts.lineColor;
-  ctx.lineCap = dividersOpts.lineCapStyle;
-  ctx.setLineDash(dividersOpts.lineDash);
-  ctx.lineDashOffset = dividersOpts.lineDashOffset;
-  ctx.lineWidth = dividersOpts.lineWidth;
+  ctx.strokeStyle = lineColor;
+  ctx.lineCap = lineCapStyle;
+  ctx.setLineDash(lineDash);
+  ctx.lineDashOffset = lineDashOffset;
+  ctx.lineWidth = lineWidth;
   ctx.beginPath();
   if (w > h) {
     const w2 = w / 2;
-    ctx.moveTo(rect.x + w2, rect.y);
-    ctx.lineTo(rect.x + w2, rect.y + h);
+    ctx.moveTo(x + w2, y);
+    ctx.lineTo(x + w2, y + h);
   } else {
     const h2 = h / 2;
-    ctx.moveTo(rect.x, rect.y + h2);
-    ctx.lineTo(rect.x + w, rect.y + h2);
+    ctx.moveTo(x, y + h2);
+    ctx.lineTo(x + w, y + h2);
   }
   ctx.stroke();
   ctx.restore();
 }
 
-function calculateXYLabel(options, rect, labelSize) {
-  const labelsOpts = options.labels;
-  const {align, position, padding} = labelsOpts;
+function calculateXYLabel(rect, options, labelSize) {
+  const {align, position, padding} = options;
   let x, y;
   x = calculateX(rect, align, padding);
   if (position === 'top') {
@@ -328,11 +329,17 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
-  borderWidth: 0,
-  borderRadius: 0,
-  spacing: 0.5,
   label: undefined,
-  rtl: false,
+  borderRadius: 0,
+  borderWidth: 0,
+  captions: {
+    align: undefined,
+    color: 'black',
+    display: true,
+    font: {},
+    formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
+    padding: 3
+  },
   dividers: {
     display: false,
     lineCapStyle: 'butt',
@@ -341,24 +348,23 @@ TreemapElement.defaults = {
     lineDashOffset: 0,
     lineWidth: 1,
   },
-  captions: {
-    align: undefined,
-    color: 'black',
-    display: true,
-    formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
-    font: {},
-    padding: 3
-  },
   labels: {
     align: 'center',
     color: 'black',
     display: false,
-    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v + ''] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + ''),
     font: {},
+    formatter(ctx) {
+      if (ctx.raw.g) {
+        return [ctx.raw.g, ctx.raw.v + ''];
+      }
+      return ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + '';
+    },
     overflow: 'clip',
     position: 'middle',
     padding: 3
-  }
+  },
+  rtl: false,
+  spacing: 0.5
 };
 
 TreemapElement.descriptors = {

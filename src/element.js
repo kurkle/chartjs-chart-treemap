@@ -99,11 +99,10 @@ export function shouldDrawCaption(rect, options) {
   if (!options || !options.display) {
     return false;
   }
+  const {w, h} = rect;
   const font = toFont(options.font);
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
-  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
   const min = font.lineHeight;
+  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
   return (w - padding) > min && (h - padding) > min;
 }
 

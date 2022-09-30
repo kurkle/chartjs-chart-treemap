@@ -59,7 +59,7 @@ function buildData(dataset, mainRect) {
           h: sq.h - 2 * sp - bw.t - bw.b,
           rtl: rect.rtl
         };
-        if (shouldDrawCaption(sq, captions)) {
+        if (shouldDrawCaption(subRect, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }

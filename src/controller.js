@@ -79,7 +79,7 @@ function buildData(dataset, mainRect, captions) {
     : squarify(tree, mainRect, key);
 }
 
-function getScaleArea(chart, data, useTree) {
+function getArea(chart, data, rtl, useTree) {
   const vMax = useTree ? 1 : maxValue(data);
   const vMin = useTree ? 0 : minValue(data, vMax);
   const {x, y} = chart.scales;
@@ -87,12 +87,7 @@ function getScaleArea(chart, data, useTree) {
   const xMax = x.getPixelForValue(1);
   const yMin = y.getPixelForValue(vMin);
   const yMax = y.getPixelForValue(vMax);
-  return {
-    xMin,
-    xMax,
-    yMin,
-    yMax
-  };
+  return {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
 }
 
 export default class TreemapController extends DatasetController {
@@ -122,8 +117,7 @@ export default class TreemapController extends DatasetController {
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const {xMin, xMax, yMin, yMax} = getScaleArea(me.chart, dataset.data, me._useTree);
-    const mainRect = {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
+    const mainRect = getArea(me.chart, dataset.data, rtl, me._useTree);
 
     if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
       me._rect = mainRect;

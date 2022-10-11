@@ -1,5 +1,5 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isObject, clipArea, unclipArea} from 'chart.js/helpers';
+import {toFont, valueOrDefault, isObject, clipArea, unclipArea, defined} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey, minValue, maxValue} from './utils';
 import {shouldDrawCaption, parseBorderWidth, isBoxesOverlapped} from './element';
 import squarify from './squarify';
@@ -79,6 +79,22 @@ function buildData(dataset, mainRect, captions) {
     : squarify(tree, mainRect, key);
 }
 
+function getScaleArea(chart, data, useTree) {
+  const vMax = useTree ? 1 : maxValue(data);
+  const vMin = useTree ? 0 : minValue(data, vMax);
+  const {x, y} = chart.scales;
+  const xMin = x.getPixelForValue(0);
+  const xMax = x.getPixelForValue(1);
+  const yMin = y.getPixelForValue(vMin);
+  const yMax = y.getPixelForValue(vMax);
+  return {
+    xMin,
+    xMax,
+    yMin,
+    yMax
+  };
+}
+
 export default class TreemapController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
@@ -86,6 +102,7 @@ export default class TreemapController extends DatasetController {
     this._rect = undefined;
     this._key = undefined;
     this._groups = undefined;
+    this._useTree = undefined;
   }
 
   initialize() {
@@ -97,19 +114,15 @@ export default class TreemapController extends DatasetController {
     const me = this;
     const meta = me.getMeta();
     const dataset = me.getDataset();
-    const data = dataset.data;
+    if (!defined(me._useTree)) {
+      me._useTree = !!dataset.tree;
+    }
     const groups = dataset.groups || (dataset.groups = []);
     const captions = dataset.captions || {};
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const vMax = dataset.key ? 1 : maxValue(data);
-    const vMin = dataset.key ? 0 : minValue(data, vMax);
-    const {x, y} = me.chart.scales;
-    const xMin = x.getPixelForValue(0);
-    const xMax = x.getPixelForValue(1);
-    const yMin = y.getPixelForValue(vMin);
-    const yMax = y.getPixelForValue(vMax);
+    const {xMin, xMax, yMin, yMax} = getScaleArea(me.chart, dataset.data, me._useTree);
     const mainRect = {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
 
     if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {

@@ -1,4 +1,5 @@
 export default {
+  tolerance: 0.0280,
   config: {
     type: 'treemap',
     data: {

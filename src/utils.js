@@ -1,5 +1,15 @@
 import {isObject} from 'chart.js/helpers';
 
+const getValue = (item) => isObject(item) ? item.v : item;
+
+export const maxValue = (data) => data.reduce(function(m, v) {
+  return (m > getValue(v) ? m : getValue(v));
+}, 0);
+
+export const minValue = (data, mx) => data.reduce(function(m, v) {
+  return (m < getValue(v) ? m : getValue(v));
+}, mx);
+
 export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
@@ -32,11 +42,11 @@ export function normalizeTreeToArray(key, treeLeafKey, obj) {
   if (!data.length) {
     return data;
   }
-  const max = data.reduce(function(maxValue, element) {
+  const max = data.reduce(function(maxVal, element) {
     // minus 2 because _leaf and value properties are added
     // on top to groups ones
     const keys = Object.keys(element).length - 2;
-    return maxValue > keys ? maxValue : keys;
+    return maxVal > keys ? maxVal : keys;
   });
   data.forEach(function(element) {
     for (let i = 0; i < max; i++) {

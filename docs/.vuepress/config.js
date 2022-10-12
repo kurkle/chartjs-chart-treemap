@@ -54,7 +54,8 @@ module.exports = {
           'captions',
           'dividers',
           'rtl',
-          'datalabels'
+          'datalabels',
+          'zoom'
         ],
         '/': [
           '',

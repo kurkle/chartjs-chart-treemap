@@ -114,10 +114,10 @@ export default class TreemapController extends DatasetController {
    * will be implemented
    */
   updateRangeFromParsed(range, scale) {
-    if (range.update) {
+    if (range.updated) {
       return;
     }
-    range.update = true;
+    range.updated = true;
     if (scale.id === 'x') {
       range.min = 0;
       range.max = 1;

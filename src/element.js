@@ -358,7 +358,7 @@ TreemapElement.defaults = {
       }
       return ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + '';
     },
-    overflow: 'clip',
+    overflow: 'cut',
     position: 'middle',
     padding: 3
   },

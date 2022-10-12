@@ -43,7 +43,7 @@ function parseBorderRadius(value, maxW, maxH) {
   };
 }
 
-function boundingRects(rect) {
+function boundingRects(rect, dpr) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
@@ -57,7 +57,7 @@ function boundingRects(rect) {
       w: width,
       h: height,
       radius
-    }, window.devicePixelRatio),
+    }, dpr),
     inner: rasterizeRect({
       x: bounds.left + border.l,
       y: bounds.top + border.t,
@@ -69,7 +69,7 @@ function boundingRects(rect) {
         bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
         bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
       }
-    }, window.devicePixelRatio)
+    }, dpr)
   };
 }
 
@@ -267,12 +267,12 @@ export default class TreemapElement extends Element {
     }
   }
 
-  draw(ctx, data, levels = 0) {
+  draw(ctx, data, levels = 0, dpr) {
     if (!data) {
       return;
     }
     const options = this.options;
-    const {inner, outer} = boundingRects(this);
+    const {inner, outer} = boundingRects(this, dpr);
 
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 

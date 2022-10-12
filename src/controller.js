@@ -188,19 +188,17 @@ export default class TreemapController extends DatasetController {
   }
 
   draw() {
-    const me = this;
-    const ctx = me.chart.ctx;
-    const area = me.chart.chartArea;
-    const metadata = me.getMeta().data || [];
-    const dataset = me.getDataset();
+    const {ctx, chartArea, currentDevicePixelRatio: dpr} = this.chart;
+    const metadata = this.getMeta().data || [];
+    const dataset = this.getDataset();
     const levels = (dataset.groups || []).length - 1;
     const data = dataset.data;
 
-    clipArea(ctx, area);
+    clipArea(ctx, chartArea);
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {
-        rect.draw(ctx, data[i], levels);
+        rect.draw(ctx, data[i], levels, dpr);
       }
     }
     unclipArea(ctx);

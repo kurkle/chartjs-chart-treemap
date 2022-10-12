@@ -84,13 +84,12 @@ function getMinMax(data, useTree) {
   return {vMin, vMax};
 }
 
-function getArea(chart, data, rtl, useTree) {
+function getArea({xScale, yScale}, data, rtl, useTree) {
   const {vMin, vMax} = getMinMax(data, useTree);
-  const {x, y} = chart.scales;
-  const xMin = x.getPixelForValue(0);
-  const xMax = x.getPixelForValue(1);
-  const yMin = y.getPixelForValue(vMin);
-  const yMax = y.getPixelForValue(vMax);
+  const xMin = xScale.getPixelForValue(0);
+  const xMax = xScale.getPixelForValue(1);
+  const yMin = yScale.getPixelForValue(vMin);
+  const yMax = yScale.getPixelForValue(vMax);
   return {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
 }
 
@@ -118,7 +117,7 @@ export default class TreemapController extends DatasetController {
       return;
     }
     range.updated = true;
-    if (scale.id === 'x') {
+    if (scale.axis === 'x') {
       range.min = 0;
       range.max = 1;
       return;
@@ -141,7 +140,7 @@ export default class TreemapController extends DatasetController {
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const mainRect = getArea(me.chart, dataset.data, rtl, me._useTree);
+    const mainRect = getArea(meta, dataset.data, rtl, me._useTree);
 
     if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
       me._rect = mainRect;

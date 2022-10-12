@@ -1,5 +1,6 @@
 import {Element} from 'chart.js';
 import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
+import {rasterizeRect} from './helpers/index';
 
 const widthCache = new Map();
 
@@ -50,14 +51,14 @@ function boundingRects(rect) {
   const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
 
   return {
-    outer: {
+    outer: rasterizeRect({
       x: bounds.left,
       y: bounds.top,
       w: width,
       h: height,
       radius
-    },
-    inner: {
+    }, window.devicePixelRatio),
+    inner: rasterizeRect({
       x: bounds.left + border.l,
       y: bounds.top + border.t,
       w: width - border.l - border.r,
@@ -68,7 +69,7 @@ function boundingRects(rect) {
         bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
         bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
       }
-    }
+    }, window.devicePixelRatio)
   };
 }
 
@@ -320,6 +321,7 @@ export default class TreemapElement extends Element {
     return this.getCenterPoint();
   }
 
+  // TODO: remove this unused function in v3
   getRange(axis) {
     return axis === 'x' ? this.width / 2 : this.height / 2;
   }

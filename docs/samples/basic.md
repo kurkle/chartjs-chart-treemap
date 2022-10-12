@@ -15,7 +15,7 @@ function colorFromRaw(ctx, border) {
   let alpha = (1 + Math.log(value)) / 5;
   const color = 'purple';
   if (border) {
-    alpha += 0.01;
+    alpha += 0.5;
   }
   return helpers.color(color)
     .alpha(alpha)

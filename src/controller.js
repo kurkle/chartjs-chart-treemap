@@ -79,9 +79,14 @@ function buildData(dataset, mainRect, captions) {
     : squarify(tree, mainRect, key);
 }
 
-function getArea(chart, data, rtl, useTree) {
+function getMinMax(data, useTree) {
   const vMax = useTree ? 1 : maxValue(data);
   const vMin = useTree ? 0 : minValue(data, vMax);
+  return {vMin, vMax};
+}
+
+function getArea(chart, data, rtl, useTree) {
+  const {vMin, vMax} = getMinMax(data, useTree);
   const {x, y} = chart.scales;
   const xMin = x.getPixelForValue(0);
   const xMax = x.getPixelForValue(1);
@@ -103,6 +108,23 @@ export default class TreemapController extends DatasetController {
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
+  }
+
+  /**
+   * TODO: to be removed when https://github.com/kurkle/chartjs-chart-treemap/issues/137
+   * will be implemented
+   */
+  updateRangeFromParsed(range, scale) {
+    if (scale.id === 'x') {
+      range.min = 0;
+      range.max = 1;
+      return;
+    }
+    const me = this;
+    const dataset = me.getDataset();
+    const {vMin, vMax} = getMinMax(dataset.data, me._useTree);
+    range.min = vMin;
+    range.max = vMax;
   }
 
   update(mode) {

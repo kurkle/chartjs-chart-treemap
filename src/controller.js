@@ -1,7 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption, parseBorderWidth, isBoxesOverlapped} from './element';
+import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 
@@ -28,7 +28,7 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function buildData(dataset, mainRect, captions) {
+function buildData(dataset, mainRect) {
   const key = dataset.key || '';
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
@@ -38,8 +38,8 @@ function buildData(dataset, mainRect, captions) {
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = valueOrDefault(dataset.spacing, 0);
-  const captionsFont = captions.font || {};
-  const font = toFont(captionsFont);
+  const captions = dataset.captions || {display: true};
+  const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
   function recur(gidx, rect, parent, gs) {
@@ -51,16 +51,15 @@ function buildData(dataset, mainRect, captions) {
     let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bwRatio = isBoxesOverlapped(dataset) ? 1 : 2;
         const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
         subRect = {
-          x: sq.x + sp + bw.l / bwRatio,
-          y: sq.y + sp + bw.t / bwRatio,
-          w: sq.w - 2 * sp - bw.l / bwRatio - bw.r / bwRatio,
-          h: sq.h - 2 * sp - bw.t / bwRatio - bw.b / bwRatio,
+          x: sq.x + sp + bw.l,
+          y: sq.y + sp + bw.t,
+          w: sq.w - 2 * sp - bw.l - bw.r,
+          h: sq.h - 2 * sp - bw.t - bw.b,
           rtl: rect.rtl
         };
-        if (valueOrDefault(captions.display, true) && shouldDrawCaption(sq, captions)) {
+        if (shouldDrawCaption(subRect, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
@@ -98,7 +97,6 @@ export default class TreemapController extends DatasetController {
     const meta = me.getMeta();
     const dataset = me.getDataset();
     const groups = dataset.groups || (dataset.groups = []);
-    const captions = dataset.captions || {};
     const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
@@ -110,7 +108,7 @@ export default class TreemapController extends DatasetController {
       me._groups = groups.slice();
       me._key = key;
 
-      dataset.data = buildData(dataset, mainRect, captions);
+      dataset.data = buildData(dataset, mainRect);
       // @ts-ignore using private stuff
       me._dataCheck();
       // @ts-ignore using private stuff

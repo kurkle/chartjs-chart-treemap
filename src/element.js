@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, isObject, toTRBLCorners, addRoundedRectPath} from 'chart.js/helpers';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -20,48 +20,54 @@ function limit(value, min, max) {
 }
 
 export function parseBorderWidth(value, maxW, maxH) {
-  let t, r, b, l;
-
-  if (isObject(value)) {
-    t = +value.top || 0;
-    r = +value.right || 0;
-    b = +value.bottom || 0;
-    l = +value.left || 0;
-  } else {
-    t = r = b = l = +value || 0;
-  }
+  const o = toTRBL(value);
 
   return {
-    t: limit(t, 0, maxH),
-    r: limit(r, 0, maxW),
-    b: limit(b, 0, maxH),
-    l: limit(l, 0, maxW)
+    t: limit(o.top, 0, maxH),
+    r: limit(o.right, 0, maxW),
+    b: limit(o.bottom, 0, maxH),
+    l: limit(o.left, 0, maxW)
   };
 }
 
-export function isBoxesOverlapped(options) {
-  return options && (!options.borderRadius || isObject(options.borderWidth));
+function parseBorderRadius(value, maxW, maxH) {
+  const o = toTRBLCorners(value);
+  const maxR = Math.min(maxW, maxH);
+
+  return {
+    topLeft: limit(o.topLeft, 0, maxR),
+    topRight: limit(o.topRight, 0, maxR),
+    bottomLeft: limit(o.bottomLeft, 0, maxR),
+    bottomRight: limit(o.bottomRight, 0, maxR)
+  };
 }
 
-function boundingRects(rect, overlapBoxes) {
+function boundingRects(rect) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
-  const borderDivider = overlapBoxes ? 1 : 2;
+  const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
 
   return {
     outer: {
       x: bounds.left,
       y: bounds.top,
       w: width,
-      h: height
+      h: height,
+      radius
     },
     inner: {
-      x: bounds.left + border.l / borderDivider,
-      y: bounds.top + border.t / borderDivider,
-      w: width - border.l / borderDivider - border.r / borderDivider,
-      h: height - border.t / borderDivider - border.b / borderDivider
+      x: bounds.left + border.l,
+      y: bounds.top + border.t,
+      w: width - border.l - border.r,
+      h: height - border.t - border.b,
+      radius: {
+        topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
+        topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
+        bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
+        bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
+      }
     }
   };
 }
@@ -76,49 +82,59 @@ function inRange(rect, x, y, useFinalPosition) {
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
-export function shouldDrawCaption(rect, options) {
-  if (!options) {
-    return false;
-  }
-  const font = toFont(options.font);
-  const w = rect.width || rect.w;
-  const h = rect.height || rect.h;
-  const min = font.lineHeight * 2;
-  return w > min && h > min;
+function hasRadius(radius) {
+  return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
 }
 
-function drawText(ctx, rect, item, levels) {
-  const opts = rect.options;
-  const captions = opts.captions;
+/**
+ * Add a path of a rectangle to the current sub-path
+ * @param {CanvasRenderingContext2D} ctx Context
+ * @param {*} rect Bounding rect
+ */
+function addNormalRectPath(ctx, rect) {
+  ctx.rect(rect.x, rect.y, rect.w, rect.h);
+}
+
+export function shouldDrawCaption(rect, options) {
+  if (!options || !options.display) {
+    return false;
+  }
+  const {w, h} = rect;
+  const font = toFont(options.font);
+  const min = font.lineHeight;
+  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+  return (w - padding) > min && (h - padding) > min;
+}
+
+function drawText(ctx, rect, options, item, levels) {
+  const {captions, labels} = options;
   ctx.save();
   ctx.beginPath();
-  ctx.rect(rect.x, rect.y, rect.width, rect.height);
+  ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   const isLeaf = (!('l' in item) || item.l === levels);
-  if (isLeaf && opts.labels.display) {
-    drawLabel(ctx, rect);
-  } else if (!isLeaf && captions.display && shouldDrawCaption(rect, captions)) {
-    drawCaption(ctx, rect, item);
+  if (isLeaf && labels.display) {
+    drawLabel(ctx, rect, options);
+  } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
+    drawCaption(ctx, rect, options, item);
   }
   ctx.restore();
 }
 
-function drawCaption(ctx, rect, item) {
-  const opts = rect.options;
-  const captionsOpts = opts.captions;
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
-  const spacing = opts.spacing + borderWidth.t;
-  const color = (rect.active ? captionsOpts.hoverColor : captionsOpts.color) || captionsOpts.color;
-  const padding = captionsOpts.padding;
-  const align = captionsOpts.align || (opts.rtl ? 'right' : 'left');
-  const optFont = (rect.active ? captionsOpts.hoverFont : captionsOpts.font) || captionsOpts.font;
-  const font = toFont(optFont);
-  const x = calculateX(rect, align, padding, borderWidth);
-  ctx.fillStyle = color;
-  ctx.font = font.string;
-  ctx.textAlign = align;
+function drawCaption(ctx, rect, options, item) {
+  const {captions, spacing, rtl} = options;
+  const {color, hoverColor, font, hoverFont, padding, align, formatter} = captions;
+  const oColor = (rect.active ? hoverColor : color) || color;
+  const oAlign = align || (rtl ? 'right' : 'left');
+  const optFont = (rect.active ? hoverFont : font) || font;
+  const oFont = toFont(optFont);
+  const lh = oFont.lineHeight / 2;
+  const x = calculateX(rect, oAlign, padding);
+  ctx.fillStyle = oColor;
+  ctx.font = oFont.string;
+  ctx.textAlign = oAlign;
   ctx.textBaseline = 'middle';
-  ctx.fillText(captionsOpts.formatter || item.g, x, rect.y + padding + spacing + (font.lineHeight / 2));
+  ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
 }
 
 function measureLabelSize(ctx, lines, fonts) {
@@ -146,147 +162,94 @@ function measureLabelSize(ctx, lines, fonts) {
 }
 
 function labelToDraw(ctx, rect, options, labelSize) {
-  const overflow = options.overflow;
+  const {overflow, padding} = options;
+  const {width, height} = labelSize;
   if (overflow === 'hidden') {
-    const padding = options.padding;
-    return !((labelSize.width + padding * 2) > rect.width || (labelSize.height + padding * 2) > rect.height);
+    return !((width + padding * 2) > rect.w || (height + padding * 2) > rect.h);
   }
   return true;
 }
 
-function drawLabel(ctx, rect) {
-  const opts = rect.options;
-  const labelsOpts = opts.labels;
-  const label = labelsOpts.formatter;
-  if (!label) {
+function drawLabel(ctx, rect, options) {
+  const labels = options.labels;
+  const content = labels.formatter;
+  if (!content) {
     return;
   }
-  const labels = isArray(label) ? label : [label];
-  const optFont = (rect.active ? labelsOpts.hoverFont : labelsOpts.font) || labelsOpts.font;
-  const fonts = isArray(optFont) ? optFont.map(font => toFont(font)) : [toFont(optFont)];
-  const labelSize = measureLabelSize(ctx, labels, fonts);
-  if (!labelToDraw(ctx, rect, labelsOpts, labelSize)) {
+  const contents = isArray(content) ? content : [content];
+  const {font, hoverFont} = labels;
+  const optFont = (rect.active ? hoverFont : font) || font;
+  const fonts = isArray(optFont) ? optFont.map(f => toFont(f)) : [toFont(optFont)];
+  const labelSize = measureLabelSize(ctx, contents, fonts);
+  if (!labelToDraw(ctx, rect, labels, labelSize)) {
     return;
   }
-  const borderWidth = parseBorderWidth(opts.borderWidth, rect.width / 2, rect.height / 2);
-  const optColor = (rect.active ? labelsOpts.hoverColor : labelsOpts.color) || labelsOpts.color;
+  const {color, hoverColor, align} = labels;
+  const optColor = (rect.active ? hoverColor : color) || color;
   const colors = isArray(optColor) ? optColor : [optColor];
-  const xyPoint = calculateXYLabel(opts, rect, labelSize, borderWidth);
-  ctx.textAlign = labelsOpts.align;
+  const xyPoint = calculateXYLabel(rect, labels, labelSize);
+  ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   let lhs = 0;
-  labels.forEach(function(l, i) {
-    const color = colors[Math.min(i, colors.length - 1)];
-    const font = fonts[Math.min(i, fonts.length - 1)];
-    const lh = font.lineHeight;
-    ctx.font = font.string;
-    ctx.fillStyle = color;
+  contents.forEach(function(l, i) {
+    const c = colors[Math.min(i, colors.length - 1)];
+    const f = fonts[Math.min(i, fonts.length - 1)];
+    const lh = f.lineHeight;
+    ctx.font = f.string;
+    ctx.fillStyle = c;
     ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + lhs);
     lhs += lh;
   });
 }
 
 function drawDivider(ctx, rect, options, item) {
-  const dividersOpts = options.dividers;
-  if (!dividersOpts.display || !item._data.children.length) {
+  const dividers = options.dividers;
+  if (!dividers.display || !item._data.children.length) {
     return;
   }
-  const {w, h} = rect;
-
+  const {x, y, w, h} = rect;
+  const {lineColor, lineCapStyle, lineDash, lineDashOffset, lineWidth} = dividers;
   ctx.save();
-  ctx.strokeStyle = dividersOpts.lineColor;
-  ctx.lineCap = dividersOpts.lineCapStyle;
-  ctx.setLineDash(dividersOpts.lineDash);
-  ctx.lineDashOffset = dividersOpts.lineDashOffset;
-  ctx.lineWidth = dividersOpts.lineWidth;
+  ctx.strokeStyle = lineColor;
+  ctx.lineCap = lineCapStyle;
+  ctx.setLineDash(lineDash);
+  ctx.lineDashOffset = lineDashOffset;
+  ctx.lineWidth = lineWidth;
   ctx.beginPath();
   if (w > h) {
     const w2 = w / 2;
-    ctx.moveTo(rect.x + w2, rect.y);
-    ctx.lineTo(rect.x + w2, rect.y + h);
+    ctx.moveTo(x + w2, y);
+    ctx.lineTo(x + w2, y + h);
   } else {
     const h2 = h / 2;
-    ctx.moveTo(rect.x, rect.y + h2);
-    ctx.lineTo(rect.x + w, rect.y + h2);
+    ctx.moveTo(x, y + h2);
+    ctx.lineTo(x + w, y + h2);
   }
   ctx.stroke();
   ctx.restore();
 }
 
-function calculateXYLabel(options, rect, labelSize, borderWidth) {
-  const labelsOpts = options.labels;
-  const {align, position, padding} = labelsOpts;
+function calculateXYLabel(rect, options, labelSize) {
+  const {align, position, padding} = options;
   let x, y;
-  x = calculateX(rect, align, padding, borderWidth);
+  x = calculateX(rect, align, padding);
   if (position === 'top') {
-    y = rect.y + padding + borderWidth.t;
+    y = rect.y + padding;
   } else if (position === 'bottom') {
-    y = rect.y + rect.height - padding - borderWidth.b - labelSize.height;
+    y = rect.y + rect.h - padding - labelSize.height;
   } else {
-    y = rect.y + (rect.height - labelSize.height) / 2 + padding + borderWidth.t;
+    y = rect.y + (rect.h - labelSize.height) / 2 + padding;
   }
   return {x, y};
 }
 
-function calculateX(rect, align, padding, borderWidth) {
+function calculateX(rect, align, padding) {
   if (align === 'left') {
-    return rect.x + padding + borderWidth.l;
+    return rect.x + padding;
   } else if (align === 'right') {
-    return rect.x + rect.width - padding - borderWidth.r;
+    return rect.x + rect.w - padding;
   }
-  return rect.x + rect.width / 2;
-}
-
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {Object} options
- * @returns {boolean|undefined}
- */
-function setBorderStyle(ctx, options) {
-  if (options && options.borderWidth && !isObject(options.borderWidth)) {
-    ctx.lineWidth = options.borderWidth;
-    ctx.strokeStyle = options.borderColor;
-    return true;
-  }
-}
-
-const clamp = (x, from, to) => Math.min(to, Math.max(from, x));
-
-/**
- * @param {Object} obj
- * @param {number} from
- * @param {number} to
- * @returns {Object}
- */
-function clampAll(obj, from, to) {
-  for (const key of Object.keys(obj)) {
-    obj[key] = clamp(obj[key], from, to);
-  }
-  return obj;
-}
-
-
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {{x: number, y: number, width: number, height: number}} rect
- * @param {Object} options
- */
-function drawBox(ctx, rect, options) {
-  const {x, y, w, h} = rect;
-  ctx.save();
-  const stroke = setBorderStyle(ctx, options);
-  ctx.fillStyle = options.backgroundColor;
-  ctx.beginPath();
-  addRoundedRectPath(ctx, {
-    x, y, w, h,
-    radius: clampAll(toTRBLCorners(options.borderRadius), 0, Math.min(w, h) / 2)
-  });
-  ctx.closePath();
-  ctx.fill();
-  if (stroke) {
-    ctx.stroke();
-  }
-  ctx.restore();
+  return rect.x + rect.w / 2;
 }
 
 export default class TreemapElement extends Element {
@@ -308,30 +271,28 @@ export default class TreemapElement extends Element {
       return;
     }
     const options = this.options;
-    const overlapBoxes = isBoxesOverlapped(options);
-    const {inner, outer} = boundingRects(this, overlapBoxes);
+    const {inner, outer} = boundingRects(this);
+
+    const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 
     ctx.save();
 
-    if (overlapBoxes) {
-      if (outer.w !== inner.w || outer.h !== inner.h) {
-        ctx.beginPath();
-        ctx.rect(outer.x, outer.y, outer.w, outer.h);
-        ctx.clip();
-        ctx.rect(inner.x, inner.y, inner.w, inner.h);
-        ctx.fillStyle = options.backgroundColor;
-        ctx.fill();
-        ctx.fillStyle = options.borderColor;
-        ctx.fill('evenodd');
-      } else {
-        ctx.fillStyle = options.backgroundColor;
-        ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
-      }
-    } else {
-      drawBox(ctx, inner, options);
+    if (outer.w !== inner.w || outer.h !== inner.h) {
+      ctx.beginPath();
+      addRectPath(ctx, outer);
+      ctx.clip();
+      addRectPath(ctx, inner);
+      ctx.fillStyle = options.borderColor;
+      ctx.fill('evenodd');
     }
+
+    ctx.beginPath();
+    addRectPath(ctx, inner);
+    ctx.fillStyle = options.backgroundColor;
+    ctx.fill();
+
     drawDivider(ctx, inner, options, data);
-    drawText(ctx, this, data, levels);
+    drawText(ctx, inner, options, data, levels);
     ctx.restore();
   }
 
@@ -367,11 +328,17 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
-  borderWidth: 0,
-  borderRadius: 0,
-  spacing: 0.5,
   label: undefined,
-  rtl: false,
+  borderRadius: 0,
+  borderWidth: 0,
+  captions: {
+    align: undefined,
+    color: 'black',
+    display: true,
+    font: {},
+    formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
+    padding: 3
+  },
   dividers: {
     display: false,
     lineCapStyle: 'butt',
@@ -380,24 +347,23 @@ TreemapElement.defaults = {
     lineDashOffset: 0,
     lineWidth: 1,
   },
-  captions: {
-    align: undefined,
-    color: 'black',
-    display: true,
-    formatter: (ctx) => ctx.raw.g || ctx.raw._data.label || '',
-    font: {},
-    padding: 3
-  },
   labels: {
     align: 'center',
     color: 'black',
     display: false,
-    formatter: (ctx) => ctx.raw.g ? [ctx.raw.g, ctx.raw.v + ''] : (ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + ''),
     font: {},
+    formatter(ctx) {
+      if (ctx.raw.g) {
+        return [ctx.raw.g, ctx.raw.v + ''];
+      }
+      return ctx.raw._data.label ? [ctx.raw._data.label, ctx.raw.v + ''] : ctx.raw.v + '';
+    },
     overflow: 'cut',
     position: 'middle',
     padding: 3
-  }
+  },
+  rtl: false,
+  spacing: 0.5
 };
 
 TreemapElement.descriptors = {

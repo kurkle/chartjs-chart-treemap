@@ -70,14 +70,14 @@ These are used to set display properties for a specific dataset.
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`borderRadius`](#styling) | `number` \| `object` | - | `0`
+| [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
 | [`captions`](#captions) | `object` | - | 
 | [`dividers`](#dividers) | `object` | - | 
 | [`groups`](#general) | `string[]` | - | `undefined` |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverBorderWidth`](#interactions) | `number` | - | `undefined`
+| [`hoverBorderWidth`](#interactions) | `number` | Yes | `undefined`
 | [`key`](#general) | `string` | - | `undefined` |
 | [`label`](#general) | `string` | - | `undefined`
 | [`labels`](#labels) | `object` | - | 

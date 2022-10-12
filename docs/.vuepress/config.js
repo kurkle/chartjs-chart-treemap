@@ -18,6 +18,16 @@ module.exports = {
         ],
       }],
     ],
+    chainWebpack: (config) => {
+      config.merge({
+        resolve: {
+          alias: {
+            // Hammerjs requires window, using ng-hammerjs instead
+            'hammerjs': 'ng-hammerjs',
+          }
+        }
+      });
+    },    
     themeConfig: {
       repo: 'kurkle/chartjs-chart-treemap',
       logo: '/favicon.ico',

@@ -15,11 +15,11 @@ function rectNotEqual(r1, r2) {
 
 function arrayNotEqual(a1, a2) {
   if (!a1) {
-     return !!a2;
+    return !!a2;
   }
   if (!a2) {
     return true;
-  } 
+  }
   if (a1.length !== a2.length) {
     return true;
   }

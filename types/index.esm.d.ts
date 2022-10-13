@@ -100,6 +100,10 @@ export interface TreemapDataPoint {
    * Group Sum, only available if grouping
    */
   gs?: number,
+  /**
+   * additonal keys sums, only available if grouping
+   */
+  vs?: AnyObject  
 }
 
 /*

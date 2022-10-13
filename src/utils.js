@@ -163,11 +163,7 @@ export function index(values, key) {
 }
 
 export function sort(values, key) {
-  if (key) {
-    values.sort((a, b) => +b[key] - +a[key]);
-  } else {
-    values.sort((a, b) => +b - +a);
-  }
+  values.sort((a, b) => key ? +b[key] - +a[key] : +b - +a);
 }
 
 export function requireVersion(min, ver) {

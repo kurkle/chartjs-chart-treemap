@@ -1,32 +1,29 @@
-function round(v, n) {
-  // @ts-ignore
-  return (+(Math.round(v + 'e+' + n) + 'e-' + n)) || 0;
-}
+import {rasterize, rasterizeRect} from './helpers/index';
 
-function getDims(itm, w2, s2, key) {
+function getDims(itm, w2, s2, key, dpr) {
   const a = itm._normalized;
   const ar = w2 * a / s2;
-  const d1 = Math.sqrt(a * ar);
-  const d2 = a / d1;
+  const d1 = rasterize(Math.sqrt(a * ar), dpr);
+  const d2 = rasterize(a / d1, dpr);
   const w = key === '_ix' ? d1 : d2;
   const h = key === '_ix' ? d2 : d1;
 
   return {d1, d2, w, h};
 }
 
-const getX = (rect, w) => round(rect.rtl ? rect.x + rect.w - rect._ix - w : rect.x + rect._ix, 4);
+const getX = (rect, w) => rect.rtl ? rect.x + rect.w - rect._ix - w : rect.x + rect._ix;
 
-function buildRow(rect, itm, dims, sum) {
-  const r = {
+function buildRow(rect, itm, dims, sum, dpr) {
+  const r = rasterizeRect({
     x: getX(rect, dims.w),
-    y: round(rect.y + rect._iy, 4),
-    w: round(dims.w, 4),
-    h: round(dims.h, 4),
-    a: round(itm._normalized, 4),
+    y: rect.y + rect._iy,
+    w: dims.w,
+    h: dims.h,
+    a: itm._normalized,
     v: itm.value,
     s: sum,
     _data: itm._data
-  };
+  }, dpr);
   if (itm.group) {
     r.g = itm.group;
     r.l = itm.level;
@@ -36,16 +33,16 @@ function buildRow(rect, itm, dims, sum) {
 }
 
 export default class Rect {
-  constructor(r) {
-    const me = this;
+  constructor(r, dpr) {
+    this.dpr = dpr;
     r = r || {w: 1, h: 1};
-    me.rtl = !!r.rtl;
-    me.x = r.x || r.left || 0;
-    me.y = r.y || r.top || 0;
-    me._ix = 0;
-    me._iy = 0;
-    me.w = r.w || r.width || (r.right - r.left);
-    me.h = r.h || r.height || (r.bottom - r.top);
+    this.rtl = !!r.rtl;
+    this.x = r.x || r.left || 0;
+    this.y = r.y || r.top || 0;
+    this._ix = 0;
+    this._iy = 0;
+    this.w = r.w || r.width || (r.right - r.left);
+    this.h = r.h || r.height || (r.bottom - r.top);
   }
 
   get area() {
@@ -66,30 +63,34 @@ export default class Rect {
   }
 
   get side() {
-    return this.dir === 'x' ? this.iw : this.ih;
+    return rasterize(this.dir === 'x' ? this.iw : this.ih, this.dpr);
   }
 
   map(arr) {
-    const me = this;
-    const ret = [];
+    const {dir, side, dpr} = this;
     const sum = arr.nsum;
     const row = arr.get();
-    const dir = me.dir;
-    const side = me.side;
     const w2 = side * side;
-    const key = dir === 'x' ? '_ix' : '_iy';
+    const isX = dir === 'x';
+    const key = isX ? '_ix' : '_iy';
     const s2 = sum * sum;
+    const ret = [];
     let maxd2 = 0;
     let totd1 = 0;
     for (const itm of row) {
-      const dims = getDims(itm, w2, s2, key);
+      const dims = getDims(itm, w2, s2, key, dpr);
       totd1 += dims.d1;
       maxd2 = Math.max(maxd2, dims.d2);
-      ret.push(buildRow(me, itm, dims, arr.sum));
-      me[key] += dims.d1;
+      ret.push(buildRow(this, itm, dims, arr.sum, dpr));
+      this[key] += dims.d1;
     }
-    me[dir === 'y' ? '_ix' : '_iy'] += maxd2;
-    me[key] -= totd1;
+    // make sure all rects are same size in d2 direction
+    const d2prop = isX ? 'h' : 'w';
+    for (const r of ret) {
+      r[d2prop] = maxd2;
+    }
+    this[isX ? '_iy' : '_ix'] += maxd2;
+    this[key] -= totd1;
     return ret;
   }
 }

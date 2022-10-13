@@ -12,7 +12,7 @@
     "dev": "karma start --no-signle-run --auto-watch --browsers chrome",
     "dev:ff": "karma start --no-signle-run --auto-watch --browsers firefox",
     "docs": "npm run build && vuepress build docs --no-cache",
-    "docs:dev": "npm run build && vuepress dev docs --no-cache",
+    "docs:dev": "concurrently \"npm:autobuild\" \"vuepress dev docs --no-cache\"",
     "lint": "concurrently -r \"npm:lint-*\"",
     "lint-js": "eslint \"src/**/*.js\" \"test/**/*.js\" \"docs/**/*.js\"",
     "lint-md": "eslint \"**/*.md\"",

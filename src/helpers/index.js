@@ -1,16 +1,12 @@
+export const rasterize = (v, dpr) => Math.round(v * dpr) / dpr;
 
 export function rasterizeRect(rect, dpr) {
-  if (dpr === 1) {
-    return rect;
-  }
-  const rasterize = v => Math.round(v * dpr) / dpr;
-  const x = rasterize(rect.x);
-  const y = rasterize(rect.y);
   return {
     ...rect,
-    x,
-    y,
-    w: rasterize(x + rect.w) - x,
-    h: rasterize(y + rect.h) - y,
+    x: rasterize(rect.x, dpr),
+    y: rasterize(rect.y, dpr),
+    w: rasterize(rect.w, dpr),
+    h: rasterize(rect.h, dpr),
   };
 }
+

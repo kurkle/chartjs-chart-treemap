@@ -321,7 +321,9 @@ export default class TreemapElement extends Element {
     return this.getCenterPoint();
   }
 
-  // TODO: remove this unused function in v3
+  /**
+   * @todo: remove this unused function in v3
+   */
   getRange(axis) {
     return axis === 'x' ? this.width / 2 : this.height / 2;
   }

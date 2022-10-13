@@ -96,11 +96,10 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];
-  let g, i, n;
-  for (i = 0, n = values.length; i < n; ++i) {
-    const v = values[i];
+  let g;
+  values.forEach(function(v) {
     if (mainGrp && v[mainGrp] !== mainValue) {
-      continue;
+      return;
     }
     g = v[grp] || v[treeLeafKey] || '';
     if (!(g in tmp)) {
@@ -111,7 +110,7 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
     tmp[g].label = v[grp] || '';
     tmp[g].path = getPath(groups, v, g);
     data[g].push(v);
-  }
+  });
 
   Object.keys(tmp).forEach((k) => {
     const v = {children: data[k]};
@@ -131,8 +130,6 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
 
 export function index(values, key) {
   let n = values.length;
-  let i;
-
   if (!n) {
     return key;
   }
@@ -140,7 +137,7 @@ export function index(values, key) {
   const obj = isObject(values[0]);
   key = obj ? key : 'v';
 
-  for (i = 0, n = values.length; i < n; ++i) {
+  for (let i = 0; i < n; ++i) {
     if (obj) {
       values[i]._idx = i;
     } else {
@@ -159,9 +156,9 @@ export function sort(values, key) {
 }
 
 export function sum(values, key) {
-  let s, i, n;
+  let s = 0;
 
-  for (s = 0, i = 0, n = values.length; i < n; ++i) {
+  for (let i = 0; i < values.length; ++i) {
     s += key ? +values[i][key] : +values[i];
   }
 

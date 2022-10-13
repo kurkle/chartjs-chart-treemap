@@ -31,14 +31,13 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function buildData(dataset, mainRect) {
-  const key = dataset.key || '';
+function buildData(dataset, key, mainRect) {
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
   if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
-  const groups = dataset.groups || [];
+  const groups = dataset.groups;
   const glen = groups.length;
   const sp = valueOrDefault(dataset.spacing, 0);
   const captions = dataset.captions || {display: true};
@@ -150,7 +149,7 @@ export default class TreemapController extends DatasetController {
       me._groups = groups.slice();
       me._key = key;
 
-      dataset.data = buildData(dataset, mainRect);
+      dataset.data = buildData(dataset, key, mainRect);
       // @ts-ignore using private stuff
       me._dataCheck();
       // @ts-ignore using private stuff

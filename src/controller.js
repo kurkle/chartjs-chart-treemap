@@ -14,13 +14,16 @@ function rectNotEqual(r1, r2) {
 }
 
 function arrayNotEqual(a1, a2) {
-  let i, n;
-
-  if (a1.lenght !== a2.length) {
+  if (!a1) {
+     return !!a2;
+  }
+  if (!a2) {
+    return true;
+  } 
+  if (a1.length !== a2.length) {
     return true;
   }
-
-  for (i = 0, n = a1.length; i < n; ++i) {
+  for (let i = 0; i < a1.length; ++i) {
     if (a1[i] !== a2[i]) {
       return true;
     }

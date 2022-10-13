@@ -103,7 +103,7 @@ export interface TreemapDataPoint {
   /**
    * additonal keys sums, only available if grouping
    */
-  vs?: AnyObject  
+  vs?: AnyObject
 }
 
 /*

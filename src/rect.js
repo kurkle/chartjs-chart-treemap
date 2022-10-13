@@ -73,6 +73,8 @@ export default class Rect {
     const w2 = side * side;
     const isX = dir === 'x';
     const key = isX ? '_ix' : '_iy';
+    const d2prop = isX ? 'h' : 'w';
+    const availd2 = rasterize(this[d2prop], dpr);
     const s2 = sum * sum;
     const ret = [];
     let maxd2 = 0;
@@ -80,12 +82,11 @@ export default class Rect {
     for (const itm of row) {
       const dims = getDims(itm, w2, s2, key, dpr);
       totd1 += dims.d1;
-      maxd2 = Math.max(maxd2, dims.d2);
+      maxd2 = Math.min(Math.max(maxd2, dims.d2), availd2);
       ret.push(buildRow(this, itm, dims, arr.sum, dpr));
       this[key] += dims.d1;
     }
     // make sure all rects are same size in d2 direction
-    const d2prop = isX ? 'h' : 'w';
     for (const r of ret) {
       r[d2prop] = maxd2;
     }

@@ -9,4 +9,3 @@ export function rasterizeRect(rect, dpr) {
     h: rasterize(rect.h, dpr),
   };
 }
-

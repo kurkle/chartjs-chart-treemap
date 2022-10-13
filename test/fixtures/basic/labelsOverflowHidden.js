@@ -9,7 +9,7 @@ export default {
         labels: {
           display: true,
           overflow: 'hidden',
-          formatter: (ctx) => ('value is ' + ctx.raw.v).repeat(5)
+          formatter: (ctx) => ('value is ' + ctx.raw.v).repeat(ctx.index)
         }
       }]
     },

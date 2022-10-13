@@ -20,13 +20,13 @@ function compareAspectRatio(oldStat, newStat, args) {
  *
  * @param {number[]|object[]} values
  * @param {object} rectangle
- * @param {string} key
- * @param {number} dpr
- * @param {*} grp
- * @param {*} lvl
- * @param {*} gsum
+ * @param {string} [key]
+ * @param {number} [dpr=1]
+ * @param {*} [grp]
+ * @param {*} [lvl]
+ * @param {*} [gsum]
  */
-export default function squarify(values, rectangle, key, dpr, grp, lvl, gsum) {
+export default function squarify(values, rectangle, key, dpr = 1, grp, lvl, gsum) {
   values = values || [];
   const rows = [];
   const rect = new Rect(rectangle, dpr);

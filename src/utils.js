@@ -10,6 +10,11 @@ export const minValue = (data, mx) => data.reduce(function(m, v) {
   return (m < getValue(v) ? m : getValue(v));
 }, mx);
 
+export const sum = (values, key) => values.reduce(function(s, v) {
+  s += key ? +v[key] : +v;
+  return s;
+}, 0);
+
 export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
@@ -163,16 +168,6 @@ export function sort(values, key) {
   } else {
     values.sort((a, b) => +b - +a);
   }
-}
-
-export function sum(values, key) {
-  let s = 0;
-
-  for (let i = 0; i < values.length; ++i) {
-    s += key ? +values[i][key] : +values[i];
-  }
-
-  return s;
 }
 
 export function requireVersion(min, ver) {

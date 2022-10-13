@@ -69,6 +69,7 @@ export interface TreemapControllerDatasetOptions<DType> {
 
   data: TreemapDataPoint[]; // This will be auto-generated from `tree`
   groups?: Array<keyof DType>;
+  additionalKeys?: Array<keyof DType>;
   tree: number[] | DType[] | AnyObject;
   treeLeafKey?: keyof DType;
   key?: keyof DType;

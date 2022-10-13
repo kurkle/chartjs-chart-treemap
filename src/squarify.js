@@ -27,8 +27,7 @@ function compareAspectRatio(oldStat, newStat, args) {
  */
 export default function squarify(values, rectangle, key, grp, lvl, gsum) {
   const rows = [];
-  values = values || [];
-  const n = values.length;
+  const n = values ? values.length : 0;
   if (!n) {
     return rows;
   }

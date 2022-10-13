@@ -12,7 +12,7 @@ export const minValue = (data, mx) => data.reduce(function(m, v) {
 
 export const getGroupKey = (lvl) => '' + lvl;
 
-function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
+function scanTreeObject(key, treeLeafKey, addKeys, obj, tree = [], lvl = 0, result = []) {
   const objIndex = lvl - 1;
   if (key in obj && lvl > 0) {
     const record = tree.reduce(function(reduced, item, i) {
@@ -23,13 +23,16 @@ function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) 
     }, {});
     record[treeLeafKey] = tree[objIndex];
     record[key] = obj[key];
+    addKeys.forEach(function(k) {
+      record[k] = obj[k];
+    });
     result.push(record);
   } else {
     for (const childKey of Object.keys(obj)) {
       const child = obj[childKey];
       if (isObject(child)) {
         tree.push(childKey);
-        scanTreeObject(key, treeLeafKey, child, tree, lvl + 1, result);
+        scanTreeObject(key, treeLeafKey, addKeys, child, tree, lvl + 1, result);
       }
     }
   }
@@ -37,8 +40,8 @@ function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) 
   return result;
 }
 
-export function normalizeTreeToArray(key, treeLeafKey, obj) {
-  const data = scanTreeObject(key, treeLeafKey, obj);
+export function normalizeTreeToArray(key, treeLeafKey, addKeys, obj) {
+  const data = scanTreeObject(key, treeLeafKey, addKeys, obj);
   if (!data.length) {
     return data;
   }
@@ -102,7 +105,7 @@ function getPath(groups, value, defaultValue) {
  * @param {*} [mainValue]
  * @param {[]} groups
  */
-export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups = []) {
+export function group(values, grp, key, treeLeafKey, addKeys, mainGrp, mainValue, groups = []) {
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];
@@ -114,11 +117,18 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
     }
     g = v[grp] || v[treeLeafKey] || '';
     if (!(g in tmp)) {
-      tmp[g] = {value: 0};
+      const tmpRef = tmp[g] = {value: 0};
+      addKeys.forEach(function(k) {
+        tmpRef[k] = 0;
+      });
       data[g] = [];
     }
     tmp[g].value += +v[key];
     tmp[g].label = v[grp] || '';
+    const tmpRef = tmp[g];
+    addKeys.forEach(function(k) {
+      tmpRef[k] += v[k];
+    });
     tmp[g].path = getPath(groups, v, g);
     data[g].push(v);
   }
@@ -126,6 +136,9 @@ export function group(values, grp, key, treeLeafKey, mainGrp, mainValue, groups 
   Object.keys(tmp).forEach((k) => {
     const v = {children: data[k]};
     v[key] = +tmp[k].value;
+    addKeys.forEach(function(ak) {
+      v[ak] = +tmp[k][ak];
+    });
     v[grp] = tmp[k].label;
     v.label = k;
     v.path = tmp[k].path;

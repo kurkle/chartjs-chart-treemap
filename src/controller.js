@@ -30,10 +30,11 @@ function arrayNotEqual(a1, a2) {
 
 function buildData(dataset, mainRect) {
   const key = dataset.key || '';
+  const additionalKeys = dataset.additionalKeys;
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
   let tree = dataset.tree || [];
   if (isObject(tree)) {
-    tree = normalizeTreeToArray(key, treeLeafKey, tree);
+    tree = normalizeTreeToArray(key, treeLeafKey, additionalKeys, tree);
   }
   const groups = dataset.groups || [];
   const glen = groups.length;
@@ -45,8 +46,8 @@ function buildData(dataset, mainRect) {
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
-    const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
-    const gsq = squarify(gdata, rect, key, g, gidx, gs);
+    const gdata = group(tree, g, key, treeLeafKey, additionalKeys, pg, parent, groups.filter((item, index) => index <= gidx));
+    const gsq = squarify(gdata, rect, key, additionalKeys, g, gidx, gs);
     const ret = gsq.slice();
     let subRect;
     if (gidx < glen - 1) {
@@ -75,7 +76,7 @@ function buildData(dataset, mainRect) {
 
   return glen
     ? recur(0, mainRect)
-    : squarify(tree, mainRect, key);
+    : squarify(tree, mainRect, key, additionalKeys);
 }
 
 function getMinMax(data, useTree) {
@@ -99,6 +100,7 @@ export default class TreemapController extends DatasetController {
 
     this._rect = undefined;
     this._key = undefined;
+    this._additionalKeys = undefined;
     this._groups = undefined;
     this._useTree = undefined;
   }
@@ -136,16 +138,18 @@ export default class TreemapController extends DatasetController {
     if (!defined(me._useTree)) {
       me._useTree = !!dataset.tree;
     }
+    const additionalKeys = dataset.additionalKeys || (dataset.additionalKeys = []);
     const groups = dataset.groups || (dataset.groups = []);
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
     const mainRect = getArea(meta, dataset.data, rtl, me._useTree);
 
-    if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
+    if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups) || arrayNotEqual(me._additionalKeys, additionalKeys)) {
       me._rect = mainRect;
       me._groups = groups.slice();
       me._key = key;
+      me._additionalKeys = additionalKeys.slice();
 
       dataset.data = buildData(dataset, mainRect);
       // @ts-ignore using private stuff

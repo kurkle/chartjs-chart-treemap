@@ -107,7 +107,7 @@ describe('squarify', function() {
   it('should squarify by given group', function() {
     let data = [{g: 'a', v: 1}, {g: 'a', v: 2}, {g: 'b', v: 3}, {g: 'c', v: 4}];
     let rect = {x: 0, y: 0, w: 4, h: 4};
-    let sq = squarify(data, rect, 'v', 'g', 0, 0);
+    let sq = squarify(data, rect, 'v', [], 'g', 0, 0);
     expect(sq).toEqual([
       jasmine.objectContaining({x: 0, y: 0, w: 2.8, h: 2.2857, a: 6.4, g: 'c', l: 0, gs: 0}),
       jasmine.objectContaining({x: 0, y: 2.2857, w: 2.8, h: 1.7143, a: 4.8, g: 'b', l: 0, gs: 0}),

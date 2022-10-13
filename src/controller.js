@@ -1,6 +1,6 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isObject} from 'chart.js/helpers';
-import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
+import {toFont, valueOrDefault, isObject, clipArea, unclipArea, defined} from 'chart.js/helpers';
+import {group, requireVersion, normalizeTreeToArray, getGroupKey, minValue, maxValue} from './utils';
 import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
@@ -78,6 +78,21 @@ function buildData(dataset, mainRect) {
     : squarify(tree, mainRect, key);
 }
 
+function getMinMax(data, useTree) {
+  const vMax = useTree ? 1 : maxValue(data);
+  const vMin = useTree ? 0 : minValue(data, vMax);
+  return {vMin, vMax};
+}
+
+function getArea({xScale, yScale}, data, rtl, useTree) {
+  const {vMin, vMax} = getMinMax(data, useTree);
+  const xMin = xScale.getPixelForValue(0);
+  const xMax = xScale.getPixelForValue(1);
+  const yMin = yScale.getPixelForValue(vMin);
+  const yMax = yScale.getPixelForValue(vMax);
+  return {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
+}
+
 export default class TreemapController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
@@ -85,6 +100,7 @@ export default class TreemapController extends DatasetController {
     this._rect = undefined;
     this._key = undefined;
     this._groups = undefined;
+    this._useTree = undefined;
   }
 
   initialize() {
@@ -92,16 +108,39 @@ export default class TreemapController extends DatasetController {
     super.initialize();
   }
 
+  /**
+   * TODO: to be removed when https://github.com/kurkle/chartjs-chart-treemap/issues/137
+   * will be implemented
+   */
+  updateRangeFromParsed(range, scale) {
+    if (range.updated) {
+      return;
+    }
+    range.updated = true;
+    if (scale.axis === 'x') {
+      range.min = 0;
+      range.max = 1;
+      return;
+    }
+    const me = this;
+    const dataset = me.getDataset();
+    const {vMin, vMax} = getMinMax(dataset.data, me._useTree);
+    range.min = vMin;
+    range.max = vMax;
+  }
+
   update(mode) {
     const me = this;
     const meta = me.getMeta();
     const dataset = me.getDataset();
+    if (!defined(me._useTree)) {
+      me._useTree = !!dataset.tree;
+    }
     const groups = dataset.groups || (dataset.groups = []);
-    const area = me.chart.chartArea;
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const mainRect = {x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top, rtl};
+    const mainRect = getArea(meta, dataset.data, rtl, me._useTree);
 
     if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups)) {
       me._rect = mainRect;
@@ -151,17 +190,20 @@ export default class TreemapController extends DatasetController {
   draw() {
     const me = this;
     const ctx = me.chart.ctx;
+    const area = me.chart.chartArea;
     const metadata = me.getMeta().data || [];
     const dataset = me.getDataset();
     const levels = (dataset.groups || []).length - 1;
     const data = dataset.data;
 
+    clipArea(ctx, area);
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {
         rect.draw(ctx, data[i], levels);
       }
     }
+    unclipArea(ctx);
   }
 }
 

@@ -11,7 +11,7 @@ function getDims(itm, w2, s2, key, dpr) {
   return {d1, d2, w, h};
 }
 
-const getX = (rect, w) => rect.rtl ? rect.x + rect.w - rect._ix - w : rect.x + rect._ix;
+const getX = (rect, w) => rect.rtl ? rect.x + rect.iw - w : rect.x + rect._ix;
 
 function buildRow(rect, itm, dims, sum, dpr) {
   const r = rasterizeRect({
@@ -74,7 +74,8 @@ export default class Rect {
     const isX = dir === 'x';
     const key = isX ? '_ix' : '_iy';
     const d2prop = isX ? 'h' : 'w';
-    const availd2 = rasterize(this[d2prop], dpr);
+    const id2prop = isX ? 'ih' : 'iw';
+    const availd2 = rasterize(this[id2prop], dpr);
     const s2 = sum * sum;
     const ret = [];
     let maxd2 = 0;

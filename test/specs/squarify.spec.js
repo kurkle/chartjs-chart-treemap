@@ -74,8 +74,8 @@ describe('squarify', function() {
       jasmine.objectContaining({x: 3, y: 0, w: 2, h: 3}),
       jasmine.objectContaining({x: 5, y: 0, w: 1, h: 3}),
       jasmine.objectContaining({x: 3, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 5, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 7, y: 3, w: 1, h: 1})
+      jasmine.objectContaining({x: 5, y: 3, w: 1, h: 1}),
+      jasmine.objectContaining({x: 6, y: 3, w: 0, h: 1})
     ]);
   });
 
@@ -87,8 +87,8 @@ describe('squarify', function() {
       jasmine.objectContaining({x: 3, y: 0, w: 2, h: 3}),
       jasmine.objectContaining({x: 5, y: 0, w: 1, h: 3}),
       jasmine.objectContaining({x: 3, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 5, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 7, y: 3, w: 1, h: 1})
+      jasmine.objectContaining({x: 5, y: 3, w: 1, h: 1}),
+      jasmine.objectContaining({x: 6, y: 3, w: 0, h: 1})
     ]);
   });
 
@@ -112,7 +112,7 @@ describe('squarify', function() {
       jasmine.objectContaining({x: 0, y: 0, w: 3, h: 2.5, a: 6.4, g: 'c', l: 0, gs: 0}),
       jasmine.objectContaining({x: 0, y: 2.5, w: 3, h: 1.5, a: 4.800000000000001, g: 'b', l: 0, gs: 0}),
       jasmine.objectContaining({x: 3, y: 0, w: 1, h: 3, a: 3.2, v: 2, g: 'a', l: 0, gs: 0}),
-      jasmine.objectContaining({x: 3, y: 3, w: 1.5, h: 1, a: 1.6, v: 1, g: 'a', l: 0, gs: 0}),
+      jasmine.objectContaining({x: 3, y: 3, w: 1, h: 1, a: 1.6, v: 1, g: 'a', l: 0, gs: 0}),
     ]);
   });
 

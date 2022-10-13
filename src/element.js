@@ -49,27 +49,28 @@ function boundingRects(rect, dpr) {
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
   const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
+  const outer = rasterizeRect({
+    x: bounds.left,
+    y: bounds.top,
+    w: width,
+    h: height,
+    radius
+  }, dpr);
 
   return {
-    outer: rasterizeRect({
-      x: bounds.left,
-      y: bounds.top,
-      w: width,
-      h: height,
-      radius
-    }, dpr),
-    inner: rasterizeRect({
-      x: bounds.left + border.l,
-      y: bounds.top + border.t,
-      w: width - border.l - border.r,
-      h: height - border.t - border.b,
+    outer,
+    inner: {
+      x: outer.x + border.l,
+      y: outer.y + border.t,
+      w: outer.w - border.l - border.r,
+      h: outer.h - border.t - border.b,
       radius: {
         topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
         topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
         bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
         bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
       }
-    }, dpr)
+    }
   };
 }
 

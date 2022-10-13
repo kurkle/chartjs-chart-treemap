@@ -68,6 +68,7 @@ These are used to set display properties for a specific dataset.
 
 | Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
 | ---- | ---- | :----: | ----
+| [`additionalKeys`](#general) | `string[]` | - | `undefined` |
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
@@ -92,6 +93,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 
 | Name | Description
 | ---- | ----
+| `additionalKey` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `groups` | Define how to display multiple levels of hierarchy. Data is summarized to groups internally.
 | `key` | Define the key name in data objects to use for value.
 | `label` | The label for the dataset which appears in the legend and tooltips.
@@ -99,7 +101,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically build.
 | `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
 
-Only the `tree`, `treeLeafKey`, `key` and `groups` options need to be specified in the dataset namespace.
+Only the `tree`, `treeLeafKey`, `key`, `additionalKey` and `groups` options need to be specified in the dataset namespace.
 
 ```js
 function colorFromRaw(ctx) {

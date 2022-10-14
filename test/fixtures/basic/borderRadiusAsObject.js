@@ -8,7 +8,7 @@ export default {
         backgroundColor: 'red',
         borderRadius: {
           topLeft: 10,
-          bottomRight: 10
+          bottomRight: 20
         }
       }]
     },

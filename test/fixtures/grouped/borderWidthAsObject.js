@@ -7,7 +7,7 @@ const tree = [
   {
     p1: '/etc',
     p2: 'shadow',
-    value: 5
+    value: 15
   }
 ];
 
@@ -19,14 +19,15 @@ export default {
         tree,
         groups: ['p1', 'p2'],
         key: 'value',
-        borderColor: 'rgba(0,0,0,0.5)',
+        borderColor: 'black',
+        spacing: 2,
         borderWidth: {
-          left: 10,
-          right: 10,
-          bottom: 10,
-          top: 10
+          left: 2,
+          right: 4,
+          bottom: 6,
+          top: 8
         },
-        backgroundColor: (ctx) => ctx.index === 2 ? 'black' : 'rgba(0,0,0,0.5)',
+        backgroundColor: (ctx) => ctx.index === 0 ? 'green' : 'rgba(255,255,255,0.8)',
       }]
     },
   },

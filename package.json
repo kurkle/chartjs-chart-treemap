@@ -1,7 +1,7 @@
 {
   "name": "chartjs-chart-treemap",
   "homepage": "https://chartjs-chart-treemap.pages.dev/",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Chart.js module for creating treemap charts",
   "main": "dist/chartjs-chart-treemap.js",
   "module": "dist/chartjs-chart-treemap.esm.js",
@@ -12,7 +12,7 @@
     "dev": "karma start --no-signle-run --auto-watch --browsers chrome",
     "dev:ff": "karma start --no-signle-run --auto-watch --browsers firefox",
     "docs": "npm run build && vuepress build docs --no-cache",
-    "docs:dev": "npm run build && vuepress dev docs --no-cache",
+    "docs:dev": "concurrently \"npm:autobuild\" \"vuepress dev docs --no-cache\"",
     "lint": "concurrently -r \"npm:lint-*\"",
     "lint-js": "eslint \"src/**/*.js\" \"test/**/*.js\" \"docs/**/*.js\"",
     "lint-md": "eslint \"**/*.md\"",

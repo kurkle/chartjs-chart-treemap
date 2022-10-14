@@ -28,6 +28,7 @@ const data = {
 };
 
 export default {
+  tolerance: 0.0012,
   config: {
     type: 'treemap',
     data: {

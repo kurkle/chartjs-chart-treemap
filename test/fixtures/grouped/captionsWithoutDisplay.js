@@ -22,15 +22,8 @@ export default {
         groups: ['category', 'subcategory', 'value'],
         backgroundColor: 'lightGreen',
         captions: {
-          display: true,
           align: 'center'
         },
-        labels: {
-          display: true,
-          formatter(ctx) {
-            return ctx.type === 'data' ? ctx.raw.v + '' : '';
-          }
-        }
       }]
     },
     options: {

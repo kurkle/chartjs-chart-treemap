@@ -96,7 +96,7 @@ function addNormalRectPath(ctx, rect) {
 }
 
 export function shouldDrawCaption(rect, options) {
-  if (!options || (options.display !== true) {
+  if (!options || (defined(options.display) && !options.display)) {
     return false;
   }
   const {w, h} = rect;

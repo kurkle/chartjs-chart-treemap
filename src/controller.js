@@ -229,6 +229,7 @@ TreemapController.descriptors = {
 TreemapController.overrides = {
   interaction: {
     mode: 'point',
+    includeInvisible: true,
     intersect: true
   },
 

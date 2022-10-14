@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault, defined} from 'chart.js/helpers';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
 import {rasterizeRect} from './helpers/index';
 
 const widthCache = new Map();
@@ -98,7 +98,7 @@ function addNormalRectPath(ctx, rect) {
 }
 
 export function shouldDrawCaption(rect, options) {
-  if (!options || (defined(options.display) && !options.display)) {
+  if (!options || options.display === false) {
     return false;
   }
   const {w, h} = rect;

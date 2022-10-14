@@ -22,7 +22,6 @@ export default {
         groups: ['category', 'subcategory', 'value'],
         backgroundColor: 'lightGreen',
         captions: {
-          display: true,
           align: 'center'
         },
         labels: {

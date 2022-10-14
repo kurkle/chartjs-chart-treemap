@@ -39,7 +39,7 @@ function buildData(dataset, mainRect, dpr) {
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = valueOrDefault(dataset.spacing, 0);
-  const captions = dataset.captions || {display: true};
+  const captions = dataset.captions || {};
   const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
@@ -49,11 +49,10 @@ function buildData(dataset, mainRect, dpr) {
     const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, dpr, g, gidx, gs);
     const ret = gsq.slice();
-    let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
         const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
-        subRect = {
+        const subRect = {
           ...rect,
           x: sq.x + sp + bw.l,
           y: sq.y + sp + bw.t,

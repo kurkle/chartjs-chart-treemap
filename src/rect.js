@@ -1,10 +1,10 @@
 import {rasterize, rasterizeRect} from './helpers/index';
 
-function getDims(itm, w2, s2, key, dpr) {
+function getDims(itm, w2, s2, key, dpr, maxd2) {
   const a = itm._normalized;
   const ar = w2 * a / s2;
   const d1 = rasterize(Math.sqrt(a * ar), dpr);
-  const d2 = rasterize(a / d1, dpr);
+  const d2 = Math.min(rasterize(a / d1, dpr), maxd2);
   const w = key === '_ix' ? d1 : d2;
   const h = key === '_ix' ? d2 : d1;
 
@@ -68,20 +68,17 @@ export default class Rect {
 
   map(arr) {
     const {dir, side, dpr} = this;
+    const {key, d2prop, id2prop, d2key} = getPropNames(dir);
     const sum = arr.nsum;
     const row = arr.get();
     const w2 = side * side;
-    const isX = dir === 'x';
-    const key = isX ? '_ix' : '_iy';
-    const d2prop = isX ? 'h' : 'w';
-    const id2prop = isX ? 'ih' : 'iw';
     const availd2 = rasterize(this[id2prop], dpr);
     const s2 = sum * sum;
     const ret = [];
     let maxd2 = 0;
     let totd1 = 0;
     for (const itm of row) {
-      const dims = getDims(itm, w2, s2, key, dpr);
+      const dims = getDims(itm, w2, s2, key, dpr, availd2);
       totd1 += dims.d1;
       maxd2 = Math.min(Math.max(maxd2, dims.d2), availd2);
       ret.push(buildRow(this, itm, dims, arr.sum, dpr));
@@ -89,10 +86,34 @@ export default class Rect {
     }
     // make sure all rects are same size in d2 direction
     for (const r of ret) {
-      r[d2prop] = maxd2;
+      const d2 = r[d2prop];
+      if (d2 !== maxd2) {
+        if (this.rtl && dir === 'y') {
+          // for RTL, x-coordinate needs to be adjusted too
+          r.x -= maxd2 - d2;
+        }
+        r[d2prop] = maxd2;
+      }
     }
-    this[isX ? '_iy' : '_ix'] += maxd2;
+    this[d2key] += maxd2;
     this[key] -= totd1;
     return ret;
   }
+}
+
+function getPropNames(dir) {
+  if (dir === 'x') {
+    return {
+      key: '_ix',
+      d2prop: 'h',
+      id2prop: 'ih',
+      d2key: '_iy'
+    };
+  }
+  return {
+    key: '_iy',
+    d2prop: 'w',
+    id2prop: 'iw',
+    d2key: '_ix'
+  };
 }

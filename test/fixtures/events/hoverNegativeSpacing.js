@@ -12,13 +12,6 @@ export default {
         hoverBackgroundColor: 'green',
         spacing: -0.5
       }]
-    },
-    options: {
-      layout: {
-        padding: {
-          top: 20
-        }
-      }
     }
   },
   options: {

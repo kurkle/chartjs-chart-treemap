@@ -1,5 +1,3 @@
-import {triggerMouseEvent} from 'chartjs-test-utils';
-
 export default {
   config: {
     type: 'treemap',

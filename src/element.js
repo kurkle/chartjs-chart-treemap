@@ -278,6 +278,7 @@ export default class TreemapElement extends Element {
     const {inner, outer} = boundingRects(this, dpr);
 
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
+
     ctx.save();
 
     if (outer.w !== inner.w || outer.h !== inner.h) {

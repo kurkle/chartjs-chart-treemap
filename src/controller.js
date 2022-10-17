@@ -1,5 +1,5 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isObject, clipArea, unclipArea, defined} from 'chart.js/helpers';
+import {toFont, isObject, clipArea, unclipArea, defined} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey, minValue, maxValue} from './utils';
 import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
@@ -29,19 +29,19 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function buildData(dataset, mainRect, dpr) {
-  const key = dataset.key || '';
-  const treeLeafKey = dataset.treeLeafKey || '_leaf';
+function buildData({dataset, datasetOptions, options}, mainRect, dpr) {
+  const key = options.key;
+  const treeLeafKey = options.treeLeafKey;
   let tree = dataset.tree || [];
   if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
-  const groups = dataset.groups || [];
+  const groups = options.groups;
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0);
-  const captions = dataset.captions || {};
+  const sp = datasetOptions.spacing;
+  const captions = datasetOptions.captions;
   const font = toFont(captions.font);
-  const padding = valueOrDefault(captions.padding, 3);
+  const padding = captions.padding;
 
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
@@ -51,7 +51,7 @@ function buildData(dataset, mainRect, dpr) {
     const ret = gsq.slice();
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        const bw = parseBorderWidth(datasetOptions.borderWidth, sq.w / 2, sq.h / 2);
         const subRect = {
           ...rect,
           x: sq.x + sp + bw.l,
@@ -131,13 +131,15 @@ export default class TreemapController extends DatasetController {
     const meta = this.getMeta();
     const dataset = this.getDataset();
     const dpr = this.chart.currentDevicePixelRatio;
+    const options = this.options;
+    const datasetOptions = this.resolveDatasetElementOptions(mode);
 
     if (!defined(this._useTree)) {
       this._useTree = !!dataset.tree;
     }
-    const groups = dataset.groups || (dataset.groups = []);
-    const key = dataset.key || '';
-    const rtl = !!dataset.rtl;
+    const groups = options.groups;
+    const key = options.key;
+    const rtl = datasetOptions.rtl;
 
     const mainRect = rasterizeRect(getArea(meta, dataset.data, rtl, this._useTree), dpr);
 
@@ -146,7 +148,7 @@ export default class TreemapController extends DatasetController {
       this._groups = groups.slice();
       this._key = key;
 
-      dataset.data = buildData(dataset, mainRect, dpr);
+      dataset.data = buildData({dataset, datasetOptions, options}, mainRect, dpr);
       // @ts-ignore using private stuff
       this._dataCheck();
       // @ts-ignore using private stuff
@@ -210,6 +212,11 @@ TreemapController.version = version;
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
+  datasetElementType: 'treemap',
+
+  key: '',
+  groups: [],
+  treeLeafKey: '_leaf',
 
   animations: {
     numbers: {

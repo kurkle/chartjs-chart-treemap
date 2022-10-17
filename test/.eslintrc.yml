@@ -9,3 +9,4 @@ globals:
   __karma__: true
   releaseChart: true
   waitForResize: true
+  triggerMouseEvent: true

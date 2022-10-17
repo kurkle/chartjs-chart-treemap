@@ -1,5 +1,3 @@
-import {triggerMouseEvent} from 'chartjs-test-utils';
-
 const data = [
   {category: 'main', subcategory: 'one', value: 1},
   {category: 'main', subcategory: 'one', value: 6},

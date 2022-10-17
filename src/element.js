@@ -54,6 +54,7 @@ function boundingRects(rect, dpr) {
     y: bounds.top,
     w: width,
     h: height,
+    active: rect.active,
     radius
   }, dpr);
 
@@ -64,6 +65,7 @@ function boundingRects(rect, dpr) {
       y: outer.y + border.t,
       w: outer.w - border.l - border.r,
       h: outer.h - border.t - border.b,
+      active: rect.active,
       radius: {
         topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
         topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
@@ -276,7 +278,6 @@ export default class TreemapElement extends Element {
     const {inner, outer} = boundingRects(this, dpr);
 
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
-
     ctx.save();
 
     if (outer.w !== inner.w || outer.h !== inner.h) {

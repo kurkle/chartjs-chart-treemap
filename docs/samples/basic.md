@@ -15,7 +15,7 @@ function colorFromRaw(ctx, border) {
   let alpha = (1 + Math.log(value)) / 5;
   const color = 'purple';
   if (border) {
-    alpha += 0.01;
+    alpha += 0.5;
   }
   return helpers.color(color)
     .alpha(alpha)
@@ -33,7 +33,7 @@ const config = {
         tree: Utils.numbers(NUMBER_CFG),
         borderColor: (ctx) => colorFromRaw(ctx, true),
         borderWidth: 1,
-        spacing: 0,
+        spacing: -0.5, // Animations look better when overlapping a little
         backgroundColor: (ctx) => colorFromRaw(ctx),
       }
     ],
@@ -56,6 +56,6 @@ const actions = [
 
 module.exports = {
   actions,
-  config,
+  config
 };
 ```

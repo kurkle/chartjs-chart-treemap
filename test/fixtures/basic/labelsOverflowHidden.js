@@ -1,4 +1,5 @@
 export default {
+  tolerance: 0.0015,
   config: {
     type: 'treemap',
     data: {
@@ -9,7 +10,7 @@ export default {
         labels: {
           display: true,
           overflow: 'hidden',
-          formatter: (ctx) => ('value is ' + ctx.raw.v).repeat(5)
+          formatter: (ctx) => ('value is ' + ctx.raw.v).repeat(ctx.index)
         }
       }]
     },

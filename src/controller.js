@@ -4,6 +4,7 @@ import {group, requireVersion, normalizeTreeToArray, getGroupKey, minValue, maxV
 import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
+import {rasterizeRect} from './helpers/index';
 
 function rectNotEqual(r1, r2) {
   return !r1 || !r2
@@ -28,7 +29,7 @@ function arrayNotEqual(a1, a2) {
   return false;
 }
 
-function buildData(dataset, mainRect) {
+function buildData(dataset, mainRect, dpr) {
   const key = dataset.key || '';
   const additionalKeys = dataset.additionalKeys;
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
@@ -39,7 +40,7 @@ function buildData(dataset, mainRect) {
   const groups = dataset.groups || [];
   const glen = groups.length;
   const sp = valueOrDefault(dataset.spacing, 0);
-  const captions = dataset.captions || {display: true};
+  const captions = dataset.captions || {};
   const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
@@ -47,24 +48,23 @@ function buildData(dataset, mainRect) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
     const gdata = group(tree, g, key, treeLeafKey, additionalKeys, pg, parent, groups.filter((item, index) => index <= gidx));
-    const gsq = squarify(gdata, rect, key, additionalKeys, g, gidx, gs);
+    const gsq = squarify(gdata, rect, key, additionalKeys, dpr, g, gidx, gs);
     const ret = gsq.slice();
-    let subRect;
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
         const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
-        subRect = {
+        const subRect = {
+          ...rect,
           x: sq.x + sp + bw.l,
           y: sq.y + sp + bw.t,
           w: sq.w - 2 * sp - bw.l - bw.r,
           h: sq.h - 2 * sp - bw.t - bw.b,
-          rtl: rect.rtl
         };
         if (shouldDrawCaption(subRect, captions)) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
-        ret.push(...recur(gidx + 1, subRect, sq.g, sq.s));
+        ret.push(...recur(gidx + 1, rasterizeRect(subRect, dpr), sq.g, sq.s));
       });
     }
     return ret;
@@ -76,7 +76,7 @@ function buildData(dataset, mainRect) {
 
   return glen
     ? recur(0, mainRect)
-    : squarify(tree, mainRect, key, additionalKeys);
+    : squarify(tree, mainRect, key, additionalKeys, dpr);
 }
 
 function getMinMax(data, useTree) {
@@ -111,8 +111,7 @@ export default class TreemapController extends DatasetController {
   }
 
   /**
-   * TODO: to be removed when https://github.com/kurkle/chartjs-chart-treemap/issues/137
-   * will be implemented
+   * @todo: Remove with https://github.com/kurkle/chartjs-chart-treemap/issues/137
    */
   updateRangeFromParsed(range, scale) {
     if (range.updated) {
@@ -124,41 +123,41 @@ export default class TreemapController extends DatasetController {
       range.max = 1;
       return;
     }
-    const me = this;
-    const dataset = me.getDataset();
-    const {vMin, vMax} = getMinMax(dataset.data, me._useTree);
+    const dataset = this.getDataset();
+    const {vMin, vMax} = getMinMax(dataset.data, this._useTree);
     range.min = vMin;
     range.max = vMax;
   }
 
   update(mode) {
-    const me = this;
-    const meta = me.getMeta();
-    const dataset = me.getDataset();
-    if (!defined(me._useTree)) {
-      me._useTree = !!dataset.tree;
+    const meta = this.getMeta();
+    const dataset = this.getDataset();
+    const dpr = this.chart.currentDevicePixelRatio;
+
+    if (!defined(this._useTree)) {
+      this._useTree = !!dataset.tree;
     }
     const additionalKeys = dataset.additionalKeys || (dataset.additionalKeys = []);
     const groups = dataset.groups || (dataset.groups = []);
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const mainRect = getArea(meta, dataset.data, rtl, me._useTree);
+    const mainRect = rasterizeRect(getArea(meta, dataset.data, rtl, this._useTree), dpr);
 
-    if (mode === 'reset' || rectNotEqual(me._rect, mainRect) || me._key !== key || arrayNotEqual(me._groups, groups) || arrayNotEqual(me._additionalKeys, additionalKeys)) {
-      me._rect = mainRect;
-      me._groups = groups.slice();
-      me._key = key;
-      me._additionalKeys = additionalKeys.slice();
+    if (mode === 'reset' || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups) || arrayNotEqual(this._additionalKeys, additionalKeys)) {
+      this._rect = mainRect;
+      this._groups = groups.slice();
+      this._key = key;
+      this._additionalKeys = additionalKeys.slice();
 
-      dataset.data = buildData(dataset, mainRect);
+      dataset.data = buildData(dataset, mainRect, dpr);
       // @ts-ignore using private stuff
-      me._dataCheck();
+      this._dataCheck();
       // @ts-ignore using private stuff
-      me._resyncElements();
+      this._resyncElements();
     }
 
-    me.updateElements(meta.data, 0, meta.data.length, mode);
+    this.updateElements(meta.data, 0, meta.data.length, mode);
   }
 
   updateElements(rects, start, count, mode) {
@@ -192,19 +191,17 @@ export default class TreemapController extends DatasetController {
   }
 
   draw() {
-    const me = this;
-    const ctx = me.chart.ctx;
-    const area = me.chart.chartArea;
-    const metadata = me.getMeta().data || [];
-    const dataset = me.getDataset();
+    const {ctx, chartArea, currentDevicePixelRatio: dpr} = this.chart;
+    const metadata = this.getMeta().data || [];
+    const dataset = this.getDataset();
     const levels = (dataset.groups || []).length - 1;
     const data = dataset.data;
 
-    clipArea(ctx, area);
+    clipArea(ctx, chartArea);
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {
-        rect.draw(ctx, data[i], levels);
+        rect.draw(ctx, data[i], levels, dpr);
       }
     }
     unclipArea(ctx);
@@ -235,6 +232,7 @@ TreemapController.descriptors = {
 TreemapController.overrides = {
   interaction: {
     mode: 'point',
+    includeInvisible: true,
     intersect: true
   },
 
@@ -274,7 +272,7 @@ TreemapController.overrides = {
 };
 
 TreemapController.beforeRegister = function() {
-  requireVersion('3.6', Chart.version);
+  requireVersion('3.8', Chart.version);
 };
 
 TreemapController.afterRegister = function() {

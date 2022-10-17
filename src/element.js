@@ -1,5 +1,6 @@
 import {Element} from 'chart.js';
 import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
+import {rasterizeRect} from './helpers/index';
 
 const widthCache = new Map();
 
@@ -42,26 +43,27 @@ function parseBorderRadius(value, maxW, maxH) {
   };
 }
 
-function boundingRects(rect) {
+function boundingRects(rect, dpr) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
   const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
+  const outer = rasterizeRect({
+    x: bounds.left,
+    y: bounds.top,
+    w: width,
+    h: height,
+    radius
+  }, dpr);
 
   return {
-    outer: {
-      x: bounds.left,
-      y: bounds.top,
-      w: width,
-      h: height,
-      radius
-    },
+    outer,
     inner: {
-      x: bounds.left + border.l,
-      y: bounds.top + border.t,
-      w: width - border.l - border.r,
-      h: height - border.t - border.b,
+      x: outer.x + border.l,
+      y: outer.y + border.t,
+      w: outer.w - border.l - border.r,
+      h: outer.h - border.t - border.b,
       radius: {
         topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
         topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
@@ -96,7 +98,7 @@ function addNormalRectPath(ctx, rect) {
 }
 
 export function shouldDrawCaption(rect, options) {
-  if (!options || !options.display) {
+  if (!options || options.display === false) {
     return false;
   }
   const {w, h} = rect;
@@ -266,12 +268,12 @@ export default class TreemapElement extends Element {
     }
   }
 
-  draw(ctx, data, levels = 0) {
+  draw(ctx, data, levels = 0, dpr) {
     if (!data) {
       return;
     }
     const options = this.options;
-    const {inner, outer} = boundingRects(this);
+    const {inner, outer} = boundingRects(this, dpr);
 
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 
@@ -320,6 +322,9 @@ export default class TreemapElement extends Element {
     return this.getCenterPoint();
   }
 
+  /**
+   * @todo: remove this unused function in v3
+   */
   getRange(axis) {
     return axis === 'x' ? this.width / 2 : this.height / 2;
   }

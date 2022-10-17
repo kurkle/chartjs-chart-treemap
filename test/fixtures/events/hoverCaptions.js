@@ -1,3 +1,5 @@
+import {triggerMouseEvent} from 'chartjs-test-utils';
+
 const data = [
   {category: 'main', subcategory: 'one', value: 1},
   {category: 'main', subcategory: 'one', value: 6},
@@ -12,7 +14,7 @@ const data = [
 ];
 
 export default {
-  tolerance: 0.0023,
+  tolerance: 0.0012,
   config: {
     type: 'treemap',
     data: {

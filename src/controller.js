@@ -17,7 +17,7 @@ function rectNotEqual(r1, r2) {
 function arrayNotEqual(a1, a2) {
   let i, n;
 
-  if (a1.lenght !== a2.length) {
+  if (a1.length !== a2.length) {
     return true;
   }
 
@@ -98,6 +98,7 @@ export default class TreemapController extends DatasetController {
     super(chart, datasetIndex);
 
     this._rect = undefined;
+    this._transform = undefined;
     this._key = undefined;
     this._groups = undefined;
     this._useTree = undefined;
@@ -128,6 +129,7 @@ export default class TreemapController extends DatasetController {
   }
 
   update(mode) {
+    const area = this.chart.chartArea;
     const meta = this.getMeta();
     const dataset = this.getDataset();
     const dpr = this.chart.currentDevicePixelRatio;
@@ -139,7 +141,7 @@ export default class TreemapController extends DatasetController {
     const key = dataset.key || '';
     const rtl = !!dataset.rtl;
 
-    const mainRect = rasterizeRect(getArea(meta, dataset.data, rtl, this._useTree), dpr);
+    const mainRect = rasterizeRect({x: area.left, y: area.top, w: area.right - area.left, h: area.bottom - area.top, rtl}, dpr);
 
     if (mode === 'reset' || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups)) {
       this._rect = mainRect;
@@ -151,22 +153,31 @@ export default class TreemapController extends DatasetController {
       this._dataCheck();
       // @ts-ignore using private stuff
       this._resyncElements();
+    } else {
+      const scaleRect = rasterizeRect(getArea(meta, dataset.data, rtl, this._useTree), dpr);
+      if (rectNotEqual(this._rect, scaleRect)) {
+        const {x, y, w, h} = scaleRect;
+        const wr = w / this._rect.w;
+        const hr = h / this._rect.h;
+        this._transform = {x, y, wr, hr};
+      } else {
+        this._transform = undefined;
+      }
     }
 
     this.updateElements(meta.data, 0, meta.data.length, mode);
   }
 
   updateElements(rects, start, count, mode) {
-    const me = this;
     const reset = mode === 'reset';
-    const dataset = me.getDataset();
-    const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
-    const sharedOptions = me.getSharedOptions(firstOpts);
-    const includeOptions = me.includeOptions(mode, sharedOptions);
+    const dataset = this.getDataset();
+    const firstOpts = this._rect.options = this.resolveDataElementOptions(start, mode);
+    const sharedOptions = this.getSharedOptions(firstOpts);
+    const includeOptions = this.includeOptions(mode, sharedOptions);
 
     for (let i = start; i < start + count; i++) {
       const sq = dataset.data[i];
-      const options = sharedOptions || me.resolveDataElementOptions(i, mode);
+      const options = sharedOptions || this.resolveDataElementOptions(i, mode);
       const sp = options.spacing;
       const sp2 = sp * 2;
       const properties = {
@@ -180,10 +191,10 @@ export default class TreemapController extends DatasetController {
       if (includeOptions) {
         properties.options = options;
       }
-      me.updateElement(rects[i], i, properties, mode);
+      this.updateElement(rects[i], i, properties, mode);
     }
 
-    me.updateSharedOptions(sharedOptions, mode, firstOpts);
+    this.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
 
   draw() {
@@ -194,6 +205,13 @@ export default class TreemapController extends DatasetController {
     const data = dataset.data;
 
     clipArea(ctx, chartArea);
+    if (this._transform) {
+      const {x, y, wr, hr} = this._transform;
+      ctx.translate(x, y);
+      ctx.scale(wr, hr);
+    } else {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {

@@ -21,6 +21,7 @@ export default {
         key: 'value',
         groups: ['category', 'subcategory', 'value'],
         backgroundColor: 'lightGreen',
+        spacing: 0,
         captions: {
           display: true,
           align: 'center',

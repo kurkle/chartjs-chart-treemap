@@ -1,15 +1,5 @@
 import {isObject} from 'chart.js/helpers';
 
-const getValue = (item) => isObject(item) ? item.v : item;
-
-export const maxValue = (data) => data.reduce(function(m, v) {
-  return (m > getValue(v) ? m : getValue(v));
-}, 0);
-
-export const minValue = (data, mx) => data.reduce(function(m, v) {
-  return (m < getValue(v) ? m : getValue(v));
-}, mx);
-
 export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {

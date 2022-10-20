@@ -1,5 +1,5 @@
 import squarify from '../../src/squarify';
-const round4 = (v) => +(Math.round(v + 'e+4') + 'e-4') || 0;
+const round4 = (v) => +`${Math.round(+`${v}e+4`)}e-4` || 0;
 const roundsq4 = sq => ({...sq, x: round4(sq.x), y: round4(sq.y), w: round4(sq.w), h: round4(sq.h)});
 
 describe('squarify', function() {

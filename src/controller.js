@@ -64,20 +64,26 @@ export default class TreemapController extends DatasetController {
     super.initialize();
   }
 
-  // eslint-disable-next-line no-unused-vars
-  getMinMax(scale, canStack) {
+  getMinMax(scale) {
     return {
       min: 0,
-      max: scale.axis === 'x' ? scale.width : scale.height
+      max: scale.axis === 'x' ? scale.right - scale.left : scale.bottom - scale.top
     };
   }
 
   configure() {
     super.configure();
-    // console.log(this.getMeta());
+    const {xScale, yScale} = this.getMeta();
+    if (xScale && yScale) {
+      xScale.max = xScale.right - xScale.left;
+      xScale.configure();
+      yScale.max = yScale.bottom - yScale.top;
+      yScale.configure();
+    }
   }
 
   update(mode) {
+    const reset = mode === 'reset';
     const dataset = this.getDataset();
     const {data, xScale, yScale} = this.getMeta();
 
@@ -87,14 +93,14 @@ export default class TreemapController extends DatasetController {
     const tree = dataset.tree || dataset.data;
 
     const mainRect = {
-      x: xScale.left,
-      y: yScale.top,
-      w: xScale.width,
-      h: yScale.height,
+      x: 0,
+      y: 0,
+      w: xScale.right - xScale.left,
+      h: yScale.bottom - yScale.top,
       rtl
     };
 
-    if (mode === 'reset' || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups) || this._prevTree !== tree) {
+    if (reset || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups) || this._prevTree !== tree) {
       this._rect = mainRect;
       this._groups = groups.slice();
       this._key = key;

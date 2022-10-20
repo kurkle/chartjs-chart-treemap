@@ -124,8 +124,8 @@ export default class TreemapController extends DatasetController {
       const sp = options.spacing;
       const properties = scaleRect(dataset.data[i], xScale, yScale, sp);
       if (reset) {
-        properties.w = 0;
-        properties.h = 0;
+        properties.width = 0;
+        properties.height = 0;
       }
 
       if (includeOptions) {

@@ -31,8 +31,7 @@ function buildRow(rect, itm, dims, sum) {
 }
 
 export default class Rect {
-  constructor(r, dpr) {
-    this.dpr = dpr;
+  constructor(r) {
     r = r || {w: 1, h: 1};
     this.rtl = !!r.rtl;
     this.x = r.x || r.left || 0;

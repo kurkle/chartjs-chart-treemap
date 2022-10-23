@@ -4,9 +4,9 @@ export default {
     data: {
       datasets: [{
         tree: [6, 6, 4, 3, 2, 2, 1],
-        backgroundColor: 'red',
-        borderWidth: 10,
-        borderColor: 'black'
+        backgroundColor: 'green',
+        borderColor: 'black',
+        borderWidth: 8
       }]
     },
     options: {
@@ -19,7 +19,10 @@ export default {
       width: 512
     },
     run(chart) {
-      chart.data.datasets[0].tree = [1, 2, 3];
+      chart.scales.x.min = 100;
+      chart.scales.x.max = 400;
+      chart.scales.y.min = 50;
+      chart.scales.y.max = 200;
       chart.update();
     }
   }

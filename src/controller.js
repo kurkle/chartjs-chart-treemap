@@ -1,38 +1,14 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isObject, clipArea, unclipArea, defined} from 'chart.js/helpers';
-import {group, requireVersion, normalizeTreeToArray, getGroupKey, minValue, maxValue} from './utils';
+import {toFont, valueOrDefault, isObject, clipArea, unclipArea} from 'chart.js/helpers';
+import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
 import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
-import {rasterizeRect} from './helpers/index';
+import {arrayNotEqual, rectNotEqual, scaleRect} from './helpers/index';
 
-function rectNotEqual(r1, r2) {
-  return !r1 || !r2
-		|| r1.x !== r2.x
-		|| r1.y !== r2.y
-		|| r1.w !== r2.w
-		|| r1.h !== r2.h;
-}
-
-function arrayNotEqual(a1, a2) {
-  let i, n;
-
-  if (a1.lenght !== a2.length) {
-    return true;
-  }
-
-  for (i = 0, n = a1.length; i < n; ++i) {
-    if (a1[i] !== a2[i]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function buildData(dataset, mainRect, dpr) {
+function buildData(tree, dataset, mainRect) {
   const key = dataset.key || '';
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
-  let tree = dataset.tree || [];
   if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
@@ -47,7 +23,7 @@ function buildData(dataset, mainRect, dpr) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
     const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
-    const gsq = squarify(gdata, rect, key, dpr, g, gidx, gs);
+    const gsq = squarify(gdata, rect, key, g, gidx, gs);
     const ret = gsq.slice();
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
@@ -63,44 +39,25 @@ function buildData(dataset, mainRect, dpr) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
-        ret.push(...recur(gidx + 1, rasterizeRect(subRect, dpr), sq.g, sq.s));
+        ret.push(...recur(gidx + 1, subRect, sq.g, sq.s));
       });
     }
     return ret;
   }
 
-  if (!tree.length && dataset.data.length) {
-    tree = dataset.tree = dataset.data;
-  }
-
   return glen
     ? recur(0, mainRect)
-    : squarify(tree, mainRect, key, dpr);
-}
-
-function getMinMax(data, useTree) {
-  const vMax = useTree ? 1 : maxValue(data);
-  const vMin = useTree ? 0 : minValue(data, vMax);
-  return {vMin, vMax};
-}
-
-function getArea({xScale, yScale}, data, rtl, useTree) {
-  const {vMin, vMax} = getMinMax(data, useTree);
-  const xMin = xScale.getPixelForValue(0);
-  const xMax = xScale.getPixelForValue(1);
-  const yMin = yScale.getPixelForValue(vMin);
-  const yMax = yScale.getPixelForValue(vMax);
-  return {x: xMin, y: yMax, w: xMax - xMin, h: yMin - yMax, rtl};
+    : squarify(tree, mainRect, key);
 }
 
 export default class TreemapController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
 
-    this._rect = undefined;
-    this._key = undefined;
     this._groups = undefined;
-    this._useTree = undefined;
+    this._key = undefined;
+    this._rect = undefined;
+    this._rectChanged = true;
   }
 
   initialize() {
@@ -108,86 +65,93 @@ export default class TreemapController extends DatasetController {
     super.initialize();
   }
 
-  /**
-   * @todo: Remove with https://github.com/kurkle/chartjs-chart-treemap/issues/137
-   */
-  updateRangeFromParsed(range, scale) {
-    if (range.updated) {
+  getMinMax(scale) {
+    return {
+      min: 0,
+      max: scale.axis === 'x' ? scale.right - scale.left : scale.bottom - scale.top
+    };
+  }
+
+  configure() {
+    super.configure();
+    const {xScale, yScale} = this.getMeta();
+    if (!xScale || !yScale) {
+      // configure is called once before `linkScales`, and at that call we don't have any scales linked yet
       return;
     }
-    range.updated = true;
-    if (scale.axis === 'x') {
-      range.min = 0;
-      range.max = 1;
-      return;
+
+    const w = xScale.right - xScale.left;
+    const h = yScale.bottom - yScale.top;
+    const rect = {x: 0, y: 0, w, h, rtl: !!this.options.rtl};
+
+    if (rectNotEqual(this._rect, rect)) {
+      this._rect = rect;
+      this._rectChanged = true;
     }
-    const dataset = this.getDataset();
-    const {vMin, vMax} = getMinMax(dataset.data, this._useTree);
-    range.min = vMin;
-    range.max = vMax;
+
+    if (this._rectChanged) {
+      xScale.max = w;
+      xScale.configure();
+      yScale.max = h;
+      yScale.configure();
+    }
   }
 
   update(mode) {
-    const meta = this.getMeta();
     const dataset = this.getDataset();
-    const dpr = this.chart.currentDevicePixelRatio;
-
-    if (!defined(this._useTree)) {
-      this._useTree = !!dataset.tree;
-    }
+    const {data} = this.getMeta();
     const groups = dataset.groups || (dataset.groups = []);
-    const key = dataset.key || '';
-    const rtl = !!dataset.rtl;
+    const key = dataset.key;
+    const tree = dataset.tree = dataset.tree || dataset.data || [];
 
-    const mainRect = rasterizeRect(getArea(meta, dataset.data, rtl, this._useTree), dpr);
+    if (mode === 'reset') {
+      // reset is called before 2nd configure and is only called if animations are enabled. So wen need an extra configure call here.
+      this.configure();
+    }
 
-    if (mode === 'reset' || rectNotEqual(this._rect, mainRect) || this._key !== key || arrayNotEqual(this._groups, groups)) {
-      this._rect = mainRect;
+    if (this._rectChanged || this._key !== key || arrayNotEqual(this._groups, groups) || this._prevTree !== tree) {
       this._groups = groups.slice();
       this._key = key;
+      this._prevTree = tree;
+      this._rectChanged = false;
 
-      dataset.data = buildData(dataset, mainRect, dpr);
+      dataset.data = buildData(tree, dataset, this._rect);
       // @ts-ignore using private stuff
       this._dataCheck();
       // @ts-ignore using private stuff
       this._resyncElements();
     }
 
-    this.updateElements(meta.data, 0, meta.data.length, mode);
+    this.updateElements(data, 0, data.length, mode);
   }
 
   updateElements(rects, start, count, mode) {
-    const me = this;
     const reset = mode === 'reset';
-    const dataset = me.getDataset();
-    const firstOpts = me._rect.options = me.resolveDataElementOptions(start, mode);
-    const sharedOptions = me.getSharedOptions(firstOpts);
-    const includeOptions = me.includeOptions(mode, sharedOptions);
+    const dataset = this.getDataset();
+    const firstOpts = this._rect.options = this.resolveDataElementOptions(start, mode);
+    const sharedOptions = this.getSharedOptions(firstOpts);
+    const includeOptions = this.includeOptions(mode, sharedOptions);
+    const {xScale, yScale} = this.getMeta(this.index);
 
     for (let i = start; i < start + count; i++) {
-      const sq = dataset.data[i];
-      const options = sharedOptions || me.resolveDataElementOptions(i, mode);
-      const sp = options.spacing;
-      const sp2 = sp * 2;
-      const properties = {
-        x: sq.x + sp,
-        y: sq.y + sp,
-        width: reset ? 0 : sq.w - sp2,
-        height: reset ? 0 : sq.h - sp2,
-        hidden: sp2 > sq.w || sp2 > sq.h,
-      };
+      const options = sharedOptions || this.resolveDataElementOptions(i, mode);
+      const properties = scaleRect(dataset.data[i], xScale, yScale, options.spacing);
+      if (reset) {
+        properties.width = 0;
+        properties.height = 0;
+      }
 
       if (includeOptions) {
         properties.options = options;
       }
-      me.updateElement(rects[i], i, properties, mode);
+      this.updateElement(rects[i], i, properties, mode);
     }
 
-    me.updateSharedOptions(sharedOptions, mode, firstOpts);
+    this.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
 
   draw() {
-    const {ctx, chartArea, currentDevicePixelRatio: dpr} = this.chart;
+    const {ctx, chartArea} = this.chart;
     const metadata = this.getMeta().data || [];
     const dataset = this.getDataset();
     const levels = (dataset.groups || []).length - 1;
@@ -197,7 +161,7 @@ export default class TreemapController extends DatasetController {
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {
-        rect.draw(ctx, data[i], levels, dpr);
+        rect.draw(ctx, data[i], levels);
       }
     }
     unclipArea(ctx);
@@ -258,11 +222,16 @@ TreemapController.overrides = {
   scales: {
     x: {
       type: 'linear',
+      alignToPixels: true,
+      bounds: 'data',
       display: false
     },
     y: {
       type: 'linear',
-      display: false
+      alignToPixels: true,
+      bounds: 'data',
+      display: false,
+      reverse: true
     }
   },
 };

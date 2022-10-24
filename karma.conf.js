@@ -28,8 +28,10 @@ module.exports = function(karma) {
     },
 
     client: {
+      clearContext: false,
       jasmine: {
-        stopOnSpecFailure: !!karma.autoWatch && env !== 'test'
+        stopOnSpecFailure: false,
+        timeoutInterval: 1000
       }
     },
 

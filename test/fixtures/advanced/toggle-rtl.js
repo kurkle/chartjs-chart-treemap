@@ -3,10 +3,11 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: [6, 6, 4, 3, 2, 2, 1],
-        backgroundColor: 'green',
+        data: [6, 6, 4, 3, 2, 2, 1],
+        backgroundColor: 'red',
         borderColor: 'black',
-        borderWidth: 8
+        borderWidth: 5,
+        rtl: false
       }]
     },
     options: {
@@ -19,10 +20,7 @@ export default {
       width: 512
     },
     run(chart) {
-      chart.scales.x.options.min = 100;
-      chart.scales.x.options.max = 400;
-      chart.scales.y.options.min = 50;
-      chart.scales.y.options.max = 200;
+      chart.data.datasets[0].rtl = true;
       chart.update();
     }
   }

@@ -57,7 +57,7 @@ export default class TreemapController extends DatasetController {
     this._groups = undefined;
     this._key = undefined;
     this._rect = undefined;
-    this._rtl = undefined;
+    this._rectChanged = true;
   }
 
   initialize() {
@@ -67,8 +67,8 @@ export default class TreemapController extends DatasetController {
 
   getMinMax(scale) {
     return {
-      min: scale.min || 0,
-      max: scale.max || (scale.axis === 'x' ? scale.right - scale.left : scale.bottom - scale.top)
+      min: 0,
+      max: scale.axis === 'x' ? scale.right - scale.left : scale.bottom - scale.top
     };
   }
 
@@ -76,36 +76,44 @@ export default class TreemapController extends DatasetController {
     super.configure();
     const {xScale, yScale} = this.getMeta();
     if (!xScale || !yScale) {
+      // configure is called once before `linkScales`, and at that call we don't have any scales linked yet
       return;
     }
 
     const w = xScale.right - xScale.left;
     const h = yScale.bottom - yScale.top;
     const rect = {x: 0, y: 0, w, h, rtl: !!this.options.rtl};
+
     if (rectNotEqual(this._rect, rect)) {
+      this._rect = rect;
+      this._rectChanged = true;
+    }
+
+    if (this._rectChanged) {
       xScale.max = w;
       xScale.configure();
       yScale.max = h;
       yScale.configure();
-      this._rect = rect;
-      this._rtl = undefined;
     }
   }
 
   update(mode) {
-    const reset = mode === 'reset';
     const dataset = this.getDataset();
     const {data} = this.getMeta();
     const groups = dataset.groups || (dataset.groups = []);
-    const key = dataset.key || '';
-    const rtl = !!dataset.rtl;
+    const key = dataset.key;
     const tree = dataset.tree = dataset.tree || dataset.data || [];
 
-    if (reset || this._key !== key || arrayNotEqual(this._groups, groups) || this._prevTree !== tree || this._rtl !== rtl) {
+    if (mode === 'reset') {
+      // reset is called before 2nd configure and is only called if animations are enabled. So wen need an extra configure call here.
+      this.configure();
+    }
+
+    if (this._rectChanged || this._key !== key || arrayNotEqual(this._groups, groups) || this._prevTree !== tree) {
       this._groups = groups.slice();
       this._key = key;
       this._prevTree = tree;
-      this._rtl = rtl;
+      this._rectChanged = false;
 
       dataset.data = buildData(tree, dataset, this._rect);
       // @ts-ignore using private stuff

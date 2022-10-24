@@ -1,4 +1,6 @@
 import squarify from '../../src/squarify';
+const round4 = (v) => +(Math.round(+`${v}e+4`) + 'e-4') || 0;
+const roundsq4 = sq => ({...sq, x: round4(sq.x), y: round4(sq.y), w: round4(sq.w), h: round4(sq.h)});
 
 describe('squarify', function() {
 
@@ -67,28 +69,28 @@ describe('squarify', function() {
   });
 
   it('should squarify correctly', function() {
-    let sq = squarify([6, 6, 4, 3, 2, 2, 1], {x: 0, y: 0, w: 6, h: 4});
+    let sq = squarify([6, 6, 4, 3, 2, 2, 1], {x: 0, y: 0, w: 6, h: 4}).map(roundsq4);
     expect(sq).toEqual([
       jasmine.objectContaining({x: 0, y: 0, w: 3, h: 2}),
       jasmine.objectContaining({x: 0, y: 2, w: 3, h: 2}),
-      jasmine.objectContaining({x: 3, y: 0, w: 2, h: 3}),
-      jasmine.objectContaining({x: 5, y: 0, w: 1, h: 3}),
-      jasmine.objectContaining({x: 3, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 5, y: 3, w: 1, h: 1}),
-      jasmine.objectContaining({x: 6, y: 3, w: 0, h: 1})
+      jasmine.objectContaining({x: 3, y: 0, w: 1.7143, h: 2.3333}),
+      jasmine.objectContaining({x: 4.7143, y: 0, w: 1.2857, h: 2.3333}),
+      jasmine.objectContaining({x: 3, y: 2.3333, w: 1.2, h: 1.6667}),
+      jasmine.objectContaining({x: 4.2, y: 2.3333, w: 1.2, h: 1.6667}),
+      jasmine.objectContaining({x: 5.4, y: 2.3333, w: 0.6, h: 1.6667})
     ]);
   });
 
   it('should squarify unordered data correctly', function() {
-    let sq = squarify([3, 2, 1, 6, 4, 6, 2], {x: 0, y: 0, w: 6, h: 4});
+    let sq = squarify([3, 2, 1, 6, 4, 6, 2], {x: 0, y: 0, w: 6, h: 4}).map(roundsq4);
     expect(sq).toEqual([
       jasmine.objectContaining({x: 0, y: 0, w: 3, h: 2}),
       jasmine.objectContaining({x: 0, y: 2, w: 3, h: 2}),
-      jasmine.objectContaining({x: 3, y: 0, w: 2, h: 3}),
-      jasmine.objectContaining({x: 5, y: 0, w: 1, h: 3}),
-      jasmine.objectContaining({x: 3, y: 3, w: 2, h: 1}),
-      jasmine.objectContaining({x: 5, y: 3, w: 1, h: 1}),
-      jasmine.objectContaining({x: 6, y: 3, w: 0, h: 1})
+      jasmine.objectContaining({x: 3, y: 0, w: 1.7143, h: 2.3333}),
+      jasmine.objectContaining({x: 4.7143, y: 0, w: 1.2857, h: 2.3333}),
+      jasmine.objectContaining({x: 3, y: 2.3333, w: 1.2, h: 1.6667}),
+      jasmine.objectContaining({x: 4.2, y: 2.3333, w: 1.2, h: 1.6667}),
+      jasmine.objectContaining({x: 5.4, y: 2.3333, w: 0.6, h: 1.6667})
     ]);
   });
 
@@ -107,12 +109,12 @@ describe('squarify', function() {
   it('should squarify by given group', function() {
     let data = [{g: 'a', v: 1}, {g: 'a', v: 2}, {g: 'b', v: 3}, {g: 'c', v: 4}];
     let rect = {x: 0, y: 0, w: 4, h: 4};
-    let sq = squarify(data, rect, 'v', [], 2, 'g', 0, 0);
+    let sq = squarify(data, rect, 'v', [], 'g', 0, 0).map(roundsq4);
     expect(sq).toEqual([
-      jasmine.objectContaining({x: 0, y: 0, w: 3, h: 2.5, a: 6.4, g: 'c', l: 0, gs: 0}),
-      jasmine.objectContaining({x: 0, y: 2.5, w: 3, h: 1.5, a: 4.800000000000001, g: 'b', l: 0, gs: 0}),
-      jasmine.objectContaining({x: 3, y: 0, w: 1, h: 3, a: 3.2, v: 2, g: 'a', l: 0, gs: 0}),
-      jasmine.objectContaining({x: 3, y: 3, w: 1, h: 1, a: 1.6, v: 1, g: 'a', l: 0, gs: 0}),
+      jasmine.objectContaining({x: 0, y: 0, w: 2.8, h: 2.2857, a: 6.4, g: 'c', l: 0, gs: 0}),
+      jasmine.objectContaining({x: 0, y: 2.2857, w: 2.8, h: 1.7143, a: 4.800000000000001, g: 'b', l: 0, gs: 0}),
+      jasmine.objectContaining({x: 2.8, y: 0, w: 1.2, h: 2.6667, a: 3.2, v: 2, g: 'a', l: 0, gs: 0}),
+      jasmine.objectContaining({x: 2.8, y: 2.6667, w: 1.2, h: 1.3333, a: 1.6, v: 1, g: 'a', l: 0, gs: 0}),
     ]);
   });
 

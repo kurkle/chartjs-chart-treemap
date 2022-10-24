@@ -1,6 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault} from 'chart.js/helpers';
-import {rasterizeRect} from './helpers/index';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault, defined} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -43,19 +42,20 @@ function parseBorderRadius(value, maxW, maxH) {
   };
 }
 
-function boundingRects(rect, dpr) {
+function boundingRects(rect) {
   const bounds = getBounds(rect);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2);
   const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2);
-  const outer = rasterizeRect({
+  const outer = {
     x: bounds.left,
     y: bounds.top,
     w: width,
     h: height,
+    active: rect.active,
     radius
-  }, dpr);
+  };
 
   return {
     outer,
@@ -64,6 +64,7 @@ function boundingRects(rect, dpr) {
       y: outer.y + border.t,
       w: outer.w - border.l - border.r,
       h: outer.h - border.t - border.b,
+      active: rect.active,
       radius: {
         topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
         topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
@@ -114,7 +115,7 @@ function drawText(ctx, rect, options, item, levels) {
   ctx.beginPath();
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
-  const isLeaf = (!('l' in item) || item.l === levels);
+  const isLeaf = item && (!defined(item.l) || item.l === levels);
   if (isLeaf && labels.display) {
     drawLabel(ctx, rect, options);
   } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
@@ -268,12 +269,12 @@ export default class TreemapElement extends Element {
     }
   }
 
-  draw(ctx, data, levels = 0, dpr) {
+  draw(ctx, data, levels = 0) {
     if (!data) {
       return;
     }
     const options = this.options;
-    const {inner, outer} = boundingRects(this, dpr);
+    const {inner, outer} = boundingRects(this);
 
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 

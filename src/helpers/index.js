@@ -1,3 +1,5 @@
+import {toTRBL, toFont, valueOrDefault} from 'chart.js/helpers';
+
 export function scaleRect(sq, xScale, yScale, sp) {
   const sp2 = sp * 2;
   const x = xScale.getPixelForValue(sq.x);
@@ -43,4 +45,30 @@ export function arrayNotEqual(a, b) {
     }
   }
   return false;
+}
+
+export function parseBorderWidth(value, maxW, maxH) {
+  const o = toTRBL(value);
+
+  return {
+    t: limit(o.top, 0, maxH),
+    r: limit(o.right, 0, maxW),
+    b: limit(o.bottom, 0, maxH),
+    l: limit(o.left, 0, maxW)
+  };
+}
+
+export function shouldDrawCaption(rect, options) {
+  if (!options.display) {
+    return false;
+  }
+  const {w, h} = rect;
+  const font = toFont(options.font);
+  const min = font.lineHeight;
+  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+  return (w - padding) > min && (h - padding) > min;
+}
+
+export function limit(value, min, max) {
+  return Math.max(Math.min(value, max), min);
 }

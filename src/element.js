@@ -1,5 +1,6 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault, defined} from 'chart.js/helpers';
+import {parseBorderWidth, shouldDrawCaption, limit} from './helpers/index';
+import {toFont, isArray, toTRBLCorners, addRoundedRectPath, defined} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -13,21 +14,6 @@ const widthCache = new Map();
 function getBounds(rect, useFinalPosition) {
   const {x, y, width, height} = rect.getProps(['x', 'y', 'width', 'height'], useFinalPosition);
   return {left: x, top: y, right: x + width, bottom: y + height};
-}
-
-function limit(value, min, max) {
-  return Math.max(Math.min(value, max), min);
-}
-
-export function parseBorderWidth(value, maxW, maxH) {
-  const o = toTRBL(value);
-
-  return {
-    t: limit(o.top, 0, maxH),
-    r: limit(o.right, 0, maxW),
-    b: limit(o.bottom, 0, maxH),
-    l: limit(o.left, 0, maxW)
-  };
 }
 
 function parseBorderRadius(value, maxW, maxH) {
@@ -96,17 +82,6 @@ function hasRadius(radius) {
  */
 function addNormalRectPath(ctx, rect) {
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
-}
-
-export function shouldDrawCaption(rect, options) {
-  if (!options || options.display === false) {
-    return false;
-  }
-  const {w, h} = rect;
-  const font = toFont(options.font);
-  const min = font.lineHeight;
-  const padding = limit(valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
-  return (w - padding) > min && (h - padding) > min;
 }
 
 function drawText(ctx, rect, options, item, levels) {

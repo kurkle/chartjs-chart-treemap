@@ -1,23 +1,22 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, valueOrDefault, isObject, clipArea, unclipArea} from 'chart.js/helpers';
+import {toFont, isObject, clipArea, unclipArea} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption, parseBorderWidth} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
-import {arrayNotEqual, rectNotEqual, scaleRect} from './helpers/index';
+import {arrayNotEqual, rectNotEqual, scaleRect, parseBorderWidth, shouldDrawCaption} from './helpers/index';
 
-function buildData(tree, dataset, mainRect) {
-  const key = dataset.key || '';
-  const treeLeafKey = dataset.treeLeafKey || '_leaf';
+function buildData(tree, options, mainRect) {
+  const key = options.key;
+  const treeLeafKey = options.treeLeafKey;
   if (isObject(tree)) {
     tree = normalizeTreeToArray(key, treeLeafKey, tree);
   }
-  const groups = dataset.groups || [];
+  const groups = options.groups;
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0);
-  const captions = dataset.captions || {};
+  const sp = options.spacing;
+  const captions = options.captions;
   const font = toFont(captions.font);
-  const padding = valueOrDefault(captions.padding, 3);
+  const padding = captions.padding;
 
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
@@ -27,7 +26,7 @@ function buildData(tree, dataset, mainRect) {
     const ret = gsq.slice();
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        const bw = parseBorderWidth(options.borderWidth, sq.w / 2, sq.h / 2);
         const subRect = {
           ...rect,
           x: sq.x + sp + bw.l,
@@ -73,7 +72,16 @@ export default class TreemapController extends DatasetController {
   }
 
   configure() {
-    super.configure();
+    const config = this.chart.config;
+    const scopeKeys = config.datasetScopeKeys(this._type);
+    if (!scopeKeys[0].includes('elements.treemap')) {
+      scopeKeys[0].push('elements.treemap');
+    }
+    const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true);
+    this.options = config.createResolver(scopes, this.getContext());
+    this._parsing = this.options.parsing;
+    this._cachedDataOpts = {};
+
     const {xScale, yScale} = this.getMeta();
     if (!xScale || !yScale) {
       // configure is called once before `linkScales`, and at that call we don't have any scales linked yet
@@ -100,8 +108,9 @@ export default class TreemapController extends DatasetController {
   update(mode) {
     const dataset = this.getDataset();
     const {data} = this.getMeta();
-    const groups = dataset.groups || (dataset.groups = []);
-    const key = dataset.key;
+    const options = this.options;
+    const groups = options.groups;
+    const key = options.key;
     const tree = dataset.tree = dataset.tree || dataset.data || [];
 
     if (mode === 'reset') {
@@ -115,7 +124,7 @@ export default class TreemapController extends DatasetController {
       this._prevTree = tree;
       this._rectChanged = false;
 
-      dataset.data = buildData(tree, dataset, this._rect);
+      dataset.data = buildData(tree, options, this._rect);
       // @ts-ignore using private stuff
       this._dataCheck();
       // @ts-ignore using private stuff
@@ -174,6 +183,10 @@ TreemapController.version = version;
 
 TreemapController.defaults = {
   dataElementType: 'treemap',
+
+  key: '',
+  groups: [],
+  treeLeafKey: '_leaf',
 
   animations: {
     numbers: {

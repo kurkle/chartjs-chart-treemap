@@ -75,7 +75,7 @@ export default class TreemapController extends DatasetController {
     const config = this.chart.config;
     const scopeKeys = config.datasetScopeKeys(this._type);
     if (!scopeKeys[0].includes('elements.treemap')) {
-      scopeKeys[0].push('elements.treemap');
+      scopeKeys[0].splice(1, 0, 'elements.treemap');
     }
     const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true);
     this.options = config.createResolver(scopes, this.getContext());

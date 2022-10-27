@@ -31,7 +31,7 @@ module.exports = function(karma) {
       clearContext: false,
       jasmine: {
         stopOnSpecFailure: false,
-        timeoutInterval: 1000
+        timeoutInterval: 5000
       }
     },
 

@@ -1,11 +1,24 @@
 import {Chart, DatasetController, registry} from 'chart.js';
-import {toFont, isObject, clipArea, unclipArea} from 'chart.js/helpers';
+import {toFont, isObject, clipArea, unclipArea, createContext} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
 import squarify from './squarify';
 import {version} from '../package.json';
 import {arrayNotEqual, rectNotEqual, scaleRect, parseBorderWidth, shouldDrawCaption} from './helpers/index';
 
-function buildData(tree, options, mainRect) {
+function createDataContext(parent, index, raw, mode) {
+  return createContext(parent, {
+    active: false,
+    dataIndex: index,
+    index,
+    raw,
+    parsed: {x: raw.x, y: raw.y},
+    mode,
+    type: 'data'
+  });
+}
+
+function buildData(tree, controller, mode) {
+  const {options, _rect: mainRect, $context} = controller;
   const key = options.key;
   const treeLeafKey = options.treeLeafKey;
   if (isObject(tree)) {
@@ -14,19 +27,23 @@ function buildData(tree, options, mainRect) {
   const groups = options.groups;
   const glen = groups.length;
   const sp = options.spacing;
-  const captions = options.captions;
-  const font = toFont(captions.font);
-  const padding = captions.padding;
+  const data = [];
 
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
     const gdata = group(tree, g, key, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, key, g, gidx, gs);
-    const ret = gsq.slice();
+    data.push(...gsq.slice());
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw = parseBorderWidth(options.borderWidth, sq.w / 2, sq.h / 2);
+        const dIdx = data.indexOf(sq);
+        const dataContext = createDataContext($context, dIdx, sq, mode);
+        const dOptions = options.setContext(dataContext);
+        const captions = dOptions.captions;
+        const font = toFont(captions.font);
+        const padding = captions.padding;
+        const bw = parseBorderWidth(dOptions.borderWidth, sq.w / 2, sq.h / 2);
         const subRect = {
           ...rect,
           x: sq.x + sp + bw.l,
@@ -38,15 +55,16 @@ function buildData(tree, options, mainRect) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
-        ret.push(...recur(gidx + 1, subRect, sq.g, sq.s));
+        recur(gidx + 1, subRect, sq.g, sq.s);
       });
     }
-    return ret;
   }
 
-  return glen
-    ? recur(0, mainRect)
-    : squarify(tree, mainRect, key);
+  if (glen) {
+    recur(0, mainRect);
+    return data;
+  }
+  return squarify(tree, mainRect, key);
 }
 
 export default class TreemapController extends DatasetController {
@@ -124,7 +142,7 @@ export default class TreemapController extends DatasetController {
       this._prevTree = tree;
       this._rectChanged = false;
 
-      dataset.data = buildData(tree, options, this._rect);
+      dataset.data = buildData(tree, this, mode);
       // @ts-ignore using private stuff
       this._dataCheck();
       // @ts-ignore using private stuff

@@ -7,6 +7,11 @@ window.triggerMouseEvent = triggerMouseEvent;
 
 jasmine.fixtures = specsFromFixtures;
 
+beforeAll(() => {
+  // Disable colors plugin for tests.
+  window.Chart.defaults.plugins.colors.enabled = false;
+});
+
 beforeEach(function() {
   addMatchers();
 });
@@ -14,3 +19,5 @@ beforeEach(function() {
 afterEach(function() {
   releaseCharts();
 });
+
+console.warn('Testing with chart.js v' + Chart.version);

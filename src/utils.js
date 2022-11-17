@@ -1,5 +1,7 @@
 import {isObject} from 'chart.js/helpers';
 
+const isOlderPart = (act, req) => req > act || (act.length > req.length && act.slice(0, req.length) === req);
+
 export const getGroupKey = (lvl) => '' + lvl;
 
 function scanTreeObject(key, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
@@ -168,9 +170,28 @@ export function sum(values, key) {
   return s;
 }
 
-export function requireVersion(min, ver) {
+/**
+ * @param {string} pkg
+ * @param {string} min
+ * @param {string} ver
+ * @param {boolean} [strict=true]
+ * @returns {boolean}
+ */
+export function requireVersion(pkg, min, ver, strict = true) {
   const parts = ver.split('.');
-  if (!min.split('.').reduce((a, c, i) => a && c <= parts[i], true)) {
-    throw new Error(`Chart.js v${ver} is not supported. v${min} or newer is required.`);
+  let i = 0;
+  for (const req of min.split('.')) {
+    const act = parts[i++];
+    if (parseInt(req, 10) < parseInt(act, 10)) {
+      break;
+    }
+    if (isOlderPart(act, req)) {
+      if (strict) {
+        throw new Error(`${pkg} v${ver} is not supported. v${min} or newer is required.`);
+      } else {
+        return false;
+      }
+    }
   }
+  return true;
 }

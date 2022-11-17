@@ -12,7 +12,7 @@ const data = [
 ];
 
 export default {
-  tolerance: 0.0040,
+  tolerance: 0.0045,
   config: {
     type: 'treemap',
     data: {

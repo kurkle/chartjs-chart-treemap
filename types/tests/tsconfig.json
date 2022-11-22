@@ -8,6 +8,6 @@
   },
   "include": [
     "../index.esm.d.ts",
-    "../../dist/**/*.d.ts"
+    "./**/*.ts"
   ]
 }

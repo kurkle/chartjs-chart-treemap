@@ -41,15 +41,12 @@
     "url": "https://github.com/kurkle/chartjs-chart-treemap/issues"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
     "@rollup/plugin-commonjs": "^23.0.2",
     "@rollup/plugin-json": "^5.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.1.0",    
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
-    "babel-loader": "^8.3.0",
     "chart.js": "^4.0.1",
     "chartjs-plugin-datalabels": "^2.0.0",
     "chartjs-plugin-zoom": "^1.2.0",
@@ -80,8 +77,7 @@
     "vuepress": "^1.9.7",
     "vuepress-plugin-flexsearch": "^0.3.0",
     "vuepress-plugin-redirect": "^1.2.5",
-    "vuepress-theme-chartjs": "^0.2.0",
-    "webpack": "^4.46.0"
+    "vuepress-theme-chartjs": "^0.2.0"
   },
   "peerDependencies": {
     "chart.js": ">=3.0.0"

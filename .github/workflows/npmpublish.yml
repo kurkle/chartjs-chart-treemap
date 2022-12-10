@@ -3,18 +3,9 @@ name: Node.js Package
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.trim.outputs.version }}
-    steps:
-      - id: trim
-        run: echo "::set-output name=version::${TAG:1}"
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +19,7 @@ jobs:
           xvfb-run --auto-servernum npm test
 
   publish-npm:
-    needs: [test, setup]
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -38,13 +29,8 @@ jobs:
       - name: Setup and build
         run: |
           npm ci
-          npm install -g json
-          json -I -f package.json -e "this.version=\"$VERSION\""
-          json -I -f package-lock.json -e "this.version=\"$VERSION\""
           npm run build
           npm pack
-        env:
-          VERSION: ${{ needs.setup.outputs.version }}
       - name: Publish @next
         run: npm publish --access=public --tag next
         if: "github.event.release.prerelease"

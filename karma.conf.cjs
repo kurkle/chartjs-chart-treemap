@@ -1,11 +1,12 @@
 const istanbul = require('rollup-plugin-istanbul');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const json = require('@rollup/plugin-json');
-const builds = require('./rollup.config');
 const env = process.env.NODE_ENV;
 
-module.exports = function(karma) {
-  const build = builds[0];
+module.exports = async function(karma) {
+  const builds = (await import('./rollup.config.js')).default;
+  const regex = karma.autoWatch ? /chartjs-chart-treemap\.js$/ : /chartjs-chart-treemap\.min\.js$/;
+  const build = builds.filter(v => v.output.file && v.output.file.match(regex))[0];
 
   if (env === 'test') {
     build.plugins = [

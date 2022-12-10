@@ -60,6 +60,7 @@ export default [
       file: main.replace('.esm.js', '.min.js'),
       format: 'umd',
       indent: false,
+      sourcemap: true,
       globals
     },
     plugins: [

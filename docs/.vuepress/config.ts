@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { defineConfig } from 'vuepress/config';
+import { DefaultThemeConfig, defineConfig, PluginTuple } from 'vuepress/config';
 
 export default defineConfig({
     title: 'chartjs-chart-treemap',
     description: 'Chart.js module for creating treemap charts',
     theme: 'chartjs',
-    base: '',
+    //base: '',
     dest: path.resolve(__dirname, '../../dist/docs'),
     head: [
       ['link', {rel: 'icon', href: '/favicon.ico'}],
@@ -18,7 +18,7 @@ export default defineConfig({
           {base: '/samples', alternative: ['basic']},
         ],
       }],
-    ],
+    ] as PluginTuple[],
     chainWebpack: (config) => {
       config.module
         .rule('chart.js')
@@ -83,5 +83,5 @@ export default defineConfig({
           'usage'
         ],
       }
-    }
+    } as DefaultThemeConfig
   });

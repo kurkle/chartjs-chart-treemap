@@ -1,6 +1,7 @@
-const path = require('path');
+import * as path from 'path';
+import { defineConfig } from 'vuepress/config';
 
-module.exports = {
+export default defineConfig({
     title: 'chartjs-chart-treemap',
     description: 'Chart.js module for creating treemap charts',
     theme: 'chartjs',
@@ -83,4 +84,4 @@ module.exports = {
         ],
       }
     }
-  };
+  });

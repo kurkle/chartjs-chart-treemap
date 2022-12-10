@@ -3,14 +3,21 @@
   "homepage": "https://chartjs-chart-treemap.pages.dev/",
   "version": "2.2.0",
   "description": "Chart.js module for creating treemap charts",
-  "main": "dist/chartjs-chart-treemap.js",
-  "module": "dist/chartjs-chart-treemap.esm.js",
+  "type": "module",
+  "main": "dist/chartjs-chart-treemap.esm.js",
   "types": "types/index.esm.d.ts",
+  "jsdelivr": "dist/chartjs-chart-treemap.min.js",
+  "unpkg": "dist/chartjs-chart-treemap.min.js",
+  "exports": {
+    "types": "./types/index.esm.d.ts",
+    "import": "./dist/chartjs-chart-treemap.esm.js",
+    "require": "./dist/chartjs-chart-treemap.min.js"
+  },
   "scripts": {
     "autobuild": "rollup -c -w",
     "build": "rollup -c",
-    "dev": "karma start --no-signle-run --auto-watch --browsers chrome",
-    "dev:ff": "karma start --no-signle-run --auto-watch --browsers firefox",
+    "dev": "karma start ./karma.conf.cjs --no-signle-run --auto-watch --browsers chrome",
+    "dev:ff": "karma start ./karma.conf.cjs --no-signle-run --auto-watch --browsers firefox",
     "docs": "npm run build && vuepress build docs --no-cache",
     "docs:dev": "concurrently \"npm:autobuild\" \"vuepress dev docs --no-cache\"",
     "lint": "concurrently -r \"npm:lint-*\"",
@@ -20,7 +27,7 @@
     "test": "cross-env NODE_ENV=test concurrently \"npm:test-*\"",
     "test-lint": "npm run lint",
     "test-types": "tsc -p types/tests/",
-    "test-karma": "karma start --auto-watch --single-run"
+    "test-karma": "karma start ./karma.conf.cjs --auto-watch --single-run"
   },
   "repository": {
     "type": "git",
@@ -32,7 +39,8 @@
     "treemap"
   ],
   "files": [
-    "dist/*.js",
+    "dist/*",
+    "!dist/docs/**",
     "types/index.esm.d.ts"
   ],
   "author": "Jukka Kurkela",

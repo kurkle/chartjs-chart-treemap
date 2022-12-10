@@ -18,14 +18,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           cache: npm
-    - name: Test
-      run: |
-        npm ci
-        xvfb-run --auto-servernum npm test
+      - name: Test
+        run: |
+          npm ci
+          xvfb-run --auto-servernum npm test
 
   publish-npm:
     needs: [test, setup]
@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org/
       - name: Setup and build
         run: |
           npm ci

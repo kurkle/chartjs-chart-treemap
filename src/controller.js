@@ -237,7 +237,7 @@ TreemapController.overrides = {
 };
 
 TreemapController.beforeRegister = function() {
-  requireVersion('3.8', Chart.version);
+  requireVersion('chart.js', '3.8', Chart.version);
 };
 
 TreemapController.afterRegister = function() {

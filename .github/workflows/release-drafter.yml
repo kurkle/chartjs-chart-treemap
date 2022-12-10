@@ -7,15 +7,8 @@ on:
       - 2.x
 
 jobs:
-  correct_repository:
-    runs-on: ubuntu-latest
-    steps:
-    - name: fail on fork
-      if: github.repository_owner != 'kurkle'
-      run: exit 1
-
   update_release_draft:
-    needs: correct_repository
+    if: github.repository_owner == 'kurkle'
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@v5

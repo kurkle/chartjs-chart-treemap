@@ -3,11 +3,12 @@
     "target": "ES6",
     "moduleResolution": "Node",
     "alwaysStrict": true,
+    "skipLibCheck": true,
     "strict": true,
     "noEmit": true
   },
   "include": [
     "../index.esm.d.ts",
-    "./**/*.ts",
+    "./**/*.ts"
   ]
 }

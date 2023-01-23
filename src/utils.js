@@ -4,9 +4,9 @@ const isOlderPart = (act, req) => req > act || (act.length > req.length && act.s
 
 export const getGroupKey = (lvl) => '' + lvl;
 
-function scanTreeObject(key, treeLeafKey, addKeys, obj, tree = [], lvl = 0, result = []) {
+function scanTreeObject(keys, treeLeafKey, obj, tree = [], lvl = 0, result = []) {
   const objIndex = lvl - 1;
-  if (key in obj && lvl > 0) {
+  if (keys[0] in obj && lvl > 0) {
     const record = tree.reduce(function(reduced, item, i) {
       if (i !== objIndex) {
         reduced[getGroupKey(i)] = item;
@@ -14,8 +14,7 @@ function scanTreeObject(key, treeLeafKey, addKeys, obj, tree = [], lvl = 0, resu
       return reduced;
     }, {});
     record[treeLeafKey] = tree[objIndex];
-    record[key] = obj[key];
-    addKeys.forEach(function(k) {
+    keys.forEach(function(k) {
       record[k] = obj[k];
     });
     result.push(record);
@@ -24,7 +23,7 @@ function scanTreeObject(key, treeLeafKey, addKeys, obj, tree = [], lvl = 0, resu
       const child = obj[childKey];
       if (isObject(child)) {
         tree.push(childKey);
-        scanTreeObject(key, treeLeafKey, addKeys, child, tree, lvl + 1, result);
+        scanTreeObject(keys, treeLeafKey, child, tree, lvl + 1, result);
       }
     }
   }
@@ -32,16 +31,16 @@ function scanTreeObject(key, treeLeafKey, addKeys, obj, tree = [], lvl = 0, resu
   return result;
 }
 
-export function normalizeTreeToArray(key, treeLeafKey, addKeys, obj) {
-  const data = scanTreeObject(key, treeLeafKey, addKeys, obj);
+export function normalizeTreeToArray(keys, treeLeafKey, obj) {
+  const data = scanTreeObject(keys, treeLeafKey, obj);
   if (!data.length) {
     return data;
   }
   const max = data.reduce(function(maxVal, element) {
     // minus 2 because _leaf and value properties are added
     // on top to groups ones
-    const keys = Object.keys(element).length - 2;
-    return maxVal > keys ? maxVal : keys;
+    const ikeys = Object.keys(element).length - 2;
+    return maxVal > ikeys ? maxVal : ikeys;
   });
   data.forEach(function(element) {
     for (let i = 0; i < max; i++) {
@@ -91,13 +90,16 @@ function getPath(groups, value, defaultValue) {
 /**
  * @param {[]} values
  * @param {string} grp
- * @param {string} key
+ * @param {[string]} keys
  * @param {string} treeeLeafKey
  * @param {string} [mainGrp]
  * @param {*} [mainValue]
  * @param {[]} groups
  */
-export function group(values, grp, key, treeLeafKey, addKeys, mainGrp, mainValue, groups = []) {
+export function group(values, grp, keys, treeLeafKey, mainGrp, mainValue, groups = []) {
+  const key = keys[0];
+  const addKeys = keys.slice();
+  addKeys.shift();
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];

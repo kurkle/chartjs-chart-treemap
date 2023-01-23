@@ -12,7 +12,7 @@ describe('utils', function() {
   describe('group', function() {
     it('should group 1 level of data', function() {
       const a = [{k: 'a', v: 1}, {k: 'b', v: 2}, {k: 'a', v: 3}];
-      const g1 = group(a, 'k', 'v', 'leaf', []);
+      const g1 = group(a, 'k', ['v'], 'leaf');
       expect(g1).toEqual([
         jasmine.objectContaining({k: 'a', v: 4}),
         jasmine.objectContaining({k: 'b', v: 2})
@@ -20,7 +20,7 @@ describe('utils', function() {
     });
     it('should group 2 levels of data', function() {
       const a = [{k: 'a', k2: 'z', v: 1}, {k: 'b', k2: 'z', v: 2}, {k: 'a', k2: 'x', v: 3}];
-      const g1 = group(a, 'k2', 'v', 'leaf', [], 'k', 'a');
+      const g1 = group(a, 'k2', ['v'], 'leaf', 'k', 'a');
       expect(g1).toEqual([
         jasmine.objectContaining({k2: 'z', v: 1}),
         jasmine.objectContaining({k2: 'x', v: 3})
@@ -28,7 +28,7 @@ describe('utils', function() {
     });
     it('should group 2 levels of data with additionl keys', function() {
       const a = [{k: 'a', k2: 'z', v: 1, v1: 2}, {k: 'b', k2: 'z', v: 2, v1: 1}, {k: 'a', k2: 'x', v: 3, v1: 10}];
-      const g1 = group(a, 'k2', 'v', 'leaf', ['v1'], 'k', 'a');
+      const g1 = group(a, 'k2', ['v', 'v1'], 'leaf', 'k', 'a');
       expect(g1).toEqual([
         jasmine.objectContaining({k2: 'z', v: 1, v1: 2}),
         jasmine.objectContaining({k2: 'x', v: 3, v1: 10})
@@ -39,7 +39,7 @@ describe('utils', function() {
   describe('normalize tree object to array', function() {
     it('should have 2 elements of data', function() {
       const a = {A: {C: {value: 0}}, B: {D: {value: 0}}};
-      const g1 = normalizeTreeToArray('value', 'leaf', [], a);
+      const g1 = normalizeTreeToArray(['value'], 'leaf', a);
       expect(g1).toEqual([
         jasmine.objectContaining({0: 'A', leaf: 'C', value: 0}),
         jasmine.objectContaining({0: 'B', leaf: 'D', value: 0})
@@ -47,19 +47,19 @@ describe('utils', function() {
     });
     it('should have 1 element of data', function() {
       const a = {A: {C: {value: 0}}, B: {D: {none: 0}}};
-      const g1 = normalizeTreeToArray('value', 'leaf', [], a);
+      const g1 = normalizeTreeToArray(['value'], 'leaf', a);
       expect(g1).toEqual([
         jasmine.objectContaining({0: 'A', leaf: 'C', value: 0})
       ]);
     });
     it('should not have any elements of data', function() {
       const a = {A: {C: {value: 0}}, B: {D: {value: 0}}};
-      const g1 = normalizeTreeToArray('none', 'leaf', [], a);
+      const g1 = normalizeTreeToArray(['none'], 'leaf', a);
       expect(g1).toEqual([]);
     });
     it('should have 2 elements of data with additional keys', function() {
       const a = {A: {C: {value: 0, another: 3}}, B: {D: {value: 0, another: 2}}};
-      const g1 = normalizeTreeToArray('value', 'leaf', ['another'], a);
+      const g1 = normalizeTreeToArray(['value', 'another'], 'leaf', a);
       expect(g1).toEqual([
         jasmine.objectContaining({0: 'A', leaf: 'C', value: 0, another: 3}),
         jasmine.objectContaining({0: 'B', leaf: 'D', value: 0, another: 2})

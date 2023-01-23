@@ -1,11 +1,13 @@
 import {
   Chart,
   ChartComponent,
+  CoreChartOptions,
   DatasetController,
   Element, VisualElement,
   ScriptableContext, Color, Scriptable, FontSpec
 } from 'chart.js';
-import { AnyObject } from 'chart.js/types/basic';
+
+type AnyObject = Record<string, unknown>;
 
 type TreemapScriptableContext = ScriptableContext<'treemap'> & {
   raw: TreemapDataPoint

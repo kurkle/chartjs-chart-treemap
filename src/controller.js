@@ -99,8 +99,8 @@ export default class TreemapController extends DatasetController {
   update(mode) {
     const dataset = this.getDataset();
     const {data} = this.getMeta();
-    const groups = dataset.groups || (dataset.groups = []);
-    const keys = [dataset.key || ''].concat(dataset.sumKeys || (dataset.sumKeys = []));
+    const groups = dataset.groups || [];
+    const keys = [dataset.key || ''].concat(dataset.sumKeys || []);
     const tree = dataset.tree = dataset.tree || dataset.data || [];
 
     if (mode === 'reset') {

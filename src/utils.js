@@ -98,7 +98,7 @@ function getPath(groups, value, defaultValue) {
  */
 export function group(values, grp, keys, treeLeafKey, mainGrp, mainValue, groups = []) {
   const key = keys[0];
-  const addKeys = keys.slice(1)
+  const addKeys = keys.slice(1);
   const tmp = Object.create(null);
   const data = Object.create(null);
   const ret = [];

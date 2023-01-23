@@ -14,7 +14,7 @@ export default {
         tree: data,
         key: 'value',
         groups: ['category'],
-        additionalKeys: ['another'],
+        sumKeys: ['another'],
         backgroundColor: (ctx) => ctx.raw.vs.another > 10 ? 'red' : 'yellow',
         labels: {
           display: true,

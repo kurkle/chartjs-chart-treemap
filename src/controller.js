@@ -8,10 +8,10 @@ import {arrayNotEqual, rectNotEqual, scaleRect} from './helpers/index';
 
 function buildData(tree, dataset, mainRect) {
   const key = dataset.key || '';
-  const additionalKeys = dataset.additionalKeys;
+  const sumKeys = dataset.sumKeys;
   const treeLeafKey = dataset.treeLeafKey || '_leaf';
   if (isObject(tree)) {
-    tree = normalizeTreeToArray(key, treeLeafKey, additionalKeys, tree);
+    tree = normalizeTreeToArray(key, treeLeafKey, sumKeys, tree);
   }
   const groups = dataset.groups || [];
   const glen = groups.length;
@@ -23,8 +23,8 @@ function buildData(tree, dataset, mainRect) {
   function recur(gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
-    const gdata = group(tree, g, key, treeLeafKey, additionalKeys, pg, parent, groups.filter((item, index) => index <= gidx));
-    const gsq = squarify(gdata, rect, key, additionalKeys, g, gidx, gs);
+    const gdata = group(tree, g, key, treeLeafKey, sumKeys, pg, parent, groups.filter((item, index) => index <= gidx));
+    const gsq = squarify(gdata, rect, key, sumKeys, g, gidx, gs);
     const ret = gsq.slice();
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
@@ -48,7 +48,7 @@ function buildData(tree, dataset, mainRect) {
 
   return glen
     ? recur(0, mainRect)
-    : squarify(tree, mainRect, key, additionalKeys);
+    : squarify(tree, mainRect, key, sumKeys);
 }
 
 export default class TreemapController extends DatasetController {
@@ -57,7 +57,7 @@ export default class TreemapController extends DatasetController {
 
     this._groups = undefined;
     this._key = undefined;
-    this._additionalKeys = undefined;
+    this._sumKeys = undefined;
     this._rect = undefined;
     this._rectChanged = true;
   }
@@ -104,7 +104,7 @@ export default class TreemapController extends DatasetController {
     const {data} = this.getMeta();
     const groups = dataset.groups || (dataset.groups = []);
     const key = dataset.key;
-    const additionalKeys = dataset.additionalKeys || (dataset.additionalKeys = []);
+    const sumKeys = dataset.sumKeys || (dataset.sumKeys = []);
     const tree = dataset.tree = dataset.tree || dataset.data || [];
 
     if (mode === 'reset') {
@@ -112,10 +112,10 @@ export default class TreemapController extends DatasetController {
       this.configure();
     }
 
-    if (this._rectChanged || this._key !== key || arrayNotEqual(this._groups, groups) || arrayNotEqual(this._additionalKeys, additionalKeys) || this._prevTree !== tree) {
+    if (this._rectChanged || this._key !== key || arrayNotEqual(this._groups, groups) || arrayNotEqual(this._sumKeys, sumKeys) || this._prevTree !== tree) {
       this._groups = groups.slice();
       this._key = key;
-      this._additionalKeys = additionalKeys.slice();
+      this._sumKeys = sumKeys.slice();
       this._prevTree = tree;
       this._rectChanged = false;
 

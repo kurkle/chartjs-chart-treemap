@@ -40,7 +40,7 @@ export default {
       datasets: [{
         tree: data,
         key: 'value',
-        additionalKeys: ['another'],
+        sumKeys: ['another'],
         groups: ['0', '1', '2', '_leaf'],
         backgroundColor: (ctx) => ctx.raw.vs.another % 2 === 1 ? 'red' : 'yellow',
         captions: {

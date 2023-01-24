@@ -19,6 +19,7 @@ function buildRow(rect, itm, dims, sum) {
     h: dims.h,
     a: itm._normalized,
     v: itm.value,
+    vs: itm.values,
     s: sum,
     _data: itm._data
   };

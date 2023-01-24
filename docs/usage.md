@@ -83,6 +83,7 @@ These are used to set display properties for a specific dataset.
 | [`labels`](#labels) | `object` | - | 
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
+| [`sumKeys`](#general) | `string[]` | - | `undefined` |
 | [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`treeLeafKey`](#general) | `string` | - | `_leaf` |
 
@@ -96,10 +97,11 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `key` | Define the key name in data objects to use for value.
 | `label` | The label for the dataset which appears in the legend and tooltips.
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
+| `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically build.
 | `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
 
-Only the `tree`, `treeLeafKey`, `key` and `groups` options need to be specified in the dataset namespace.
+Only the `tree`, `treeLeafKey`, `key`, `sumKeys` and `groups` options need to be specified in the dataset namespace.
 
 ```js
 function colorFromRaw(ctx) {

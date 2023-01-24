@@ -213,6 +213,7 @@ The overflow property controls what happens to a label that is too big to fit in
 
 * `cut`: if the label is too big, it will be cut to stay inside the rectangle. It is the default.
 * `hidden`:  the label is removed altogether if the rectangle is too small for it.
+* `fit`:  the label will be automatically fit inside the rectangle if its dimension is bigger than the rectangle size.
 
 ### Position
 

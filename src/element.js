@@ -1,5 +1,5 @@
 import {Element} from 'chart.js';
-import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault, defined} from 'chart.js/helpers';
+import {toFont, isArray, toTRBL, toTRBLCorners, addRoundedRectPath, valueOrDefault, defined, isNumber} from 'chart.js/helpers';
 
 const widthCache = new Map();
 
@@ -164,13 +164,32 @@ function measureLabelSize(ctx, lines, fonts) {
   return widthCache.get(mapKey);
 }
 
+function toFonts(fonts, fitRatio) {
+  return fonts.map(function(f) {
+    f.size = Math.floor(f.size * fitRatio);
+    f.lineHeight = undefined;
+    return toFont(f);
+  });
+}
+
 function labelToDraw(ctx, rect, options, labelSize) {
   const {overflow, padding} = options;
   const {width, height} = labelSize;
   if (overflow === 'hidden') {
     return !((width + padding * 2) > rect.w || (height + padding * 2) > rect.h);
+  } else if (overflow === 'fit') {
+    const ratio = Math.min(rect.w / (width + padding * 2), rect.h / (height + padding * 2));
+    if (ratio < 1) {
+      return ratio;
+    }
   }
   return true;
+}
+
+function getFontFromOptions(rect, labels) {
+  const {font, hoverFont} = labels;
+  const optFont = (rect.active ? hoverFont : font) || font;
+  return isArray(optFont) ? optFont.map(f => toFont(f)) : [toFont(optFont)];
 }
 
 function drawLabel(ctx, rect, options) {
@@ -180,12 +199,15 @@ function drawLabel(ctx, rect, options) {
     return;
   }
   const contents = isArray(content) ? content : [content];
-  const {font, hoverFont} = labels;
-  const optFont = (rect.active ? hoverFont : font) || font;
-  const fonts = isArray(optFont) ? optFont.map(f => toFont(f)) : [toFont(optFont)];
-  const labelSize = measureLabelSize(ctx, contents, fonts);
-  if (!labelToDraw(ctx, rect, labels, labelSize)) {
+  let fonts = getFontFromOptions(rect, labels);
+  let labelSize = measureLabelSize(ctx, contents, fonts);
+  const lblToDraw = labelToDraw(ctx, rect, labels, labelSize);
+  if (!lblToDraw) {
     return;
+  }
+  if (isNumber(lblToDraw)) {
+    labelSize = {width: labelSize.width * lblToDraw, height: labelSize.height * lblToDraw};
+    fonts = toFonts(fonts, lblToDraw);
   }
   const {color, hoverColor, align} = labels;
   const optColor = (rect.active ? hoverColor : color) || color;

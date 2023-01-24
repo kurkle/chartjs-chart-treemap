@@ -39,7 +39,7 @@ const config = {
           font: {
             size: 16
           },
-          overflow: 'hidden'
+          overflow: 'fit'
         }
       }
     ],

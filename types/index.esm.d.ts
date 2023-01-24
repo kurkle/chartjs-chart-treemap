@@ -41,7 +41,7 @@ export type LabelPosition = 'top' | 'middle' | 'bottom';
 
 export type LabelAlign = 'left' | 'center' | 'right';
 
-export type LabelOverflow = 'cut' | 'hidden';
+export type LabelOverflow = 'cut' | 'hidden' | 'fit';
 
 type TreemapControllerDatasetDividersOptions = {
   display?: boolean,

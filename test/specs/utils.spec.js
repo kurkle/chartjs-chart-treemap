@@ -57,7 +57,7 @@ describe('utils', function() {
       const g1 = normalizeTreeToArray(['none'], 'leaf', a);
       expect(g1).toEqual([]);
     });
-    it('should have 2 elements of data with additional keys', function() {
+    it('should have 2 elements of data with sum keys', function() {
       const a = {A: {C: {value: 0, another: 3}}, B: {D: {value: 0, another: 2}}};
       const g1 = normalizeTreeToArray(['value', 'another'], 'leaf', a);
       expect(g1).toEqual([

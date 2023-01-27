@@ -16,8 +16,8 @@
   "scripts": {
     "autobuild": "rollup -c -w",
     "build": "rollup -c",
-    "dev": "karma start ./karma.conf.cjs --no-signle-run --auto-watch --browsers chrome",
-    "dev:ff": "karma start ./karma.conf.cjs --no-signle-run --auto-watch --browsers firefox",
+    "dev": "karma start ./karma.conf.cjs --no-single-run --auto-watch --browsers chrome",
+    "dev:ff": "karma start ./karma.conf.cjs --no-single-run --auto-watch --browsers firefox",
     "docs": "npm run build && vuepress build docs --no-cache",
     "docs:dev": "concurrently \"npm:autobuild\" \"vuepress dev docs --no-cache\"",
     "lint": "concurrently -r \"npm:lint-*\"",
@@ -27,7 +27,7 @@
     "test": "cross-env NODE_ENV=test concurrently \"npm:test-*\"",
     "test-lint": "npm run lint",
     "test-types": "tsc -p types/tests/",
-    "test-karma": "karma start ./karma.conf.cjs --auto-watch --single-run"
+    "test-karma": "karma start ./karma.conf.cjs --no-auto-watch --single-run"
   },
   "repository": {
     "type": "git",

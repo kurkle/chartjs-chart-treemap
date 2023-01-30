@@ -17,7 +17,7 @@
   },
   "sideEffects": [
     "dist/chartjs-chart-treemap.cjs",
-    "dist/chartjs-chart-treemap-min.js"
+    "dist/chartjs-chart-treemap.min.js"
   ],
   "scripts": {
     "autobuild": "rollup -c -w",

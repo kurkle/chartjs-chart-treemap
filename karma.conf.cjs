@@ -5,7 +5,7 @@ const env = process.env.NODE_ENV;
 
 module.exports = async function(karma) {
   const builds = (await import('./rollup.config.js')).default;
-  const regex = karma.autoWatch ? /chartjs-chart-treemap\.js$/ : /chartjs-chart-treemap\.min\.js$/;
+  const regex = karma.autoWatch ? /chartjs-chart-treemap\.cjs$/ : /chartjs-chart-treemap\.min\.js$/;
   const build = builds.filter(v => v.output.file && v.output.file.match(regex))[0];
 
   if (env === 'test') {

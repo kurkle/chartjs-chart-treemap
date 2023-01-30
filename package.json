@@ -4,15 +4,21 @@
   "version": "2.3.0",
   "description": "Chart.js module for creating treemap charts",
   "type": "module",
-  "main": "dist/chartjs-chart-treemap.esm.js",
+  "main": "dist/chartjs-chart-treemap.cjs",
+  "module": "dist/chartjs-chart-treemap.esm.js",
   "types": "types/index.esm.d.ts",
   "jsdelivr": "dist/chartjs-chart-treemap.min.js",
   "unpkg": "dist/chartjs-chart-treemap.min.js",
   "exports": {
     "types": "./types/index.esm.d.ts",
     "import": "./dist/chartjs-chart-treemap.esm.js",
-    "require": "./dist/chartjs-chart-treemap.min.js"
+    "require": "./dist/chartjs-chart-treemap.cjs",
+    "script": "./dist/chartjs-chart-treemap.min.js"
   },
+  "sideEffects": [
+    "dist/chartjs-chart-treemap.cjs",
+    "dist/chartjs-chart-treemap-min.js"
+  ],
   "scripts": {
     "autobuild": "rollup -c -w",
     "build": "rollup -c",
@@ -55,7 +61,7 @@
     "@rollup/plugin-terser": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
-    "chart.js": "^4.0.1",
+    "chart.js": "^4.2.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.0.0",
     "chartjs-test-utils": "^0.5.0",

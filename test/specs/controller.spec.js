@@ -49,11 +49,11 @@ describe('controller', function() {
     expect(a1b1._data.children.length).toBe(2);
 
     const a1b1c1 = buildData.find((o) => o._data.path === 'a1.b1.c1');
-    expect(a1b1c1.v).toBe(10);
-    expect(a1b1c1._data.children.length).toBe(1);
+    expect(a1b1c1.v).toBe(30);
+    expect(a1b1c1._data.children.length).toBe(2);
 
-    const a2b1c2 = buildData.find((o) => o._data.path === 'a2.b1.c1');
-    expect(a2b1c2.v).toBe(139);
-    expect(a2b1c2._data.children.length).toBe(2);
+    const a2b1c1 = buildData.find((o) => o._data.path === 'a2.b1.c1');
+    expect(a2b1c1.v).toBe(139);
+    expect(a2b1c1._data.children.length).toBe(2);
   });
 });

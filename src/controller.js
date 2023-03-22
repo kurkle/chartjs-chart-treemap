@@ -18,7 +18,7 @@ function buildData(tree, dataset, keys, mainRect) {
   const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
-  function recur(gidx, rect, parent, gs) {
+  function recur(tree, gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
     const gdata = group(tree, g, keys, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
@@ -38,14 +38,16 @@ function buildData(tree, dataset, keys, mainRect) {
           subRect.y += font.lineHeight + padding * 2;
           subRect.h -= font.lineHeight + padding * 2;
         }
-        ret.push(...recur(gidx + 1, subRect, sq.g, sq.s));
+        gdata.forEach((gEl) => {
+          ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
+        });
       });
     }
     return ret;
   }
 
   return glen
-    ? recur(0, mainRect)
+    ? recur(tree, 0, mainRect)
     : squarify(tree, mainRect, keys);
 }
 

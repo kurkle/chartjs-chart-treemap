@@ -18,10 +18,10 @@ function buildData(tree, dataset, keys, mainRect) {
   const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
 
-  function recur(tree, gidx, rect, parent, gs) {
+  function recur(treeElements, gidx, rect, parent, gs) {
     const g = getGroupKey(groups[gidx]);
     const pg = (gidx > 0) && getGroupKey(groups[gidx - 1]);
-    const gdata = group(tree, g, keys, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
+    const gdata = group(treeElements, g, keys, treeLeafKey, pg, parent, groups.filter((item, index) => index <= gidx));
     const gsq = squarify(gdata, rect, keys, g, gidx, gs);
     const ret = gsq.slice();
     if (gidx < glen - 1) {

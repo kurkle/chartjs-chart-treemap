@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           cache: npm
@@ -22,7 +22,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           cache: npm
@@ -34,11 +34,11 @@ jobs:
           npm pack
       - name: Publish @next
         run: npm publish --access=public --tag next
-        if: "github.event.release.prerelease"
+        if: github.event.release.prerelease
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Publish @latest
         run: npm publish --access=public --tag latest
-        if: "!github.event.release.prerelease"
+        if: !github.event.release.prerelease
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

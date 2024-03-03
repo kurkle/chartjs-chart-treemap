@@ -73,7 +73,7 @@
     "karma-firefox-launcher": "^2.1.0",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.0.0",
-    "karma-rollup-preprocessor": "7.0.8",
+    "karma-rollup-preprocessor": "7.0.7",
     "karma-spec-reporter": "^0.0.35",
     "karma-summary-reporter": "^3.0.0",
     "ng-hammerjs": "^2.0.8",

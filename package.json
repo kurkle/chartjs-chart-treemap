@@ -1,7 +1,7 @@
 {
   "name": "chartjs-chart-treemap",
   "homepage": "https://chartjs-chart-treemap.pages.dev/",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Chart.js module for creating treemap charts",
   "type": "module",
   "main": "dist/chartjs-chart-treemap.esm.js",

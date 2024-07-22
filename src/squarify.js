@@ -40,7 +40,10 @@ export default function squarify(values, rectangle, keys = [], grp, lvl, gsum) {
 
   const tmp = values.slice();
   let key = index(tmp, keys[0]);
-  sort(tmp, key);
+
+  if (!rectangle.unsorted) {
+    sort(tmp, key);
+  }
 
   const val = (idx) => key ? +tmp[idx][key] : +tmp[idx];
   const gval = (idx) => grp && tmp[idx][grp];

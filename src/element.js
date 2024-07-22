@@ -391,6 +391,7 @@ TreemapElement.defaults = {
     padding: 3
   },
   rtl: false,
+  unsorted: false,
   spacing: 0.5
 };
 

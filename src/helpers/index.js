@@ -19,7 +19,8 @@ export function rectNotEqual(r1, r2) {
 		|| r1.y !== r2.y
 		|| r1.w !== r2.w
 		|| r1.h !== r2.h
-    || r1.rtl !== r2.rtl;
+    || r1.rtl !== r2.rtl
+    || r1.unsorted !== r2.unsorted;
 }
 
 export function arrayNotEqual(a, b) {

@@ -35,6 +35,7 @@ export default class Rect {
   constructor(r) {
     r = r || {w: 1, h: 1};
     this.rtl = !!r.rtl;
+    this.unsorted = !!r.unsorted;
     this.x = r.x || r.left || 0;
     this.y = r.y || r.top || 0;
     this._ix = 0;

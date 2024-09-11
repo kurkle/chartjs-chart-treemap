@@ -47,7 +47,7 @@ export default defineConfig({
       docsDir: 'docs',
       chart: {
         imports: [
-          ['scripts/register.js'],
+          ['scripts/register.js', 'Register'],
           ['scripts/data.js', 'Data'],
           ['scripts/utils.js', 'Utils'],
           ['scripts/helpers.js', 'helpers'],

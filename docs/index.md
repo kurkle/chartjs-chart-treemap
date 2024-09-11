@@ -1,6 +1,6 @@
 # Getting Started
 
-[Chart.js](https://www.chartjs.org/) **v3** extension for creating treemap charts.
+[Chart.js](https://www.chartjs.org/) **v3.8+, v4+** extension for creating treemap charts.
 
 ![TreeMap Example Image](treemap.png)
 

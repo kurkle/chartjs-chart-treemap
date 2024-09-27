@@ -72,20 +72,21 @@ These are used to set display properties for a specific dataset.
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
-| [`captions`](#captions) | `object` | - | 
-| [`dividers`](#dividers) | `object` | - | 
+| [`captions`](#captions) | `object` | - |
+| [`dividers`](#dividers) | `object` | - |
 | [`groups`](#general) | `string[]` | - | `undefined` |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderWidth`](#interactions) | `number` | Yes | `undefined`
 | [`key`](#general) | `string` | - | `undefined` |
 | [`label`](#general) | `string` | - | `undefined`
-| [`labels`](#labels) | `object` | - | 
+| [`labels`](#labels) | `object` | - |
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
 | [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`treeLeafKey`](#general) | `string` | - | `_leaf` |
+| [`unsorted`](#general) | `boolean` | - | `false`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
 
@@ -100,6 +101,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically build.
 | `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
+| `unsorted` | If `true`, treemap elements are rendered unsorted.
 
 Only the `tree`, `treeLeafKey`, `key`, `sumKeys` and `groups` options need to be specified in the dataset namespace.
 
@@ -183,12 +185,12 @@ The labels options can control if and how a label, to represent the data, can be
 | [`align`](#align) | `string` | Yes | `center`
 | [`color`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `'black'`
 | `display` | `boolean` | - | `false`
-| [`formatter`](#formatter) | `function` | Yes | 
+| [`formatter`](#formatter) | `function` | Yes |
 | [`font`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
 | [`hoverColor`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `undefined`
 | [`hoverFont`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
 | [`overflow`](#overflow) | `string` | Yes | `cut`
-| `padding` | `number` | - | `3` 
+| `padding` | `number` | - | `3`
 | [`position`](#position) | `string` | Yes | `middle`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
@@ -229,7 +231,7 @@ Data values are converted to string. If values are grouped, the value of the gro
 
 This default behavior can be overridden by the `formatter` which is a [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) option.
 
-A `formatter` can return a string (for a single line) or an array of strings (for multiple lines, where each item represents a new line). 
+A `formatter` can return a string (for a single line) or an array of strings (for multiple lines, where each item represents a new line).
 
 In the following example, every label of the treemap would be displayed with the unit.
 
@@ -270,11 +272,11 @@ The captions options can control if and how a captions, to represent the group o
 | [`align`](#caption-align) | `string` | Yes | `undefined` but `left` is used because default `rtl` option is `false`.
 | `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `'black'`
 | `display` | `boolean` | - | `true`
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
-| [`formatter`](#caption-formatter) | `function` | Yes | 
+| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
+| [`formatter`](#caption-formatter) | `function` | Yes |
 | `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}` 
-| `padding` | `number` | - | `3` 
+| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
+| `padding` | `number` | - | `3`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
 
@@ -283,7 +285,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 The align property specifies the text horizontal alignment used when drawing the caption. The possible values are:
 
 * `left`: the text is left-aligned.
-* `center`: the text is centered. 
+* `center`: the text is centered.
 * `right`: the text is right-aligned.
 
 If `undefined`, `right` is used if `rtl` option is set to `true`, otherwise `left`.
@@ -294,7 +296,7 @@ If values are grouped, the value of the group is shown in the chart as caption f
 
 This default behavior can be overridden by the `formatter` which is a [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) option.
 
-A `formatter` can return a string. 
+A `formatter` can return a string.
 
 In the following example, every caption of the treemap would be displayed with an additional label.
 

@@ -83,7 +83,7 @@ export default class TreemapController extends DatasetController {
 
     const w = xScale.right - xScale.left;
     const h = yScale.bottom - yScale.top;
-    const rect = {x: 0, y: 0, w, h, rtl: !!this.options.rtl};
+    const rect = {x: 0, y: 0, w, h, rtl: !!this.options.rtl, unsorted: !!this.options.unsorted};
 
     if (rectNotEqual(this._rect, rect)) {
       this._rect = rect;

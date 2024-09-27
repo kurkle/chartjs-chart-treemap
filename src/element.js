@@ -356,7 +356,6 @@ export default class TreemapElement extends Element {
 TreemapElement.id = 'treemap';
 
 TreemapElement.defaults = {
-  label: undefined,
   borderRadius: 0,
   borderWidth: 0,
   captions: {
@@ -375,6 +374,7 @@ TreemapElement.defaults = {
     lineDashOffset: 0,
     lineWidth: 1,
   },
+  label: undefined,
   labels: {
     align: 'center',
     color: 'black',
@@ -391,14 +391,15 @@ TreemapElement.defaults = {
     padding: 3
   },
   rtl: false,
-  spacing: 0.5
+  spacing: 0.5,
+  unsorted: false,
 };
 
 TreemapElement.descriptors = {
-  labels: {
+  captions: {
     _fallback: true
   },
-  captions: {
+  labels: {
     _fallback: true
   },
   _scriptable: true,

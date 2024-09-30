@@ -70,7 +70,7 @@
     "eslint": "^8.3.0",
     "eslint-config-chartjs": "^0.3.0",
     "eslint-plugin-es": "^4.1.0",
-    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-html": "^8.1.2",
     "eslint-plugin-markdown": "^3.0.0",
     "jasmine-core": "^5.3.0",
     "karma": "^6.3.2",

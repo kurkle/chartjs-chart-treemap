@@ -87,6 +87,7 @@ These are used to set display properties for a specific dataset.
 | [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`treeLeafKey`](#general) | `string` | - | `_leaf` |
 | [`unsorted`](#general) | `boolean` | - | `false`
+| [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
 
@@ -150,12 +151,20 @@ The style of the treemap element can be controlled with the following properties
 | [`borderRadius`](#borderradius) | Radius of the rectangle of treemap element (in pixels).
 | `borderWidth` | The treemap element border width (in pixels).
 | `spacing` | Fixed distance (in pixels) between all treemap elements.
+| [`displayMode`](#displaymode) | How to display the treemap parent groups.
 
 If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
 
 #### borderRadius
 
 If this value is a number, it is applied to all corners of the rectangle (topLeft, topRight, bottomLeft, bottomRight). If this value is an object, the `topLeft` property defines the top-left corners border radius. Similarly, the `topRight`, `bottomLeft`, and `bottomRight` properties can also be specified. Omitted corners have radius of 0.
+
+#### displayMode
+
+This property supports two values:
+
+* `'containerBoxes'` (default): The parent group is represented as a large rectangle, with its child elements displayed inside it.
+* `'headerBoxes'`: The parent group appears as a header, with its child elements positioned below it.
 
 ### Interactions
 

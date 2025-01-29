@@ -98,9 +98,12 @@ function addNormalRectPath(ctx, rect) {
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
 }
 
-export function shouldDrawCaption(rect, options) {
+export function shouldDrawCaption(displayMode, rect, options) {
   if (!options || options.display === false) {
     return false;
+  }
+  if (displayMode === 'headerBoxes') {
+    return true;
   }
   const {w, h} = rect;
   const font = toFont(options.font);
@@ -109,8 +112,16 @@ export function shouldDrawCaption(rect, options) {
   return (w - padding) > min && (h - padding) > min;
 }
 
+export function getCaptionHeight(displayMode, rect, font, padding) {
+  if (displayMode !== 'headerBoxes') {
+    return font.lineHeight + padding * 2;
+  }
+  const captionHeight = font.lineHeight + padding * 2;
+  return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
+}
+
 function drawText(ctx, rect, options, item, levels) {
-  const {captions, labels} = options;
+  const {captions, labels, displayMode} = options;
   ctx.save();
   ctx.beginPath();
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
@@ -118,26 +129,60 @@ function drawText(ctx, rect, options, item, levels) {
   const isLeaf = item && (!defined(item.l) || item.l === levels);
   if (isLeaf && labels.display) {
     drawLabel(ctx, rect, options);
-  } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
+  } else if (!isLeaf && shouldDrawCaption(displayMode, rect, captions)) {
     drawCaption(ctx, rect, options, item);
   }
   ctx.restore();
 }
 
 function drawCaption(ctx, rect, options, item) {
-  const {captions, spacing, rtl} = options;
+  const {captions, spacing, rtl, displayMode} = options;
   const {color, hoverColor, font, hoverFont, padding, align, formatter} = captions;
   const oColor = (rect.active ? hoverColor : color) || color;
   const oAlign = align || (rtl ? 'right' : 'left');
   const optFont = (rect.active ? hoverFont : font) || font;
   const oFont = toFont(optFont);
+  const fonts = [oFont];
+  if (oFont.lineHeight > rect.h) {
+    return;
+  }
+  let text = formatter || item.g;
+  const captionSize = measureLabelSize(ctx, [formatter], fonts);
+  if (captionSize.width + 2 * padding > rect.w) {
+    text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts);
+  }
+
   const lh = oFont.lineHeight / 2;
   const x = calculateX(rect, oAlign, padding);
   ctx.fillStyle = oColor;
   ctx.font = oFont.string;
   ctx.textAlign = oAlign;
   ctx.textBaseline = 'middle';
-  ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
+  const y = displayMode === 'headerBoxes' ? rect.y + rect.h / 2 : rect.y + padding + spacing + lh;
+  ctx.fillText(text, x, y);
+}
+
+function sliceTextToFitWidth(ctx, text, width, fonts) {
+  const ellipsis = '...';
+  const ellipsisWidth = measureLabelSize(ctx, [ellipsis], fonts).width;
+  if (ellipsisWidth >= width) {
+    return '';
+  }
+  let lowerBoundLen = 1;
+  let upperBoundLen = text.length;
+  let currentWidth;
+  while (lowerBoundLen <= upperBoundLen) {
+    const currentLen = Math.floor((lowerBoundLen + upperBoundLen) / 2);
+    const currentText = text.slice(0, currentLen);
+    currentWidth = measureLabelSize(ctx, [currentText], fonts).width;
+    if (currentWidth + ellipsisWidth > width) {
+      upperBoundLen = currentLen - 1;
+    } else {
+      lowerBoundLen = currentLen + 1;
+    }
+  }
+  const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
+  return slicedText ? slicedText + ellipsis : '';
 }
 
 function measureLabelSize(ctx, lines, fonts) {
@@ -393,6 +438,7 @@ TreemapElement.defaults = {
   rtl: false,
   spacing: 0.5,
   unsorted: false,
+  displayMode: 'containerBoxes',
 };
 
 TreemapElement.descriptors = {

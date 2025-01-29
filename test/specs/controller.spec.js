@@ -1,5 +1,6 @@
 describe('auto', jasmine.fixtures('basic'));
 describe('auto', jasmine.fixtures('grouped'));
+describe('auto', jasmine.fixtures('headersbox'));
 describe('auto', jasmine.fixtures('events'));
 describe('auto', jasmine.fixtures('advanced'));
 describe('auto', jasmine.fixtures('issues'));

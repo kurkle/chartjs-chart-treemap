@@ -1,7 +1,7 @@
 import {Chart, DatasetController, registry} from 'chart.js';
 import {toFont, valueOrDefault, isObject, clipArea, unclipArea} from 'chart.js/helpers';
 import {group, requireVersion, normalizeTreeToArray, getGroupKey} from './utils';
-import {shouldDrawCaption, parseBorderWidth} from './element';
+import {shouldDrawCaption, parseBorderWidth, getCaptionHeight} from './element';
 import squarify from './squarify';
 import {version} from '../package.json';
 import {arrayNotEqual, rectNotEqual, scaleRect} from './helpers/index';
@@ -13,7 +13,7 @@ function buildData(tree, dataset, keys, mainRect) {
   }
   const groups = dataset.groups || [];
   const glen = groups.length;
-  const sp = valueOrDefault(dataset.spacing, 0);
+  const sp = dataset.displayMode === 'headerBoxes' ? 0 : valueOrDefault(dataset.spacing, 0);
   const captions = dataset.captions || {};
   const font = toFont(captions.font);
   const padding = valueOrDefault(captions.padding, 3);
@@ -26,7 +26,9 @@ function buildData(tree, dataset, keys, mainRect) {
     const ret = gsq.slice();
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+        const bw = dataset.displayMode === 'headerBoxes'
+          ? {l: 0, r: 0, t: 0, b: 0}
+          : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
         const subRect = {
           ...rect,
           x: sq.x + sp + bw.l,
@@ -34,9 +36,10 @@ function buildData(tree, dataset, keys, mainRect) {
           w: sq.w - 2 * sp - bw.l - bw.r,
           h: sq.h - 2 * sp - bw.t - bw.b,
         };
-        if (shouldDrawCaption(subRect, captions)) {
-          subRect.y += font.lineHeight + padding * 2;
-          subRect.h -= font.lineHeight + padding * 2;
+        if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
+          const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding);
+          subRect.y += captionHeight;
+          subRect.h -= captionHeight;
         }
         gdata.forEach((gEl) => {
           ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
@@ -46,9 +49,20 @@ function buildData(tree, dataset, keys, mainRect) {
     return ret;
   }
 
-  return glen
+  const result = glen
     ? recur(tree, 0, mainRect)
     : squarify(tree, mainRect, keys);
+  return result.map((d) => {
+    if (dataset.displayMode !== 'headerBoxes' || d.l === glen - 1) {
+      return d;
+    }
+    if (!shouldDrawCaption(dataset.displayMode, d, captions)) {
+      return undefined;
+    }
+    const captionHeight = getCaptionHeight(dataset.displayMode, d, font, padding);
+    return {...d, h: captionHeight};
+  }).filter((d) => d);
+
 }
 
 export default class TreemapController extends DatasetController {

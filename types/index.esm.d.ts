@@ -55,6 +55,7 @@ type TreemapControllerDatasetDividersOptions = {
 export interface TreemapControllerDatasetOptions<DType> {
   spacing?: number,
   rtl?: boolean,
+  displayType?: 'containerBoxes' | 'headerBoxes';
 
   backgroundColor?: Scriptable<Color, TreemapScriptableContext>;
   borderColor?: Scriptable<Color, TreemapScriptableContext>;

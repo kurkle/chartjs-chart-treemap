@@ -73,6 +73,7 @@ export default defineConfig({
           'tree',
           'captions',
           'dividers',
+          'displayMode',
           'rtl',
           'datalabels',
           'zoom'

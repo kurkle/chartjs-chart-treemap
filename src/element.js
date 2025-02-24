@@ -120,13 +120,13 @@ export function getCaptionHeight(displayMode, rect, font, padding) {
   return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
 }
 
-function drawText(ctx, rect, options, item, levels) {
+function drawText(ctx, rect, options, item) {
   const {captions, labels, displayMode} = options;
   ctx.save();
   ctx.beginPath();
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
-  const isLeaf = item && (!defined(item.l) || item.l === levels);
+  const isLeaf = item && (!defined(item.l) || item.isLeaf);
   if (isLeaf && labels.display) {
     drawLabel(ctx, rect, options);
   } else if (!isLeaf && shouldDrawCaption(displayMode, rect, captions)) {
@@ -336,7 +336,7 @@ export default class TreemapElement extends Element {
     }
   }
 
-  draw(ctx, data, levels = 0) {
+  draw(ctx, data) {
     if (!data) {
       return;
     }
@@ -362,7 +362,7 @@ export default class TreemapElement extends Element {
     ctx.fill();
 
     drawDivider(ctx, inner, options, data);
-    drawText(ctx, inner, options, data, levels);
+    drawText(ctx, inner, options, data);
     ctx.restore();
   }
 

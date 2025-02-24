@@ -41,9 +41,16 @@ function buildData(tree, dataset, keys, mainRect) {
           subRect.y += captionHeight;
           subRect.h -= captionHeight;
         }
+        const children = [];
         gdata.forEach((gEl) => {
-          ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
+          children.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
         });
+        ret.push(...children);
+        sq.isLeaf = !children.length;
+      });
+    } else {
+      gsq.forEach((sq) => {
+        sq.isLeaf = true;
       });
     }
     return ret;
@@ -53,7 +60,7 @@ function buildData(tree, dataset, keys, mainRect) {
     ? recur(tree, 0, mainRect)
     : squarify(tree, mainRect, keys);
   return result.map((d) => {
-    if (dataset.displayMode !== 'headerBoxes' || d.l === glen - 1) {
+    if (dataset.displayMode !== 'headerBoxes' || d.isLeaf) {
       return d;
     }
     if (!shouldDrawCaption(dataset.displayMode, d, captions)) {
@@ -169,14 +176,13 @@ export default class TreemapController extends DatasetController {
     const {ctx, chartArea} = this.chart;
     const metadata = this.getMeta().data || [];
     const dataset = this.getDataset();
-    const levels = (dataset.groups || []).length - 1;
     const data = dataset.data;
 
     clipArea(ctx, chartArea);
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i];
       if (!rect.hidden) {
-        rect.draw(ctx, data[i], levels);
+        rect.draw(ctx, data[i]);
       }
     }
     unclipArea(ctx);

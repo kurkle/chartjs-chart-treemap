@@ -109,6 +109,9 @@ export function group(values, grp, keys, treeLeafKey, mainGrp, mainValue, groups
       continue;
     }
     g = v[grp] || v[treeLeafKey] || '';
+    if (!g) {
+      return [];
+    }
     if (!(g in tmp)) {
       const tmpRef = tmp[g] = {value: 0};
       addKeys.forEach(function(k) {

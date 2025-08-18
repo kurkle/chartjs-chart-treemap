@@ -11,7 +11,7 @@ jobs:
     name: Continuous Integration
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           cache: npm
@@ -40,7 +40,7 @@ jobs:
     # dependabot etc pull request can't have the token, so lets run only on merges.
     if: ${{ github.event_name == 'push' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
 

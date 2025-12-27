@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, 2.x ]
+    branches: [main, 2.x]
   pull_request:
-    branches: [ main, 2.x ]
+    branches: [main, 2.x]
 
 jobs:
   ci:
@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
 
       - uses: actions/setup-node@v6
         with:
@@ -65,7 +65,7 @@ jobs:
         run: echo -e "\nsonar.projectVersion=${{ steps.package-version.outputs.current-version}}" >> sonar-project.properties
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

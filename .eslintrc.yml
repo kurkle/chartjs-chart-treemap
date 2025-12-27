@@ -1,8 +1,6 @@
-
 extends:
   - chartjs
   - plugin:es/no-new-in-es2019
-  - plugin:markdown/recommended
 
 env:
   es6: true
@@ -16,7 +14,7 @@ parserOptions:
     impliedStrict: true
     modules: true
 
-plugins: ['html', 'es']
+plugins: ["html", "es"]
 
 rules:
   class-methods-use-this: "off"

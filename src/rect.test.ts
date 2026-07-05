@@ -1,4 +1,4 @@
-import Rect from '../../src/rect'
+import Rect from './rect'
 
 describe('Rect', () => {
   it('should be a function', () => {

@@ -1,4 +1,4 @@
-import { parseBorderWidth } from '../../src/element'
+import { parseBorderWidth } from './element'
 
 describe('Rectangle', () => {
   describe('parseBorderWidth', () => {

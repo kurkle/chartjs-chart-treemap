@@ -4,6 +4,8 @@
     "includes": [
       "astro.config.mjs",
       "biome.json",
+      ".swcrc-spec",
+      "jasmine.json",
       "karma.conf.cjs",
       "package.json",
       "rollup.config.js",
@@ -20,6 +22,7 @@
       "test/specs/**/*.js",
       "test/types/**/*.ts",
       "test/types/**/*.json",
+      "tsconfig.test.json",
       "types/**/*.ts",
       "types/**/*.json"
     ]

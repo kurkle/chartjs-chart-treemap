@@ -22,8 +22,14 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "target": "ES6",
-    "types": []
+    "types": ["jasmine"]
   },
-  "exclude": ["./dist/**", "./src/env.d.ts", "./src/content.config.ts", "./src/content/**"],
+  "exclude": [
+    "./dist/**",
+    "./src/**/*.test.ts",
+    "./src/env.d.ts",
+    "./src/content.config.ts",
+    "./src/content/**"
+  ],
   "include": ["./src/**/*"]
 }

@@ -1,4 +1,4 @@
-import squarify from '../../src/squarify'
+import squarify from './squarify'
 
 const round4 = (v) => Math.round(v * 10000) / 10000 || 0
 const roundsq4 = (sq) => ({
@@ -103,7 +103,7 @@ describe('squarify', () => {
   it('should squarify by given key', () => {
     const data = [{ v: 4 }, { v: 4 }, { v: 4 }, { v: 4 }]
     const rect = { h: 4, w: 4, x: 0, y: 0 }
-    const sq = squarify(data, rect, 'v')
+    const sq = squarify(data, rect, ['v'])
     expect(sq).toEqual([
       jasmine.objectContaining({ h: 2, w: 2, x: 0, y: 0 }),
       jasmine.objectContaining({ h: 2, w: 2, x: 0, y: 2 }),
@@ -167,12 +167,15 @@ describe('squarify', () => {
     let sq = squarify(undefined, { h: 10, w: 10, x: 0, y: 0 })
     expect(sq).toEqual([])
 
+    // @ts-expect-error test runtime fallback when rectangle is omitted
     sq = squarify([])
     expect(sq).toEqual([])
 
+    // @ts-expect-error test runtime fallback when rectangle is omitted
     sq = squarify([1])
     expect(sq).toEqual([jasmine.objectContaining({ a: 1, h: 1, s: 1, v: 1, w: 1, x: 0, y: 0 })])
 
+    // @ts-expect-error test runtime fallback when inputs are omitted
     sq = squarify()
     expect(sq).toEqual([])
   })

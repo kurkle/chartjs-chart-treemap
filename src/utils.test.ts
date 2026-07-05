@@ -1,4 +1,4 @@
-import { flatten, group, normalizeTreeToArray, requireVersion, sort, sum } from '../../src/utils'
+import { flatten, group, normalizeTreeToArray, requireVersion, sort, sum } from './utils'
 
 describe('utils', () => {
   describe('flatten', () => {

@@ -1,4 +1,4 @@
-import { flatten, group, normalizeTreeToArray, requireVersion, sort, sum } from './utils'
+import { flatten, group, index, normalizeTreeToArray, requireVersion, sort, sum } from './utils'
 
 describe('utils', () => {
   describe('flatten', () => {
@@ -74,6 +74,48 @@ describe('utils', () => {
           v: 1,
         }),
         jasmine.objectContaining({ component: 'A', groupIndex: 1, path: './src.A', v: 5 }),
+      ])
+    })
+
+    it('should use tree leaf key as group fallback', () => {
+      const a = [{ leaf: 'index.js', v: 1 }]
+      const g1 = group(a, 'folder', ['v'], 'leaf')
+      expect(g1).toEqual([
+        jasmine.objectContaining({
+          folder: 'index.js',
+          group: 'leaf',
+          groupIndex: 0,
+          path: 'index.js',
+          v: 1,
+        }),
+      ])
+    })
+
+    it('should return empty array when no group can be resolved', () => {
+      expect(group([{ v: 1 }], 'folder', ['v'], 'leaf')).toEqual([])
+    })
+  })
+
+  describe('index', () => {
+    it('should return key for empty data', () => {
+      expect(index([], 'value')).toBe('value')
+    })
+
+    it('should add indexes to object values', () => {
+      const values: Array<{ _idx?: number; value: number }> = [{ value: 2 }, { value: 4 }]
+      expect(index(values, 'value')).toBe('value')
+      expect(values).toEqual([
+        { _idx: 0, value: 2 },
+        { _idx: 1, value: 4 },
+      ])
+    })
+
+    it('should normalize primitive values', () => {
+      const values: Array<number | { _idx: number; v: number }> = [2, 4]
+      expect(index(values, 'value')).toBe('v')
+      expect(values).toEqual([
+        { _idx: 0, v: 2 },
+        { _idx: 1, v: 4 },
       ])
     })
   })

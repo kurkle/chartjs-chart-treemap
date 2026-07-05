@@ -86,18 +86,11 @@ export function flatten(input: any[]) {
 }
 
 function getPath(groups: string[], value: Record<string, any>, defaultValue: string) {
-  if (!groups.length) {
-    return undefined
-  }
   const path = []
   for (const grp of groups) {
     const item = value[grp]
     if (!hasGroupValue(item)) {
       continue
-    }
-    if (item === '') {
-      path.push(defaultValue)
-      break
     }
     path.push(item)
   }

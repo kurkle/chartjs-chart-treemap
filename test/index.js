@@ -1,23 +1,30 @@
-import {acquireChart, addMatchers, releaseCharts, specsFromFixtures, triggerMouseEvent, afterEvent} from 'chartjs-test-utils';
+import {
+  acquireChart,
+  addMatchers,
+  afterEvent,
+  releaseCharts,
+  specsFromFixtures,
+  triggerMouseEvent,
+} from 'chartjs-test-utils'
 
-window.devicePixelRatio = 1;
-window.acquireChart = acquireChart;
-window.afterEvent = afterEvent;
-window.triggerMouseEvent = triggerMouseEvent;
+window.devicePixelRatio = 1
+window.acquireChart = acquireChart
+window.afterEvent = afterEvent
+window.triggerMouseEvent = triggerMouseEvent
 
-jasmine.fixtures = specsFromFixtures;
+jasmine.fixtures = specsFromFixtures
 
 beforeAll(() => {
   // Disable colors plugin for tests.
-  window.Chart.defaults.plugins.colors.enabled = false;
-});
+  window.Chart.defaults.plugins.colors.enabled = false
+})
 
-beforeEach(function() {
-  addMatchers();
-});
+beforeEach(() => {
+  addMatchers()
+})
 
-afterEach(function() {
-  releaseCharts();
-});
+afterEach(() => {
+  releaseCharts()
+})
 
-console.warn('Testing with chart.js v' + Chart.version);
+console.warn(`Testing with chart.js v${Chart.version}`)

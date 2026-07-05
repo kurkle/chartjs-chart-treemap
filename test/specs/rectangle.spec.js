@@ -1,12 +1,12 @@
-import {parseBorderWidth} from '../../src/element';
+import { parseBorderWidth } from '../../src/element'
 
-describe('Rectangle', function() {
-  describe('parseBorderWidth', function() {
-    it('should parse object', function() {
-      expect(parseBorderWidth({top: 1, right: 5}, 5, 5)).toEqual({t: 1, r: 5, b: 0, l: 0});
-    });
-    it('should parse number', function() {
-      expect(parseBorderWidth(5, 5, 5)).toEqual({t: 5, r: 5, b: 5, l: 5});
-    });
-  });
-});
+describe('Rectangle', () => {
+  describe('parseBorderWidth', () => {
+    it('should parse object', () => {
+      expect(parseBorderWidth({ right: 5, top: 1 }, 5, 5)).toEqual({ b: 0, l: 0, r: 5, t: 1 })
+    })
+    it('should parse number', () => {
+      expect(parseBorderWidth(5, 5, 5)).toEqual({ b: 5, l: 5, r: 5, t: 5 })
+    })
+  })
+})

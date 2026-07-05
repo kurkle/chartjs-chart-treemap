@@ -1,9 +1,9 @@
 import { isObject } from 'chart.js/helpers'
 
 const isOlderPart = (act: string, req: string) =>
-  req > act || (act.length > req.length && act.slice(0, req.length) === req)
+  req > act || (act.length > req.length && act.startsWith(req))
 
-export const getGroupKey = (lvl: unknown) => `${lvl}`
+export const getGroupKey = (lvl: unknown) => String(lvl)
 
 function scanTreeObject(
   keys: string[],
@@ -52,7 +52,7 @@ export function normalizeTreeToArray(
     // minus 2 because _leaf and value properties are added
     // on top to groups ones
     const ikeys = Object.keys(element).length - 2
-    return maxVal > ikeys ? maxVal : ikeys
+    return Math.max(maxVal, ikeys)
   }, 0)
   data.forEach((element) => {
     for (let i = 0; i < max; i++) {
@@ -224,7 +224,7 @@ export function requireVersion(pkg: string, min: string, ver: string, strict = t
   let i = 0
   for (const req of min.split('.')) {
     const act = parts[i++]
-    if (parseInt(req, 10) < parseInt(act, 10)) {
+    if (Number.parseInt(req, 10) < Number.parseInt(act, 10)) {
       break
     }
     if (isOlderPart(act, req)) {

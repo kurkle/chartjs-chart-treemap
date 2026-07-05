@@ -412,13 +412,6 @@ export default class TreemapElement extends Element {
   tooltipPosition() {
     return this.getCenterPoint()
   }
-
-  /**
-   * @todo: remove this unused function in v3
-   */
-  getRange(axis: string) {
-    return axis === 'x' ? this.width / 2 : this.height / 2
-  }
 }
 
 ;(TreemapElement as any).id = 'treemap'

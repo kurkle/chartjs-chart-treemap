@@ -78,7 +78,7 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
       const captionHeight = getCaptionHeight(dataset.displayMode, d, font, padding)
       return { ...d, h: captionHeight }
     })
-    .filter((d) => d)
+    .filter(Boolean)
 }
 
 export default class TreemapController extends DatasetController {
@@ -289,7 +289,7 @@ export default class TreemapController extends DatasetController {
         return false
       }
 
-      const item = active[active.length - 1]
+      const item = active.at(-1)
       const el = item.element
 
       return el.tooltipPosition()

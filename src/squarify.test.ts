@@ -1,7 +1,14 @@
 import squarify from './squarify'
 
-const round4 = (v) => Math.round(v * 10000) / 10000 || 0
-const roundsq4 = (sq) => ({
+type SquarifyRect = {
+  h: number
+  w: number
+  x: number
+  y: number
+}
+
+const round4 = (v: number) => Math.round(v * 10000) / 10000 || 0
+const roundsq4 = <T extends SquarifyRect>(sq: T) => ({
   ...sq,
   h: round4(sq.h),
   w: round4(sq.w),
@@ -164,6 +171,7 @@ describe('squarify', () => {
   })
 
   it('should not fail with undefined input', () => {
+    // @ts-expect-error test runtime fallback when values are omitted
     let sq = squarify(undefined, { h: 10, w: 10, x: 0, y: 0 })
     expect(sq).toEqual([])
 

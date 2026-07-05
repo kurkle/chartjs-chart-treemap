@@ -99,15 +99,6 @@ function getPath(groups: string[], value: Record<string, any>, defaultValue: str
   return path.length ? path.join('.') : defaultValue
 }
 
-/**
- * @param {[]} values
- * @param {string} grp
- * @param {[string]} keys
- * @param {string} treeeLeafKey
- * @param {string} [mainGrp]
- * @param {*} [mainValue]
- * @param {[]} groups
- */
 export function group(
   values: Record<string, any>[],
   grp: string,
@@ -212,13 +203,6 @@ export function sum(values: any[], key?: string) {
   return s
 }
 
-/**
- * @param {string} pkg
- * @param {string} min
- * @param {string} ver
- * @param {boolean} [strict=true]
- * @returns {boolean}
- */
 export function requireVersion(pkg: string, min: string, ver: string, strict = true) {
   const parts = ver.split('.')
   let i = 0

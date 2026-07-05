@@ -39,14 +39,14 @@ function push(sa: StatArray, o: any, stat: any) {
 export default class StatArray {
   key: string
   ratio: number
-  _arr: any[]
-  _hist: any[]
-  sum: number
-  nsum: number
-  min: number
-  max: number
-  nmin: number
-  nmax: number
+  _arr: any[] = []
+  _hist: any[] = []
+  sum = 0
+  nsum = 0
+  min = Infinity
+  max = -Infinity
+  nmin = Infinity
+  nmax = -Infinity
 
   constructor(key: string, ratio: number) {
     this.key = key

@@ -12,13 +12,6 @@ import {
 
 const widthCache = new Map()
 
-/**
- * Helper function to get the bounds of the rect
- * @param {TreemapElement} rect the rect
- * @param {boolean} [useFinalPosition]
- * @return {object} bounds of the rect
- * @private
- */
 function getBounds(rect: any, useFinalPosition?: boolean) {
   const { x, y, width, height } = rect.getProps(['x', 'y', 'width', 'height'], useFinalPosition)
   return { bottom: y + height, left: x, right: x + width, top: y }
@@ -254,7 +247,7 @@ function labelToDraw(_ctx: CanvasRenderingContext2D, rect: any, options: any, la
 function getFontFromOptions(rect: any, labels: any) {
   const { font, hoverFont } = labels
   const optFont = (rect.active ? hoverFont : font) || font
-  return isArray(optFont) ? optFont.map((f) => toFont(f)) : [toFont(optFont)]
+  return Array.isArray(optFont) ? optFont.map((f) => toFont(f)) : [toFont(optFont)]
 }
 
 function drawLabel(ctx: CanvasRenderingContext2D, rect: any, options: any) {
@@ -344,8 +337,8 @@ function calculateX(rect: any, align: CanvasTextAlign, padding: number) {
 
 export default class TreemapElement extends Element {
   declare options: any
-  width: number
-  height: number
+  width: number | undefined
+  height: number | undefined
 
   constructor(cfg?: any) {
     super()
@@ -409,7 +402,7 @@ export default class TreemapElement extends Element {
     }
   }
 
-  tooltipPosition() {
+  override tooltipPosition() {
     return this.getCenterPoint()
   }
 }

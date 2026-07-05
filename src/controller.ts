@@ -21,7 +21,7 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
 
   function recur(treeElements: any, gidx: number, rect: any, parent?: any, gs?: any) {
     const g = getGroupKey(groups[gidx])
-    const pg = gidx > 0 && getGroupKey(groups[gidx - 1])
+    const pg = gidx > 0 ? getGroupKey(groups[gidx - 1]) : undefined
     const gdata = group(
       treeElements,
       g,
@@ -29,7 +29,7 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
       treeLeafKey,
       pg,
       parent,
-      groups.filter((_item, index) => index <= gidx)
+      groups.filter((_item: any, index: number) => index <= gidx)
     )
     const gsq = squarify(gdata, rect, keys, g, gidx, gs)
     const ret = gsq.slice()
@@ -98,19 +98,19 @@ export default class TreemapController extends DatasetController {
     this._rectChanged = true
   }
 
-  initialize() {
+  override initialize() {
     this.enableOptionSharing = true
     super.initialize()
   }
 
-  getMinMax(scale: any) {
+  override getMinMax(scale: any) {
     return {
       max: scale.axis === 'x' ? scale.right - scale.left : scale.bottom - scale.top,
       min: 0,
     }
   }
 
-  configure() {
+  override configure() {
     super.configure()
     const { xScale, yScale } = this.getMeta() as any
     if (!xScale || !yScale) {
@@ -135,7 +135,7 @@ export default class TreemapController extends DatasetController {
     }
   }
 
-  update(mode: any) {
+  override update(mode: any) {
     const dataset = this.getDataset() as any
     const { data } = this.getMeta()
     const groups = dataset.groups || []
@@ -150,8 +150,8 @@ export default class TreemapController extends DatasetController {
 
     if (
       this._rectChanged ||
-      arrayNotEqual(this._keys, keys) ||
-      arrayNotEqual(this._groups, groups) ||
+      arrayNotEqual(this._keys || [], keys) ||
+      arrayNotEqual(this._groups || [], groups) ||
       this._prevTree !== tree
     ) {
       this._groups = groups.slice()
@@ -169,13 +169,13 @@ export default class TreemapController extends DatasetController {
     this.updateElements(data, 0, data.length, mode)
   }
 
-  updateElements(rects: any[], start: number, count: number, mode: any) {
+  override updateElements(rects: any[], start: number, count: number, mode: any) {
     const reset = mode === 'reset'
     const dataset = this.getDataset() as any
     const firstOpts = this.resolveDataElementOptions(start, mode)
     this._rect.options = firstOpts
     const sharedOptions = this.getSharedOptions(firstOpts)
-    const includeOptions = this.includeOptions(mode, sharedOptions)
+    const includeOptions = this.includeOptions(mode, sharedOptions || {})
     const { xScale, yScale } = this.getMeta() as any
 
     for (let i = start; i < start + count; i++) {
@@ -192,10 +192,10 @@ export default class TreemapController extends DatasetController {
       this.updateElement(rects[i], i, properties, mode)
     }
 
-    this.updateSharedOptions(sharedOptions, mode, firstOpts)
+    this.updateSharedOptions(sharedOptions || {}, mode, firstOpts)
   }
 
-  draw() {
+  override draw() {
     const { ctx, chartArea } = this.chart
     const metadata = ((this.getMeta() as any).data || []) as any[]
     const dataset = this.getDataset() as any
@@ -242,13 +242,13 @@ export default class TreemapController extends DatasetController {
   plugins: {
     tooltip: {
       callbacks: {
-        label(item) {
+        label(item: any) {
           const dataset = item.dataset
           const dataItem = dataset.data[item.dataIndex]
           const label = dataItem.g || dataItem._data.label || dataset.label
           return (label ? `${label}: ` : '') + dataItem.v
         },
-        title(items) {
+        title(items: any[]) {
           if (items.length) {
             const item = items[0]
             return item.dataset.key || ''

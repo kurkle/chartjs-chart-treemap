@@ -16,15 +16,6 @@ function compareAspectRatio(oldStat: any, newStat: any, args: any[]) {
   return nr <= or
 }
 
-/**
- *
- * @param {number[]|object[]} values
- * @param {object} rectangle
- * @param {string} [key]
- * @param {string} [grp]
- * @param {number} [lvl]
- * @param {number} [gsum]
- */
 export default function squarify(
   values: any[],
   rectangle: any,
@@ -34,7 +25,7 @@ export default function squarify(
   gsum?: number
 ) {
   values = values || []
-  const rows = []
+  const rows: any[] = []
   const rect = new Rect(rectangle)
   const row = new StatArray('value', rect.area / sum(values, keys[0]))
   let length = rect.side
@@ -68,7 +59,7 @@ export default function squarify(
       o.level = lvl
       o.group = gval(i)
       const tmpRef = tmp[i]
-      o.values = keys.reduce((obj, k) => {
+      o.values = keys.reduce<Record<string, number>>((obj, k) => {
         obj[k] = +tmpRef[k]
         return obj
       }, {})

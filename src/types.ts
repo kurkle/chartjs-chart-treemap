@@ -109,6 +109,7 @@ export interface TreemapControllerDatasetOptions<DType> {
 
   backgroundColor?: Scriptable<Color, TreemapScriptableContext>
   borderColor?: Scriptable<Color, TreemapScriptableContext>
+  borderRadius?: Scriptable<number | Partial<BorderRadius>, TreemapScriptableContext>
   borderWidth?: number
 
   hoverBackgroundColor?: Scriptable<Color, TreemapScriptableContext>

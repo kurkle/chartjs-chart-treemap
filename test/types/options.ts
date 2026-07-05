@@ -23,6 +23,7 @@ const _chart = new Chart('test', {
           return colorFromValue(item.v)
         },
         borderColor: 'rgba(180,180,180, 0.15)',
+        borderRadius: 4,
         borderWidth: 2,
         data: undefined,
         label: 'Basic treemap',

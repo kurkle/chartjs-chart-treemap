@@ -1,4 +1,5 @@
 import type {
+  BorderRadius,
   Chart,
   ChartComponent,
   Color,
@@ -19,47 +20,92 @@ export type LabelAlign = 'left' | 'center' | 'right'
 
 export type LabelOverflow = 'cut' | 'hidden' | 'fit'
 
-type TreemapScriptableContext = ScriptableContext<'treemap'> & {
+export type TreemapDisplayMode = 'containerBoxes' | 'headerBoxes'
+
+export type TreemapBorderWidth =
+  | number
+  | Partial<Record<'bottom' | 'left' | 'right' | 'top', number>>
+
+export type TreemapBorderRadius = Required<BorderRadius>
+
+export type TreemapFontSpec = Partial<FontSpec>
+
+export type TreemapScriptableContext = ScriptableContext<'treemap'> & {
   raw: TreemapDataPoint
 }
 
-type TreemapControllerDatasetCaptionsOptions = {
+export type TreemapFormatter<T> = T | ((context: TreemapScriptableContext) => T)
+
+export type TreemapControllerDatasetCaptionsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
   color?: Scriptable<Color, TreemapScriptableContext>
   display?: boolean
-  formatter?: Scriptable<string, TreemapScriptableContext>
-  font?: FontSpec
+  formatter?: TreemapFormatter<string>
+  font?: TreemapFontSpec
   hoverColor?: Scriptable<Color, TreemapScriptableContext>
-  hoverFont?: FontSpec
+  hoverFont?: TreemapFontSpec
   padding?: number
 }
 
-type TreemapControllerDatasetLabelsOptions = {
+export type TreemapControllerDatasetLabelsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
   color?: Scriptable<Color | Color[], TreemapScriptableContext>
   display?: boolean
-  formatter?: Scriptable<string | Array<string>, TreemapScriptableContext>
-  font?: Scriptable<FontSpec | FontSpec[], TreemapScriptableContext>
+  formatter?: TreemapFormatter<string | string[]>
+  font?: Scriptable<TreemapFontSpec | TreemapFontSpec[], TreemapScriptableContext>
   hoverColor?: Scriptable<Color | Color[], TreemapScriptableContext>
-  hoverFont?: Scriptable<FontSpec | FontSpec[], TreemapScriptableContext>
+  hoverFont?: Scriptable<TreemapFontSpec | TreemapFontSpec[], TreemapScriptableContext>
   overflow?: Scriptable<LabelOverflow, TreemapScriptableContext>
   padding?: number
   position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }
 
-type TreemapControllerDatasetDividersOptions = {
+export type TreemapControllerDatasetDividersOptions = {
   display?: boolean
-  lineCapStyle?: string
-  lineColor?: string
+  lineCapStyle?: CanvasLineCap
+  lineColor?: Color
   lineDash?: number[]
   lineDashOffset?: number
   lineWidth?: number
 }
 
+export type TreemapCaptionsOptions = {
+  align?: LabelAlign
+  color: Color
+  display?: boolean
+  font: TreemapFontSpec
+  formatter?: TreemapFormatter<string>
+  hoverColor?: Color
+  hoverFont?: TreemapFontSpec
+  padding: number
+}
+
+export type TreemapLabelsOptions = {
+  align: LabelAlign
+  color: Color | Color[]
+  display?: boolean
+  font: TreemapFontSpec | TreemapFontSpec[]
+  formatter?: TreemapFormatter<string | string[]>
+  hoverColor?: Color | Color[]
+  hoverFont?: TreemapFontSpec | TreemapFontSpec[]
+  overflow: LabelOverflow
+  padding: number
+  position: LabelPosition
+}
+
+export type TreemapDividersOptions = {
+  display?: boolean
+  lineCapStyle: CanvasLineCap
+  lineColor: Color
+  lineDash: number[]
+  lineDashOffset: number
+  lineWidth: number
+}
+
 export interface TreemapControllerDatasetOptions<DType> {
   spacing?: number
   rtl?: boolean
-  displayType?: 'containerBoxes' | 'headerBoxes'
+  displayType?: TreemapDisplayMode
 
   backgroundColor?: Scriptable<Color, TreemapScriptableContext>
   borderColor?: Scriptable<Color, TreemapScriptableContext>
@@ -113,7 +159,14 @@ declare module 'chart.js' {
 export interface TreemapOptions {
   backgroundColor: Color
   borderColor: Color
-  borderWidth: number | { top?: number; right?: number; bottom?: number; left?: number }
+  borderRadius: number | Partial<BorderRadius>
+  borderWidth: TreemapBorderWidth
+  captions: TreemapCaptionsOptions
+  displayMode: TreemapDisplayMode
+  dividers: TreemapDividersOptions
+  labels: TreemapLabelsOptions
+  rtl: boolean
+  spacing: number
 }
 
 export interface TreemapConfig {

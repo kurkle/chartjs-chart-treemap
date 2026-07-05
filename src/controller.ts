@@ -2,9 +2,10 @@ import { Chart, DatasetController, registry } from 'chart.js'
 import { clipArea, isObject, toFont, unclipArea, valueOrDefault } from 'chart.js/helpers'
 
 import { version } from '../package.json'
-import { getCaptionHeight, parseBorderWidth, shouldDrawCaption } from './element'
 import { arrayNotEqual, rectNotEqual, scaleRect } from './helpers/index'
+import { parseBorderWidth } from './options'
 import squarify from './squarify'
+import { getCaptionHeight, shouldDrawCaption } from './text'
 import { getGroupKey, group, normalizeTreeToArray, requireVersion } from './utils'
 
 function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {

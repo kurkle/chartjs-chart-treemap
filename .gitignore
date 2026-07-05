@@ -1,7 +1,9 @@
 .DS_Store
+.astro/
 .vscode/
 coverage/
 dist/
 build/
 node_modules/
+/docs/node_modules
 *.stackdump

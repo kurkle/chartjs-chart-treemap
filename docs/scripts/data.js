@@ -1,543 +1,542 @@
-
 export const statsByState = [
   {
-    state: 'Alabama',
+    area: 135767,
     code: 'AL',
-    region: 'South',
     division: 'East South Central',
     income: 48123,
     population: 4887871,
-    area: 135767
+    region: 'South',
+    state: 'Alabama',
   },
   {
-    state: 'Alaska',
+    area: 1723337,
     code: 'AK',
-    region: 'West',
     division: 'Pacific',
     income: 73181,
     population: 737438,
-    area: 1723337
+    region: 'West',
+    state: 'Alaska',
   },
   {
-    state: 'Arizona',
+    area: 295234,
     code: 'AZ',
-    region: 'West',
     division: 'Mountain',
     income: 56581,
     population: 7171646,
-    area: 295234
+    region: 'West',
+    state: 'Arizona',
   },
   {
-    state: 'Arkansas',
+    area: 137732,
     code: 'AR',
-    region: 'South',
     division: 'West South Central',
     income: 45869,
     population: 3013825,
-    area: 137732
+    region: 'South',
+    state: 'Arkansas',
   },
   {
-    state: 'California',
+    area: 423972,
     code: 'CA',
-    region: 'West',
     division: 'Pacific',
     income: 71805,
     population: 39557045,
-    area: 423972
+    region: 'West',
+    state: 'California',
   },
   {
-    state: 'Colorado',
+    area: 269601,
     code: 'CO',
-    region: 'West',
     division: 'Mountain',
     income: 69117,
     population: 5695564,
-    area: 269601
+    region: 'West',
+    state: 'Colorado',
   },
   {
-    state: 'Connecticut',
+    area: 14357,
     code: 'CT',
-    region: 'Northeast',
     division: 'New England',
     income: 74168,
     population: 3572665,
-    area: 14357
+    region: 'Northeast',
+    state: 'Connecticut',
   },
   {
-    state: 'Delaware',
+    area: 6446,
     code: 'DE',
-    region: 'South',
     division: 'South Atlantic',
     income: 62852,
     population: 967171,
-    area: 6446
+    region: 'South',
+    state: 'Delaware',
   },
   {
-    state: 'District of Columbia',
+    area: 177,
     code: 'DC',
-    region: 'South',
     division: 'South Atlantic',
     income: 82372,
     population: 702455,
-    area: 177
+    region: 'South',
+    state: 'District of Columbia',
   },
   {
-    state: 'Florida',
+    area: 170312,
     code: 'FL',
-    region: 'South',
     division: 'South Atlantic',
     income: 52594,
     population: 21299325,
-    area: 170312
+    region: 'South',
+    state: 'Florida',
   },
   {
-    state: 'Georgia',
+    area: 153910,
     code: 'GA',
-    region: 'South',
     division: 'South Atlantic',
     income: 56183,
     population: 10519475,
-    area: 153910
+    region: 'South',
+    state: 'Georgia',
   },
   {
-    state: 'Hawaii',
+    area: 28313,
     code: 'HI',
-    region: 'West',
     division: 'Pacific',
     income: 77765,
     population: 1420491,
-    area: 28313
+    region: 'West',
+    state: 'Hawaii',
   },
   {
-    state: 'Idaho',
+    area: 216443,
     code: 'ID',
-    region: 'West',
     division: 'Mountain',
     income: 52225,
     population: 1754208,
-    area: 216443
+    region: 'West',
+    state: 'Idaho',
   },
   {
-    state: 'Illinois',
+    area: 149995,
     code: 'IL',
-    region: 'Midwest',
     division: 'East North Central',
     income: 62992,
     population: 12741080,
-    area: 149995
+    region: 'Midwest',
+    state: 'Illinois',
   },
   {
-    state: 'Indiana',
+    area: 94326,
     code: 'IN',
-    region: 'Midwest',
     division: 'East North Central',
     income: 54181,
     population: 6691878,
-    area: 94326
+    region: 'Midwest',
+    state: 'Indiana',
   },
   {
-    state: 'Iowa',
+    area: 145746,
     code: 'IA',
-    region: 'Midwest',
     division: 'West North Central',
     income: 5857,
     population: 3156145,
-    area: 145746
+    region: 'Midwest',
+    state: 'Iowa',
   },
   {
-    state: 'Kansas',
+    area: 213100,
     code: 'KS',
-    region: 'Midwest',
     division: 'West North Central',
     income: 56422,
     population: 2911505,
-    area: 213100
+    region: 'Midwest',
+    state: 'Kansas',
   },
   {
-    state: 'Kentucky',
+    area: 104656,
     code: 'KY',
-    region: 'South',
     division: 'East South Central',
     income: 45215,
     population: 4468402,
-    area: 104656
+    region: 'South',
+    state: 'Kentucky',
   },
   {
-    state: 'Louisiana',
+    area: 135659,
     code: 'LA',
-    region: 'South',
     division: 'West South Central',
     income: 46145,
     population: 4659978,
-    area: 135659
+    region: 'South',
+    state: 'Louisiana',
   },
   {
-    state: 'Maine',
+    area: 91633,
     code: 'ME',
-    region: 'Northeast',
     division: 'New England',
     income: 55277,
     population: 1338404,
-    area: 91633
+    region: 'Northeast',
+    state: 'Maine',
   },
   {
-    state: 'Maryland',
+    area: 32131,
     code: 'MD',
-    region: 'South',
     division: 'South Atlantic',
     income: 80776,
     population: 6042718,
-    area: 32131
+    region: 'South',
+    state: 'Maryland',
   },
   {
-    state: 'Massachusetts',
+    area: 27336,
     code: 'MA',
-    region: 'Northeast',
     division: 'New England',
     income: 77385,
     population: 6902149,
-    area: 27336
+    region: 'Northeast',
+    state: 'Massachusetts',
   },
   {
-    state: 'Michigan',
+    area: 250487,
     code: 'MI',
-    region: 'Midwest',
     division: 'East North Central',
     income: 54909,
     population: 9995915,
-    area: 250487
+    region: 'Midwest',
+    state: 'Michigan',
   },
   {
-    state: 'Minnesota',
+    area: 225163,
     code: 'MN',
-    region: 'Midwest',
     division: 'West North Central',
     income: 68388,
     population: 5611179,
-    area: 225163
+    region: 'Midwest',
+    state: 'Minnesota',
   },
   {
-    state: 'Mississippi',
+    area: 125438,
     code: 'MS',
-    region: 'South',
     division: 'East South Central',
     income: 43529,
     population: 2986530,
-    area: 125438
+    region: 'South',
+    state: 'Mississippi',
   },
   {
-    state: 'Missouri',
+    area: 180540,
     code: 'MO',
-    region: 'Midwest',
     division: 'West North Central',
     income: 53578,
     population: 6126452,
-    area: 180540
+    region: 'Midwest',
+    state: 'Missouri',
   },
   {
-    state: 'Montana',
+    area: 380831,
     code: 'MT',
-    region: 'West',
     division: 'Mountain',
     income: 53386,
     population: 1062305,
-    area: 380831
+    region: 'West',
+    state: 'Montana',
   },
   {
-    state: 'Nebraska',
+    area: 200330,
     code: 'NE',
-    region: 'Midwest',
     division: 'West North Central',
     income: 59970,
     population: 1929268,
-    area: 200330
+    region: 'Midwest',
+    state: 'Nebraska',
   },
   {
-    state: 'Nevada',
+    area: 286380,
     code: 'NV',
-    region: 'West',
     division: 'Mountain',
     income: 58003,
     population: 3034392,
-    area: 286380
+    region: 'West',
+    state: 'Nevada',
   },
   {
-    state: 'New Hampshire',
+    area: 24214,
     code: 'NH',
-    region: 'Northeast',
     division: 'New England',
     income: 73381,
     population: 1356458,
-    area: 24214
+    region: 'Northeast',
+    state: 'New Hampshire',
   },
   {
-    state: 'New Jersey',
+    area: 22591,
     code: 'NJ',
-    region: 'Northeast',
     division: 'Middle Atlantic',
     income: 80088,
     population: 8908520,
-    area: 22591
+    region: 'Northeast',
+    state: 'New Jersey',
   },
   {
-    state: 'New Mexico',
+    area: 314917,
     code: 'NM',
-    region: 'West',
     division: 'Mountain',
     income: 46744,
     population: 2095428,
-    area: 314917
+    region: 'West',
+    state: 'New Mexico',
   },
   {
-    state: 'New York',
+    area: 141297,
     code: 'NY',
-    region: 'Northeast',
     division: 'Middle Atlantic',
     income: 64894,
     population: 19542209,
-    area: 141297
+    region: 'Northeast',
+    state: 'New York',
   },
   {
-    state: 'North Carolina',
+    area: 139391,
     code: 'NC',
-    region: 'South',
     division: 'South Atlantic',
     income: 52752,
     population: 10383620,
-    area: 139391
+    region: 'South',
+    state: 'North Carolina',
   },
   {
-    state: 'North Dakota',
+    area: 183108,
     code: 'ND',
-    region: 'Midwest',
     division: 'West North Central',
     income: 61843,
     population: 760077,
-    area: 183108
+    region: 'Midwest',
+    state: 'North Dakota',
   },
   {
-    state: 'Ohio',
+    area: 116098,
     code: 'OH',
-    region: 'Midwest',
     division: 'East North Central',
     income: 54021,
     population: 11689442,
-    area: 116098
+    region: 'Midwest',
+    state: 'Ohio',
   },
   {
-    state: 'Oklahoma',
+    area: 181037,
     code: 'OK',
-    region: 'South',
     division: 'West South Central',
     income: 50051,
     population: 3943079,
-    area: 181037
+    region: 'South',
+    state: 'Oklahoma',
   },
   {
-    state: 'Oregon',
+    area: 254799,
     code: 'OR',
-    region: 'West',
     division: 'Pacific',
     income: 60212,
     population: 4190713,
-    area: 254799
+    region: 'West',
+    state: 'Oregon',
   },
   {
-    state: 'Pennsylvania',
+    area: 119280,
     code: 'PA',
-    region: 'Northeast',
     division: 'Middle Atlantic',
     income: 59105,
     population: 12807060,
-    area: 119280
+    region: 'Northeast',
+    state: 'Pennsylvania',
   },
   {
-    state: 'Rhode Island',
+    area: 4001,
     code: 'RI',
-    region: 'Northeast',
     division: 'New England',
     income: 63870,
     population: 1057315,
-    area: 4001
+    region: 'Northeast',
+    state: 'Rhode Island',
   },
   {
-    state: 'South Carolina',
+    area: 82933,
     code: 'SC',
-    region: 'South',
     division: 'South Atlantic',
     income: 50570,
     population: 5084127,
-    area: 82933
+    region: 'South',
+    state: 'South Carolina',
   },
   {
-    state: 'South Dakota',
+    area: 199729,
     code: 'SD',
-    region: 'Midwest',
     division: 'West North Central',
     income: 56521,
     population: 882235,
-    area: 199729
+    region: 'Midwest',
+    state: 'South Dakota',
   },
   {
-    state: 'Tennessee',
+    area: 109153,
     code: 'TN',
-    region: 'South',
     division: 'East South Central',
     income: 51340,
     population: 6770010,
-    area: 109153
+    region: 'South',
+    state: 'Tennessee',
   },
   {
-    state: 'Texas',
+    area: 695662,
     code: 'TX',
-    region: 'South',
     division: 'West South Central',
     income: 59206,
     population: 28701845,
-    area: 695662
+    region: 'South',
+    state: 'Texas',
   },
   {
-    state: 'Utah',
+    area: 219882,
     code: 'UT',
-    region: 'West',
     division: 'Mountain',
     income: 65358,
     population: 3161105,
-    area: 219882
+    region: 'West',
+    state: 'Utah',
   },
   {
-    state: 'Vermont',
+    area: 24906,
     code: 'VT',
-    region: 'Northeast',
     division: 'New England',
     income: 57513,
     population: 626299,
-    area: 24906
+    region: 'Northeast',
+    state: 'Vermont',
   },
   {
-    state: 'Virginia',
+    area: 110787,
     code: 'VA',
-    region: 'South',
     division: 'South Atlantic',
     income: 71535,
     population: 8517685,
-    area: 110787
+    region: 'South',
+    state: 'Virginia',
   },
   {
-    state: 'Washington',
+    area: 184661,
     code: 'WA',
-    region: 'West',
     division: 'Pacific',
     income: 70979,
     population: 7535591,
-    area: 184661
+    region: 'West',
+    state: 'Washington',
   },
   {
-    state: 'West Virginia',
+    area: 62756,
     code: 'WV',
-    region: 'South',
     division: 'South Atlantic',
     income: 43469,
     population: 1805832,
-    area: 62756
+    region: 'South',
+    state: 'West Virginia',
   },
   {
-    state: 'Wisconsin',
+    area: 169635,
     code: 'WI',
-    region: 'Midwest',
     division: 'East North Central',
     income: 59305,
     population: 5813568,
-    area: 169635
+    region: 'Midwest',
+    state: 'Wisconsin',
   },
   {
-    state: 'Wyoming',
+    area: 253335,
     code: 'WY',
-    region: 'West',
     division: 'Mountain',
     income: 60434,
     population: 577737,
-    area: 253335
-  }
-];
+    region: 'West',
+    state: 'Wyoming',
+  },
+]
 
 export const objectsTree = {
   analytics: {
     cluster: {
       agglomerative: {
-        value: 3938
+        value: 3938,
       },
       communityStructure: {
-        value: 3812
+        value: 3812,
       },
       hierarchical: {
-        value: 6714
+        value: 6714,
       },
       mergeEdge: {
-        value: 743
+        value: 743,
       },
     },
     graph: {
       betweennessCentrality: {
-        value: 3534
+        value: 3534,
       },
       linkDistance: {
-        value: 5731
+        value: 5731,
       },
       maxFlowMinCut: {
-        value: 7840
+        value: 7840,
       },
       shortestPaths: {
-        value: 5914
+        value: 5914,
       },
       spanningTree: {
-        value: 3416
+        value: 3416,
       },
     },
     optimization: {
       aspectRatioBanker: {
-        value: 7074
-      }
-    }
+        value: 7074,
+      },
+    },
   },
   animate: {
     easing: {
-      value: 17010
+      value: 17010,
     },
     functionSequence: {
-      vaue: 5842
+      vaue: 5842,
     },
     interpolate: {
       arrayInterpolator: {
-        value: 1983
+        value: 1983,
       },
       colorInterpolator: {
-        value: 2047
+        value: 2047,
       },
       dateInterpolator: {
-        value: 1375
+        value: 1375,
       },
       interpolator: {
-        value: 8746
+        value: 8746,
       },
       matrixInterpolator: {
-        value: 2202
+        value: 2202,
       },
       numberInterpolator: {
-        value: 1382
+        value: 1382,
       },
       objectInterpolator: {
-        value: 1629
+        value: 1629,
       },
       pointInterpolator: {
-        value: 1675
+        value: 1675,
       },
       rectangleInterpolator: {
-        value: 2042
+        value: 2042,
       },
     },
     schedulable: {
-      value: 1041
-    }
-  }
-};
+      value: 1041,
+    },
+  },
+}

@@ -124,4 +124,141 @@ describe('controller', () => {
 
     expect(buildData.find((o) => o._data.path === './src.index.js.index.js')).toBeUndefined()
   })
+
+  it('should update labels when tree changes', () => {
+    const labels = []
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            labels: {
+              display: true,
+              formatter: (ctx) => {
+                labels.push(ctx.raw.v)
+                return `${ctx.raw.v}`
+              },
+            },
+            tree: [1],
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+
+    chart.draw()
+    expect(labels).toContain(1)
+
+    labels.length = 0
+    chart.data.datasets[0].tree = [5]
+    chart.update()
+
+    expect(labels).toContain(5)
+  })
+
+  it('should update labels when display changes', () => {
+    const labels = []
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            labels: {
+              display: false,
+              formatter: (ctx) => {
+                labels.push(ctx.raw.v)
+                return `${ctx.raw.v}`
+              },
+            },
+            tree: [1],
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+
+    chart.draw()
+    expect(labels).toEqual([])
+
+    chart.data.datasets[0].labels.display = true
+    chart.update()
+
+    expect(labels).toContain(1)
+  })
+
+  it('should update captions when formatter changes', () => {
+    const captions = []
+    const oldFormatter = (ctx) => {
+      captions.push(`old:${ctx.raw.g}`)
+      return `old:${ctx.raw.g}`
+    }
+    const newFormatter = (ctx) => {
+      captions.push(`new:${ctx.raw.g}`)
+      return `new:${ctx.raw.g}`
+    }
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            captions: {
+              display: true,
+              formatter: oldFormatter,
+            },
+            groups: ['region', 'division', 'state'],
+            key: 'value',
+            labels: {
+              display: false,
+            },
+            tree: [
+              { division: 'b', region: 'a', state: 'c', value: 1 },
+              { division: 'b', region: 'a', state: 'd', value: 2 },
+            ],
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+
+    chart.draw()
+    expect(captions).toContain('old:a')
+
+    captions.length = 0
+    chart.data.datasets[0].captions.formatter = newFormatter
+    chart.update()
+
+    expect(captions).toContain('new:a')
+  })
+
+  it('should update labels when formatter changes', () => {
+    const labels = []
+    const oldFormatter = (ctx) => {
+      labels.push(`old:${ctx.raw.v}`)
+      return `old:${ctx.raw.v}`
+    }
+    const newFormatter = (ctx) => {
+      labels.push(`new:${ctx.raw.v}`)
+      return `new:${ctx.raw.v}`
+    }
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            labels: {
+              display: true,
+              formatter: oldFormatter,
+            },
+            tree: [1],
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+
+    chart.draw()
+    expect(labels).toContain('old:1')
+
+    labels.length = 0
+    chart.data.datasets[0].labels.formatter = newFormatter
+    chart.update()
+
+    expect(labels).toContain('new:1')
+  })
 })

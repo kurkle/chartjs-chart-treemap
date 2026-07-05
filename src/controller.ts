@@ -237,6 +237,14 @@ export default class TreemapController extends DatasetController {
 ;(TreemapController as any).descriptors = {
   _indexable: false,
   _scriptable: true,
+  captions: {
+    _fallback: true,
+    _scriptable: (name: string) => name !== 'formatter',
+  },
+  labels: {
+    _fallback: true,
+    _scriptable: (name: string) => name !== 'formatter',
+  },
 }
 
 ;(TreemapController as any).overrides = {

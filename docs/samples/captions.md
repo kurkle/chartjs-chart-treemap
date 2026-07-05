@@ -80,7 +80,7 @@ const actions = [
     handler(chart) {
       const labels = chart.data.datasets[0].labels;
       labels.display = !labels.display;
-      chart.update();
+      chart.update('none');
     }
   }
 ];

@@ -14,7 +14,7 @@ categories:
     labels:
       - 'documentation'
   - title: '🧰 Maintenance'
-    labels: 
+    labels:
       - 'chore'
       - 'dependencies'
       - 'performance'

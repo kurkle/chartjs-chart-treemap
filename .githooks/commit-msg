@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+message_file=$1
+subject=$(sed -n '1p' "$message_file")
+
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *)
+    exit 0
+    ;;
+esac
+
+if printf '%s\n' "$subject" | grep -Eq '^[a-z]+(\([A-Za-z0-9._-]+\))?!?: .+'; then
+  exit 0
+fi
+
+cat <<EOF >&2
+Commit message must be conventional, for example:
+  fix: allow borderRadius in treemap dataset options
+  feat(controller): add grouped layout option
+
+Received:
+  $subject
+EOF
+exit 1

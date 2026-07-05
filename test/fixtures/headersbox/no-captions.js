@@ -18,7 +18,7 @@ export default {
           if (ctx.raw.l === 0) {
             return 'dimgray';
           }
-          const parentGrp = ctx.raw._data.grp;
+          const parentGrp = ctx.raw._data.grp || ctx.raw._data.children[0].grp;
           return colors[parentGrp[parentGrp.length - 1]];
         },
         borderWidth: 0,

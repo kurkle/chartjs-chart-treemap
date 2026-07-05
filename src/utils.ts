@@ -5,6 +5,8 @@ const isOlderPart = (act: string, req: string) =>
 
 export const getGroupKey = (lvl: unknown) => String(lvl)
 
+const hasGroupValue = (value: unknown) => value !== undefined && value !== null && value !== ''
+
 function scanTreeObject(
   keys: string[],
   treeLeafKey: string,
@@ -90,6 +92,9 @@ function getPath(groups: string[], value: Record<string, any>, defaultValue: str
   const path = []
   for (const grp of groups) {
     const item = value[grp]
+    if (!hasGroupValue(item)) {
+      continue
+    }
     if (item === '') {
       path.push(defaultValue)
       break
@@ -99,6 +104,41 @@ function getPath(groups: string[], value: Record<string, any>, defaultValue: str
   return path.length ? path.join('.') : defaultValue
 }
 
+function resolveGroup(
+  value: Record<string, any>,
+  treeLeafKey: string,
+  allGroups: string[],
+  groupIndex: number
+) {
+  for (let idx = groupIndex; idx < allGroups.length; idx++) {
+    const groupKey = getGroupKey(allGroups[idx])
+    if (hasGroupValue(value[groupKey])) {
+      return { group: groupKey, groupIndex: idx, value: value[groupKey] }
+    }
+  }
+  if (hasGroupValue(value[treeLeafKey])) {
+    return { group: treeLeafKey, groupIndex, value: value[treeLeafKey] }
+  }
+  return undefined
+}
+
+function ensureGroup(
+  tmp: Record<string, any>,
+  data: Record<string, any[]>,
+  groupValue: string,
+  addKeys: string[]
+) {
+  if (groupValue in tmp) {
+    return
+  }
+  tmp[groupValue] = { value: 0 }
+  const tmpRef = tmp[groupValue]
+  addKeys.forEach((k) => {
+    tmpRef[k] = 0
+  })
+  data[groupValue] = []
+}
+
 export function group(
   values: Record<string, any>[],
   grp: string,
@@ -106,14 +146,17 @@ export function group(
   treeLeafKey: string,
   mainGrp?: string,
   mainValue?: any,
-  groups: string[] = []
+  groups: string[] = [],
+  allGroups: string[] = groups,
+  groupIndex = groups.length - 1
 ) {
   const key = keys[0]
   const addKeys = keys.slice(1)
   const tmp: Record<string, any> = Object.create(null)
   const data: Record<string, any[]> = Object.create(null)
   const ret: Record<string, any>[] = []
-  let g: string
+  const resolvedAllGroups = allGroups.length ? allGroups : [grp]
+  const resolvedGroupIndex = allGroups.length ? groupIndex : 0
   let i: number
   let n: number
   for (i = 0, n = values.length; i < n; ++i) {
@@ -121,25 +164,21 @@ export function group(
     if (mainGrp && v[mainGrp] !== mainValue) {
       continue
     }
-    g = v[grp] || v[treeLeafKey] || ''
-    if (!g) {
+    const itemGroup = resolveGroup(v, treeLeafKey, resolvedAllGroups, resolvedGroupIndex)
+    if (!itemGroup) {
       return []
     }
-    if (!(g in tmp)) {
-      tmp[g] = { value: 0 }
-      const tmpRef = tmp[g]
-      addKeys.forEach((k) => {
-        tmpRef[k] = 0
-      })
-      data[g] = []
-    }
+    const g = itemGroup.value
+    ensureGroup(tmp, data, g, addKeys)
     tmp[g].value += +v[key]
-    tmp[g].label = v[grp] || ''
+    tmp[g].label = g
+    tmp[g].group = itemGroup.group
+    tmp[g].groupIndex = itemGroup.groupIndex
     const tmpRef = tmp[g]
     addKeys.forEach((k) => {
       tmpRef[k] += v[k]
     })
-    tmp[g].path = getPath(groups, v, g)
+    tmp[g].path = getPath(resolvedAllGroups.slice(0, itemGroup.groupIndex + 1), v, g)
     data[g].push(v)
   }
 
@@ -150,6 +189,8 @@ export function group(
       v[ak] = +tmp[k][ak]
     })
     v[grp] = tmp[k].label
+    v.group = tmp[k].group
+    v.groupIndex = tmp[k].groupIndex
     v.label = k
     v.path = tmp[k].path
 

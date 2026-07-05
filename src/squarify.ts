@@ -56,7 +56,7 @@ export default function squarify(
       value: val(i),
     }
     if (grp) {
-      o.level = lvl
+      o.level = tmp[i].groupIndex ?? lvl
       o.group = gval(i)
       const tmpRef = tmp[i]
       o.values = keys.reduce<Record<string, number>>((obj, k) => {

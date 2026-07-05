@@ -19,42 +19,49 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
   const font = toFont(captions.font)
   const padding = valueOrDefault(captions.padding, 3)
 
+  function getSubRect(sq: any, rect: any) {
+    const bw =
+      dataset.displayMode === 'headerBoxes'
+        ? { b: 0, l: 0, r: 0, t: 0 }
+        : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2)
+    const subRect = {
+      ...rect,
+      h: sq.h - 2 * sp - bw.t - bw.b,
+      w: sq.w - 2 * sp - bw.l - bw.r,
+      x: sq.x + sp + bw.l,
+      y: sq.y + sp + bw.t,
+    }
+    if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
+      const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding)
+      subRect.y += captionHeight
+      subRect.h -= captionHeight
+    }
+    return subRect
+  }
+
   function recur(treeElements: any, gidx: number, rect: any, parent?: any, gs?: any) {
     const g = getGroupKey(groups[gidx])
-    const pg = gidx > 0 ? getGroupKey(groups[gidx - 1]) : undefined
     const gdata = group(
       treeElements,
       g,
       keys,
       treeLeafKey,
-      pg,
+      undefined,
       parent,
-      groups.filter((_item: any, index: number) => index <= gidx)
+      groups.filter((_item: any, index: number) => index <= gidx),
+      groups,
+      gidx
     )
     const gsq = squarify(gdata, rect, keys, g, gidx, gs)
     const ret = gsq.slice()
     if (gidx < glen - 1) {
       gsq.forEach((sq) => {
-        const bw =
-          dataset.displayMode === 'headerBoxes'
-            ? { b: 0, l: 0, r: 0, t: 0 }
-            : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2)
-        const subRect = {
-          ...rect,
-          h: sq.h - 2 * sp - bw.t - bw.b,
-          w: sq.w - 2 * sp - bw.l - bw.r,
-          x: sq.x + sp + bw.l,
-          y: sq.y + sp + bw.t,
-        }
-        if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
-          const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding)
-          subRect.y += captionHeight
-          subRect.h -= captionHeight
-        }
+        const subRect = getSubRect(sq, rect)
         const children: any[] = []
-        gdata.forEach((gEl) => {
-          children.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s))
-        })
+        const nextGroupIndex = sq._data.groupIndex + 1
+        if (nextGroupIndex < glen) {
+          children.push(...recur(sq._data.children, nextGroupIndex, subRect, sq.g, sq.s))
+        }
         ret.push(...children)
         sq.isLeaf = !children.length
       })

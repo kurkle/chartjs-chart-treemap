@@ -23,6 +23,7 @@ export default defineConfig({
             { label: 'Labels', link: '/samples/labels/' },
             { label: 'Fonts and Colors', link: '/samples/labelsfontsandcolors/' },
             { label: 'Groups', link: '/samples/groups/' },
+            { label: 'Missing Groups', link: '/samples/missinggroups/' },
             { label: 'Tree', link: '/samples/tree/' },
             { label: 'Captions', link: '/samples/captions/' },
             { label: 'Dividers', link: '/samples/dividers/' },

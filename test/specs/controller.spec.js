@@ -83,4 +83,45 @@ describe('controller', () => {
     expect(a3b3c4.v).toBe(50)
     expect(a3b3c4._data.children.length).toBe(1)
   })
+
+  it('should skip missing group levels', () => {
+    const tree = [
+      { component: null, file: 'index.js', folder: './src', key: 1, subFolder: null },
+      { component: 'A', file: 'A.js', folder: './src', key: 2, subFolder: null },
+      { component: 'A', file: 'B.js', folder: './src', key: 3, subFolder: 'nested' },
+    ]
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            groups: ['folder', 'component', 'subFolder', 'file'],
+            key: 'key',
+            tree,
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+    const buildData = chart.data.datasets[0].data
+
+    const root = buildData.find((o) => o._data.path === './src')
+    expect(root.v).toBe(6)
+
+    const index = buildData.find((o) => o._data.path === './src.index.js')
+    expect(index.v).toBe(1)
+    expect(index.isLeaf).toBeTrue()
+
+    const component = buildData.find((o) => o._data.path === './src.A')
+    expect(component.v).toBe(5)
+
+    const componentFile = buildData.find((o) => o._data.path === './src.A.A.js')
+    expect(componentFile.v).toBe(2)
+    expect(componentFile.isLeaf).toBeTrue()
+
+    const nestedFile = buildData.find((o) => o._data.path === './src.A.nested.B.js')
+    expect(nestedFile.v).toBe(3)
+    expect(nestedFile.isLeaf).toBeTrue()
+
+    expect(buildData.find((o) => o._data.path === './src.index.js.index.js')).toBeUndefined()
+  })
 })

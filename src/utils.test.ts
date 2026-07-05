@@ -45,6 +45,37 @@ describe('utils', () => {
         jasmine.objectContaining({ k2: 'x', v: 3, v1: 10 }),
       ])
     })
+    it('should skip missing group levels', () => {
+      const a = [
+        { component: null, file: 'index.js', folder: './src', subFolder: null, v: 1 },
+        { component: 'A', file: 'A.js', folder: './src', subFolder: null, v: 2 },
+        { component: 'A', file: 'B.js', folder: './src', subFolder: 'nested', v: 3 },
+      ]
+      const groups = ['folder', 'component', 'subFolder', 'file']
+      const g1 = group(a, 'folder', ['v'], 'leaf', undefined, undefined, ['folder'], groups, 0)
+      expect(g1).toEqual([jasmine.objectContaining({ folder: './src', groupIndex: 0, v: 6 })])
+
+      const g2 = group(
+        g1[0].children,
+        'component',
+        ['v'],
+        'leaf',
+        undefined,
+        undefined,
+        ['folder', 'component'],
+        groups,
+        1
+      )
+      expect(g2).toEqual([
+        jasmine.objectContaining({
+          component: 'index.js',
+          groupIndex: 3,
+          path: './src.index.js',
+          v: 1,
+        }),
+        jasmine.objectContaining({ component: 'A', groupIndex: 1, path: './src.A', v: 5 }),
+      ])
+    })
   })
 
   describe('normalize tree object to array', () => {

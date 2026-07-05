@@ -39,6 +39,7 @@ module.exports = async (karma) => {
         base: 'rollup',
         options: {
           output: {
+            dir: './build/karma/fixtures',
             format: 'iife',
             globals,
             name: 'fixture',
@@ -73,6 +74,7 @@ module.exports = async (karma) => {
     rollupPreprocessor: {
       external: ['chart.js'],
       output: {
+        dir: './build/karma/tests',
         format: 'umd',
         globals: {
           'chart.js': 'Chart',

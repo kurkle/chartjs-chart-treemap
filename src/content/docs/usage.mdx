@@ -92,6 +92,7 @@ These are used to set display properties for a specific dataset.
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
 | [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`treeLeafKey`](#general) | `string` | - | `_leaf` |
+| [`treeVersion`](#general) | `number` \| `string` | - | `undefined` |
 | [`unsorted`](#general) | `boolean` | - | `false`
 | [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
 
@@ -108,6 +109,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically build.
 | `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
+| `treeVersion` | Change this value when mutating `tree` in place to rebuild the generated data on the next chart update.
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 
 Only the `tree`, `treeLeafKey`, `key`, `sumKeys` and `groups` options need to be specified in the dataset namespace.

@@ -119,6 +119,7 @@ export default class TreemapController extends DatasetController {
   _rect: any
   _rectChanged: boolean
   _prevTree: any
+  _prevTreeVersion: unknown
 
   constructor(chart: any, datasetIndex: number) {
     super(chart, datasetIndex)
@@ -176,6 +177,7 @@ export default class TreemapController extends DatasetController {
     const keys = [dataset.key || ''].concat(dataset.sumKeys || [])
     dataset.tree = dataset.tree || dataset.data || []
     const tree = dataset.tree
+    const treeVersion = dataset.treeVersion
 
     if (mode === 'reset') {
       // reset is called before 2nd configure and is only called if animations are enabled. So wen need an extra configure call here.
@@ -186,11 +188,13 @@ export default class TreemapController extends DatasetController {
       this._rectChanged ||
       arrayNotEqual(this._keys || [], keys) ||
       arrayNotEqual(this._groups || [], groups) ||
-      this._prevTree !== tree
+      this._prevTree !== tree ||
+      this._prevTreeVersion !== treeVersion
     ) {
       this._groups = groups.slice()
       this._keys = keys.slice()
       this._prevTree = tree
+      this._prevTreeVersion = treeVersion
       this._rectChanged = false
 
       dataset.data = buildData(tree, dataset, this._keys, this._rect)

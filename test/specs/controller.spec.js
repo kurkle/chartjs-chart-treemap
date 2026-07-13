@@ -3,7 +3,7 @@ describe('controller', () => {
     expect(Chart.controllers.treemap).toBeDefined()
   })
 
-  it('should not rebuild data when nothing has changes', () => {
+  it('should not rebuild data when nothing has changed', () => {
     const origData = [1, 2, 3]
     const chart = acquireChart({
       data: {
@@ -19,6 +19,46 @@ describe('controller', () => {
     expect(buildData).not.toBe(origData)
     chart.update()
     expect(buildData).toBe(chart.data.datasets[0].data)
+  })
+
+  it('should rebuild data when the tree is mutated in place', () => {
+    const tree = [1, 2]
+    const dataset = { tree, treeVersion: 0 }
+    const chart = acquireChart({
+      data: {
+        datasets: [dataset],
+      },
+      type: 'treemap',
+    })
+
+    expect(chart.data.datasets[0].data.map((item) => item.v)).toEqual([2, 1])
+
+    tree[0] = 9
+    dataset.treeVersion++
+    chart.update()
+
+    expect(chart.data.datasets[0].data.map((item) => item.v)).toEqual([9, 2])
+  })
+
+  it('should rebuild data when a tree item is mutated in place', () => {
+    const tree = [
+      { category: 'a', value: 1 },
+      { category: 'b', value: 2 },
+    ]
+    const dataset = { groups: ['category'], key: 'value', tree, treeVersion: 'initial' }
+    const chart = acquireChart({
+      data: {
+        datasets: [dataset],
+      },
+      type: 'treemap',
+    })
+
+    tree[0].value = 9
+    dataset.treeVersion = 'updated'
+    chart.update()
+
+    const category = chart.data.datasets[0].data.find((item) => item.g === 'a')
+    expect(category.v).toBe(9)
   })
 
   it('should group 3 levels of data', () => {

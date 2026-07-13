@@ -34,6 +34,7 @@ const _chart = new Chart('test', {
         },
         spacing: 0.1,
         tree: [15, 6, 6, 5, 4, 3, 2, 2],
+        treeVersion: 1,
       },
     ],
   },

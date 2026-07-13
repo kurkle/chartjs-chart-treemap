@@ -126,6 +126,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   sumKeys?: Array<keyof DType>
   tree: number[] | DType[] | AnyObject
   treeLeafKey?: keyof DType
+  treeVersion?: number | string
   key?: keyof DType
 }
 

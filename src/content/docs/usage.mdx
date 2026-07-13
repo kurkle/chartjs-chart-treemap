@@ -107,12 +107,27 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `label` | The label for the dataset which appears in the legend and tooltips.
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
-| `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically build.
+| `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically built.
 | `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
 | `treeVersion` | Change this value when mutating `tree` in place to rebuild the generated data on the next chart update.
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 
 Only the `tree`, `treeLeafKey`, `key`, `sumKeys` and `groups` options need to be specified in the dataset namespace.
+
+### TypeScript
+
+The controller builds `data` from `tree` at runtime, so JavaScript configurations do not need to
+provide it. Chart.js's TypeScript definitions require the `data` property on every dataset, however.
+TypeScript configurations should provide an empty array to satisfy that requirement:
+
+```ts
+const dataset = {
+  data: [],
+  tree: [15, 6, 6, 5, 4, 3, 2, 2],
+};
+```
+
+The controller replaces the empty array with the generated treemap data.
 
 ```js
 function colorFromRaw(ctx) {

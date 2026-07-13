@@ -90,6 +90,14 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
 }
 
 export default class TreemapController extends DatasetController {
+  declare static readonly id: string
+  declare static readonly defaults: Record<string, unknown>
+  declare static readonly descriptors: Record<string, unknown>
+  declare static readonly overrides: Record<string, unknown>
+  declare static readonly beforeRegister: () => void
+  declare static readonly afterRegister: () => void
+  declare static readonly afterUnregister: () => void
+
   options: any
   _groups: any[] | undefined
   _keys: any[] | undefined

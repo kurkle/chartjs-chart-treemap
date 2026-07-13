@@ -1,4 +1,4 @@
-import { Chart, registerables } from 'chart.js'
+import { Chart, LinearScale, registerables, Tooltip } from 'chart.js'
 
 import { TreemapController, TreemapElement } from '../../../dist/chartjs-chart-treemap.esm.js'
 
@@ -46,6 +46,22 @@ describe('browser esm integration', () => {
     expect(chart.data.datasets[0].tree.length).toBe(7)
     expect(chart.getDatasetMeta(0).type).toBe('treemap')
     expect(chart.getDatasetMeta(0).controller).toBeTruthy()
+
+    chart.destroy()
+  })
+
+  it('registers the tooltip positioner regardless of registration order', () => {
+    delete Tooltip.positioners.treemap
+    Chart.register(LinearScale, TreemapController, TreemapElement, Tooltip)
+
+    canvas = document.createElement('canvas')
+    document.body.appendChild(canvas)
+    const chart = new Chart(canvas.getContext('2d'), {
+      data: { datasets: [{ tree: [1] }] },
+      type: 'treemap',
+    })
+
+    expect(Tooltip.positioners.treemap).toEqual(jasmine.any(Function))
 
     chart.destroy()
   })

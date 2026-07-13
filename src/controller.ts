@@ -89,6 +89,21 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
     .filter(Boolean)
 }
 
+function registerTooltipPositioner() {
+  const tooltipPlugin = registry.plugins.get('tooltip') as any
+  if (!tooltipPlugin || tooltipPlugin.positioners.treemap) {
+    return
+  }
+  tooltipPlugin.positioners.treemap = (active: any[]) => {
+    if (!active.length) {
+      return false
+    }
+
+    const item = active.at(-1)
+    return item.element.tooltipPosition()
+  }
+}
+
 export default class TreemapController extends DatasetController {
   declare static readonly id: string
   declare static readonly defaults: Record<string, unknown>
@@ -115,6 +130,9 @@ export default class TreemapController extends DatasetController {
   }
 
   override initialize() {
+    // The tooltip can be registered after the treemap controller. At chart creation time all
+    // components are available, so retry here to make registration order irrelevant.
+    registerTooltipPositioner()
     this.enableOptionSharing = true
     super.initialize()
   }
@@ -306,23 +324,7 @@ export default class TreemapController extends DatasetController {
 }
 
 ;(TreemapController as any).afterRegister = () => {
-  const tooltipPlugin = registry.plugins.get('tooltip') as any
-  if (tooltipPlugin) {
-    tooltipPlugin.positioners.treemap = (active: any[]) => {
-      if (!active.length) {
-        return false
-      }
-
-      const item = active.at(-1)
-      const el = item.element
-
-      return el.tooltipPosition()
-    }
-  } else {
-    console.warn(
-      'Unable to register the treemap positioner because tooltip plugin is not registered'
-    )
-  }
+  registerTooltipPositioner()
 }
 
 ;(TreemapController as any).afterUnregister = () => {

@@ -17,8 +17,8 @@ title: Integration
 ## Bundlers (Webpack, Rollup, etc.)
 
 ```javascript
-import { Chart } from 'chart.js';
+import {Chart, registerables} from 'chart.js';
 import {TreemapController, TreemapElement} from 'chartjs-chart-treemap';
 
-Chart.register(TreemapController, TreemapElement);
+Chart.register(...registerables, TreemapController, TreemapElement);
 ```

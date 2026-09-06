@@ -58,15 +58,6 @@ const config = {
 };
 
 // </block:config>
-function toggle(chart, group) {
-  const idx = GROUPS.indexOf(group);
-  if (idx === -1) {
-    GROUPS.push(group);
-  } else {
-    GROUPS.splice(idx, 1);
-  }
-  chart.update();
-}
 
 const actions = [
   {

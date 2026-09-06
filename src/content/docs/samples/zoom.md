@@ -1,4 +1,6 @@
-# Using Datalabels plugin
+---
+title: Using Zoom plugin
+---
 
 ```js chart-editor
 // <block:setup:1>
@@ -13,7 +15,7 @@ function colorFromRaw(ctx, border) {
   }
   const value = ctx.raw.v;
   let alpha = (1 + Math.log(value)) / 5;
-  const color = 'purple';
+  const color = 'orange';
   if (border) {
     alpha += 0.01;
   }
@@ -31,27 +33,30 @@ const config = {
       {
         label: 'My First dataset',
         tree: Utils.numbers(NUMBER_CFG),
-        borderColor: (ctx) => colorFromRaw(ctx, true),
-        borderWidth: 1,
-        spacing: 0,
+        borderWidth: 0,
         backgroundColor: (ctx) => colorFromRaw(ctx),
-        datalabels: {
-          display: 'auto',
-          anchor: 'start',
-          align: 45,
-          formatter: (value) => Math.trunc(value.v),
-          color: 'white',
+        labels: {
+          display: true,
+          formatter: (ctx) => ctx.raw.v.toFixed(2),
           font: {
-            size: 20
-          }
+            size: 16
+          },
+          overflow: 'fit'
         }
       }
     ],
   },
   options: {
     plugins: {
-      datalabels: {
-        display: true,
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: true,
+          }
+        },
+        pan: {
+          enabled: true,
+        }
       }
     }
   }
@@ -61,12 +66,9 @@ const config = {
 
 const actions = [
   {
-    name: 'Randomize',
+    name: 'Reset zoom',
     handler(chart) {
-      chart.data.datasets.forEach(dataset => {
-        dataset.tree = Utils.numbers(NUMBER_CFG);
-      });
-      chart.update();
+      chart.resetZoom();
     }
   },
 ];

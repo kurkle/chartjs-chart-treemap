@@ -1,8 +1,10 @@
-# Display Mode
+---
+title: Groups
+---
 
 ```js chart-editor
 // <block:setup:3>
-let DISPLAY_MODE = 'containerBoxes';
+const GROUPS = ['region'];
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -14,7 +16,7 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: 'US area by division / state'
+      text: (ctx) => 'US area by ' + GROUPS.join(' / ')
     },
     legend: {
       display: false
@@ -43,44 +45,40 @@ const config = {
     datasets: [{
       tree: Data.statsByState,
       key: 'area',
-      groups: ['division', 'state'],
-      spacing: 2,
-      borderWidth: 1,
+      groups: GROUPS,
+      spacing: 1,
+      borderWidth: 0.5,
       borderColor: 'rgba(200,200,200,1)',
-      backgroundColor: (ctx) => {
-        if (ctx.type !== 'data') {
-          return 'transparent';
-        }
-        if (DISPLAY_MODE === 'containerBoxes') {
-          return 'rgba(220,230,220,0.3)';
-        }
-        return ctx.raw.l ? 'rgb(220,230,220)' : 'lightgray';
-      },
-      displayMode: DISPLAY_MODE,
-      captions: {
-        padding: 6,
-      },
+      backgroundColor: 'rgba(220,230,220,0.3)',
+      hoverBackgroundColor: 'rgba(220,230,220,0.5)',
     }]
   },
   options: options
 };
 
 // </block:config>
-function toggle(chart, mode) {
-  const dataset = {...config.data.datasets[0], displayMode: mode};
-  DISPLAY_MODE = mode;
-  chart.data.datasets = [dataset];
+function toggle(chart, group) {
+  const idx = GROUPS.indexOf(group);
+  if (idx === -1) {
+    GROUPS.push(group);
+  } else {
+    GROUPS.splice(idx, 1);
+  }
   chart.update();
 }
 
 const actions = [
   {
-    name: 'Container Boxes',
-    handler: (chart) => toggle(chart, 'containerBoxes')
+    name: 'Toggle Region',
+    handler: (chart) => toggle(chart, 'region')
   },
   {
-    name: 'Header Boxes',
-    handler: (chart) => toggle(chart, 'headerBoxes')
+    name: 'Toggle Division',
+    handler: (chart) => toggle(chart, 'division')
+  },
+  {
+    name: 'Toggle State',
+    handler: (chart) => toggle(chart, 'state')
   },
 ];
 

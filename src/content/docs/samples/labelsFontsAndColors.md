@@ -1,4 +1,6 @@
-# Fonts and colors
+---
+title: Fonts and colors
+---
 
 ```js chart-editor
 // <block:setup:1>

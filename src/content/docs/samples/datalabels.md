@@ -1,32 +1,28 @@
-# Labels
+---
+title: Using Datalabels plugin
+---
 
 ```js chart-editor
 // <block:setup:1>
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
-
-const INTL_NUM_FORMAT = new Intl.NumberFormat('us', {
-  style: 'unit',
-  unit: 'kilometer',
-  unitDisplay: 'short',
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1});
-
 // </block:setup>
 
 // <block:utils:2>
-function colorFromRaw(ctx) {
+function colorFromRaw(ctx, border) {
   if (ctx.type !== 'data') {
     return 'transparent';
   }
   const value = ctx.raw.v;
   let alpha = (1 + Math.log(value)) / 5;
-  const color = 'orange';
+  const color = 'purple';
+  if (border) {
+    alpha += 0.01;
+  }
   return helpers.color(color)
     .alpha(alpha)
     .rgbString();
 }
-
 // </block:utils>
 
 // <block:config:0>
@@ -37,40 +33,27 @@ const config = {
       {
         label: 'My First dataset',
         tree: Utils.numbers(NUMBER_CFG),
-        borderColor: 'red',
-        borderWidth: 0.5,
+        borderColor: (ctx) => colorFromRaw(ctx, true),
+        borderWidth: 1,
         spacing: 0,
         backgroundColor: (ctx) => colorFromRaw(ctx),
-        labels: {
-          align: 'left',
-          display: true,
-          formatter(ctx) {
-            if (ctx.type !== 'data') {
-              return;
-            }
-            return INTL_NUM_FORMAT.format(ctx.raw.v);
-          },
-          color: 'black',
+        datalabels: {
+          display: 'auto',
+          anchor: 'start',
+          align: 45,
+          formatter: (value) => Math.trunc(value.v),
+          color: 'white',
           font: {
-            size: 16,
-          },
-          hoverFont: {
-            size: 24,
-            weight: 'bold'
-          },
-          position: 'center'
+            size: 20
+          }
         }
       }
     ],
   },
   options: {
     plugins: {
-      title: {
+      datalabels: {
         display: true,
-        text: 'Labelling data'
-      },
-      legend: {
-        display: false
       }
     }
   }

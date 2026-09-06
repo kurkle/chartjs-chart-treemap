@@ -1,7 +1,10 @@
-# RTL
+---
+title: Captions
+---
 
 ```js chart-editor
 // <block:setup:3>
+const GROUPS = ['region', 'division', 'state'];
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
 
@@ -15,7 +18,7 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: (ctx) => 'RTL: ' + !!ctx.chart.data.datasets[0].rtl
+      text: (ctx) => 'US area by ' + GROUPS.join(' / ')
     },
     legend: {
       display: false
@@ -44,40 +47,48 @@ const config = {
     datasets: [{
       tree: Data.statsByState,
       key: 'area',
-      groups: ['state'],
-      spacing: -0.5,
+      groups: GROUPS,
+      spacing: 1,
       borderWidth: 0.5,
       borderColor: 'rgba(200,200,200,1)',
+      backgroundColor: 'rgba(220,230,220,0.3)',
       hoverBackgroundColor: 'rgba(220,230,220,0.5)',
-      rtl: false
+      captions: {
+        align: 'center',
+        display: true,
+        color: 'red',
+        font: {
+          size: 14,
+        },
+        hoverFont: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: 5
+      },
+      labels: {
+        display: false,
+        overflow: 'hidden'
+      }
     }]
   },
   options: options
 };
-
 // </block:config>
-function toggle(chart, group) {
-  const idx = GROUPS.indexOf(group);
-  if (idx === -1) {
-    GROUPS.push(group);
-  } else {
-    GROUPS.splice(idx, 1);
-  }
-  chart.update();
-}
 
 const actions = [
   {
-    name: 'Toggle RTL',
-    handler: (chart) => {
-      chart.data.datasets[0].rtl = !chart.data.datasets[0].rtl;
-      chart.update();
+    name: 'Toggle labels',
+    handler(chart) {
+      const labels = chart.data.datasets[0].labels;
+      labels.display = !labels.display;
+      chart.update('none');
     }
-  },
+  }
 ];
 
 module.exports = {
-  actions,
   config,
+  actions
 };
 ```

@@ -1,8 +1,11 @@
-# Groups
+---
+title: RTL
+---
 
 ```js chart-editor
 // <block:setup:3>
-const GROUPS = ['region'];
+const DATA_COUNT = 12;
+const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -14,7 +17,7 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: (ctx) => 'US area by ' + GROUPS.join(' / ')
+      text: (ctx) => 'RTL: ' + !!ctx.chart.data.datasets[0].rtl
     },
     legend: {
       display: false
@@ -43,12 +46,12 @@ const config = {
     datasets: [{
       tree: Data.statsByState,
       key: 'area',
-      groups: GROUPS,
-      spacing: 1,
+      groups: ['state'],
+      spacing: -0.5,
       borderWidth: 0.5,
       borderColor: 'rgba(200,200,200,1)',
-      backgroundColor: 'rgba(220,230,220,0.3)',
       hoverBackgroundColor: 'rgba(220,230,220,0.5)',
+      rtl: false
     }]
   },
   options: options
@@ -67,16 +70,11 @@ function toggle(chart, group) {
 
 const actions = [
   {
-    name: 'Toggle Region',
-    handler: (chart) => toggle(chart, 'region')
-  },
-  {
-    name: 'Toggle Division',
-    handler: (chart) => toggle(chart, 'division')
-  },
-  {
-    name: 'Toggle State',
-    handler: (chart) => toggle(chart, 'state')
+    name: 'Toggle RTL',
+    handler: (chart) => {
+      chart.data.datasets[0].rtl = !chart.data.datasets[0].rtl;
+      chart.update();
+    }
   },
 ];
 

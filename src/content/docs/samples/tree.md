@@ -1,4 +1,6 @@
-# Tree
+---
+title: Tree
+---
 
 ```js chart-editor
 // <block:options:1>

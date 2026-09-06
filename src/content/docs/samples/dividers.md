@@ -1,4 +1,6 @@
-# Dividers
+---
+title: Dividers
+---
 
 ```js chart-editor
 // <block:setup:3>

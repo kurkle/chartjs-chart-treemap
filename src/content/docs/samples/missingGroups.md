@@ -1,4 +1,6 @@
-# Missing Groups
+---
+title: Missing Groups
+---
 
 Treemap groups can include missing hierarchy levels. `null`, `undefined`, and empty group values are skipped so each branch continues at the next available group.
 

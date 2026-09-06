@@ -10,11 +10,51 @@
 [![documentation](https://img.shields.io/static/v1?message=Documentation&color=informational)](https://chartjs-chart-treemap.pages.dev)
 ![GitHub](https://img.shields.io/github/license/kurkle/chartjs-chart-treemap.svg)
 
+chartjs-chart-treemap adds a `treemap` chart type to Chart.js that displays hierarchical (tree-structured) data as a set of nested rectangles, where each rectangle's area is proportional to the value it represents. It's for visualizing part-to-whole or hierarchical data — disk usage, sales by category, org structures — in less space than a bar or pie chart would need.
+
+## Example
+
 ![TreeMap Example Image](treemap.png)
+
+## Installation
+
+```bash
+npm install chartjs-chart-treemap
+```
+
+Or via CDN:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap"></script>
+```
+
+## Quickstart
+
+```js
+import { Chart, registerables } from 'chart.js';
+import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
+
+Chart.register(...registerables, TreemapController, TreemapElement);
+
+new Chart(document.getElementById('chart'), {
+  type: 'treemap',
+  data: {
+    datasets: [
+      {
+        tree: [6, 6, 4, 3, 2, 2, 1],
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      },
+    ],
+  },
+});
+```
+
+See more integration options (script tag, other module loaders) in the [documentation](https://chartjs-chart-treemap.pages.dev/integration).
 
 ## Documentation
 
-You can find documentation for chartjs-chart-treemap at [https://chartjs-chart-treemap.pages.dev/](https://chartjs-chart-treemap.pages.dev/).
+Full documentation, including the dataset and options reference, is at [https://chartjs-chart-treemap.pages.dev/](https://chartjs-chart-treemap.pages.dev/).
 
 ## Development
 

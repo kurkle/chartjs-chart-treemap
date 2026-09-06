@@ -80,10 +80,7 @@ interface Props {
     },
   })
 
-  const modules = {
-    ...import.meta.glob('../../samples/*.md', { query: '?raw', import: 'default', eager: true }),
-    ...import.meta.glob('../../*.md', { query: '?raw', import: 'default', eager: true }),
-  }
+  const modules = import.meta.glob('../../samples/*.md', { query: '?raw', import: 'default', eager: true })
 
   function parseSample(raw) {
     const fence = raw.match(/```js chart-editor\n([\s\S]*?)\n```/)
@@ -94,7 +91,7 @@ interface Props {
   }
 
   function loadSample(source) {
-    const key = source === 'usage' ? '../../usage.md' : `../../samples/${source}.md`
+    const key = `../../samples/${source}.md`
     const raw = modules[key]
     if (!raw) {
       throw new Error(`Unknown sample: ${source}`)

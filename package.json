@@ -12,7 +12,7 @@
     "@emnapi/core": "^1.11.2",
     "@emnapi/runtime": "^1.11.2",
     "@kurkle/astro-chartjs-editor": "^1.0.0",
-    "@kurkle/configs": "^1.5.0",
+    "@kurkle/configs": "^1.5.1",
     "@napi-rs/canvas": "^1.0.0",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",

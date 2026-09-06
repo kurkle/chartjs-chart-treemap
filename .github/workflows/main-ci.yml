@@ -13,7 +13,8 @@ jobs:
     uses: kurkle/configs/.github/workflows/shared-ci.yml@v1
     with:
       run-audit-signatures: true
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   release:
     runs-on: ubuntu-latest

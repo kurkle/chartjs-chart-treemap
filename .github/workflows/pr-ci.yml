@@ -12,7 +12,8 @@ jobs:
     uses: kurkle/configs/.github/workflows/shared-ci.yml@v1
     with:
       fetch-depth: 1
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   compressed-size:
     runs-on: ubuntu-latest

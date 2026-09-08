@@ -1,8 +1,10 @@
+import { specsFromFixtures } from '../utils'
+
 describe('fixtures', () => {
-  describe('advanced', jasmine.fixtures('advanced'))
-  describe('basic', jasmine.fixtures('basic'))
-  describe('events', jasmine.fixtures('events'))
-  describe('grouped', jasmine.fixtures('grouped'))
-  describe('headersbox', jasmine.fixtures('headersbox'))
-  describe('issues', jasmine.fixtures('issues'))
+  describe('advanced', specsFromFixtures('advanced'))
+  describe('basic', specsFromFixtures('basic'))
+  describe('events', specsFromFixtures('events'))
+  describe('grouped', specsFromFixtures('grouped'))
+  describe('headersbox', specsFromFixtures('headersbox'))
+  describe('issues', specsFromFixtures('issues'))
 })

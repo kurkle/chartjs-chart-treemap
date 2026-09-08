@@ -94,10 +94,10 @@ describe('Rectangle', () => {
     it('should expose range and center helpers', () => {
       const element = createElement()
 
-      expect(element.inRange(50, 50)).toBeTrue()
-      expect(element.inRange(120, 50)).toBeFalse()
-      expect(element.inXRange(50)).toBeTrue()
-      expect(element.inYRange(120)).toBeFalse()
+      expect(element.inRange(50, 50)).toBe(true)
+      expect(element.inRange(120, 50)).toBe(false)
+      expect(element.inXRange(50)).toBe(true)
+      expect(element.inYRange(120)).toBe(false)
       expect(element.getCenterPoint()).toEqual({ x: 50, y: 50 })
       expect(element.tooltipPosition()).toEqual({ x: 50, y: 50 })
     })
@@ -119,7 +119,7 @@ describe('Rectangle', () => {
 
       element.draw(ctx, createData({ _data: {}, isLeaf: true, v: 7 }))
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'live:7']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'live:7']))
     })
 
     it('should draw captions with formatter callback', () => {
@@ -137,7 +137,7 @@ describe('Rectangle', () => {
 
       element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'a', l: 0, v: 7 }))
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'live:a']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'live:a']))
     })
 
     it('should draw borders and dividers', () => {
@@ -158,9 +158,9 @@ describe('Rectangle', () => {
 
       element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'group', l: 0, v: 7 }))
 
-      expect(calls).toContain(jasmine.arrayContaining(['fill', 'evenodd']))
-      expect(calls).toContain(jasmine.arrayContaining(['setLineDash', [2, 1]]))
-      expect(calls).toContain(jasmine.arrayContaining(['stroke']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fill', 'evenodd']))
+      expect(calls).toContainEqual(expect.arrayContaining(['setLineDash', [2, 1]]))
+      expect(calls).toContainEqual(expect.arrayContaining(['stroke']))
     })
 
     it('should skip drawing without data', () => {

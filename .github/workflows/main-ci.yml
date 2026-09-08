@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+      # Prereleases (5.0.0-next.N) publish from here. npm's trusted publishing
+      # is bound to this workflow's filename, so the branch is added to the
+      # existing workflow rather than given one of its own.
+      - next
 
 permissions:
   contents: read
@@ -72,7 +76,9 @@ jobs:
 
   docs-deploy:
     needs: release
-    if: needs.release.outputs.released == 'true'
+    # Prereleases must not overwrite the published site while the previous
+    # major is still `latest`.
+    if: needs.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
     uses: kurkle/configs/.github/workflows/docs-deploy.yml@v1
     with:
       version: ${{ needs.release.outputs.version }}

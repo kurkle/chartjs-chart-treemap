@@ -88,7 +88,7 @@ function specFromFixture(name, inputs) {
     if (!json) {
       throw new Error(`Missing config file for fixture ${name}`)
     }
-    if (!inputs.png && !__UPDATE_FIXTURES__) {
+    if (!inputs.png && !server.commands.saveFixtureImage) {
       throw new Error(`Missing PNG comparison file for fixture ${name}`)
     }
     json.description = json.description || name

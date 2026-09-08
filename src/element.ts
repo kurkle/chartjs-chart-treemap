@@ -29,6 +29,7 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
         return ctx.raw.g || (typeof label === 'string' ? label : '')
       },
       padding: 3,
+      textAlign: undefined,
     },
     labels: {
       align: 'center',
@@ -45,6 +46,7 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
       overflow: 'cut',
       padding: 3,
       position: 'middle',
+      textAlign: undefined,
     },
   }
 

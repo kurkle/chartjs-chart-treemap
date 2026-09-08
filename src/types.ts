@@ -38,6 +38,7 @@ export type TreemapFormatter<T> = T | ((context: TreemapScriptableContext) => T)
 
 export type TreemapControllerDatasetCaptionsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
+  textAlign?: Scriptable<LabelAlign, TreemapScriptableContext>
   color?: Scriptable<Color, TreemapScriptableContext>
   display?: boolean
   formatter?: TreemapFormatter<string>
@@ -49,6 +50,7 @@ export type TreemapControllerDatasetCaptionsOptions = {
 
 export type TreemapControllerDatasetLabelsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
+  textAlign?: Scriptable<LabelAlign, TreemapScriptableContext>
   color?: Scriptable<Color | Color[], TreemapScriptableContext>
   display?: boolean
   formatter?: TreemapFormatter<string | string[]>
@@ -62,6 +64,7 @@ export type TreemapControllerDatasetLabelsOptions = {
 
 export type TreemapCaptionsOptions = {
   align?: LabelAlign
+  textAlign?: LabelAlign
   color: Color
   display?: boolean
   font: TreemapFontSpec
@@ -73,6 +76,7 @@ export type TreemapCaptionsOptions = {
 
 export type TreemapLabelsOptions = {
   align: LabelAlign
+  textAlign?: LabelAlign
   color: Color | Color[]
   display?: boolean
   font: TreemapFontSpec | TreemapFontSpec[]

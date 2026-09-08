@@ -324,7 +324,7 @@ export default class TreemapController extends DatasetController {
 }
 
 ;(TreemapController as any).beforeRegister = () => {
-  requireVersion('chart.js', '3.8', Chart.version)
+  requireVersion('chart.js', '4.0', Chart.version)
 }
 
 ;(TreemapController as any).afterRegister = () => {

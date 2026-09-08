@@ -1,4 +1,4 @@
-import type { TreemapDataPoint, TreemapScriptableContext } from './types'
+import type { TreemapDataPoint, TreemapLayoutOptions, TreemapScriptableContext } from './types'
 
 import TreemapElement from './element'
 
@@ -29,6 +29,8 @@ function createCtx() {
   return { calls, ctx }
 }
 
+const layout: TreemapLayoutOptions = { displayMode: 'containerBoxes', rtl: false, spacing: 0 }
+
 function createElement(
   options: Partial<TestTreemapOptions> = {},
   config: Partial<ElementConfig> = {}
@@ -48,7 +50,6 @@ function createElement(
         formatter: (ctx: TreemapScriptableContext) => ctx.raw.g || '',
         padding: 3,
       },
-      displayMode: 'containerBoxes',
       labels: {
         align: 'center',
         color: 'black',
@@ -59,8 +60,6 @@ function createElement(
         padding: 3,
         position: 'middle',
       },
-      rtl: false,
-      spacing: 0.5,
       ...options,
     },
     width: config.width ?? 100,
@@ -109,7 +108,7 @@ describe('Rectangle', () => {
         },
       })
 
-      element.draw(ctx, createData({ _data: {}, isLeaf: true, v: 7 }))
+      element.draw(ctx, createData({ _data: {}, isLeaf: true, v: 7 }), layout)
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'live:7']))
     })
@@ -127,7 +126,7 @@ describe('Rectangle', () => {
         },
       })
 
-      element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'a', l: 0, v: 7 }))
+      element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'a', l: 0, v: 7 }), layout)
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'live:a']))
     })
@@ -140,7 +139,11 @@ describe('Rectangle', () => {
         borderWidth: 2,
       })
 
-      element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'group', l: 0, v: 7 }))
+      element.draw(
+        ctx,
+        createData({ _data: { children: [{}, {}] }, g: 'group', l: 0, v: 7 }),
+        layout
+      )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fill', 'evenodd']))
     })

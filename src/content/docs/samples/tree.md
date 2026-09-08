@@ -9,7 +9,7 @@ const config = {
   data: {
     datasets: [{
       tree: Data.objectsTree,
-      treeLeafKey: 'name',
+      leafKey: 'name',
       key: 'value',
       groups: [],
       spacing: 1,

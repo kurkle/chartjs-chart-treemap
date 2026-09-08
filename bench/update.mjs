@@ -5,6 +5,10 @@
  * grouping recursion runs whether or not anything changed. This measures what
  * that costs, and where it overtakes what v4 did.
  *
+ * The dominant cost at this size is not ours: about half of an update is
+ * Chart.js resolving element options once per element, because option sharing
+ * never engages for this element type. See the pull request for the analysis.
+ *
  *   npm run bench
  */
 import { createCanvas } from '@napi-rs/canvas'

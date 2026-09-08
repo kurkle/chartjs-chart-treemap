@@ -30,7 +30,7 @@ const config = {
   type: 'treemap',
   data: {
     datasets: [{
-      tree: Data.objectsTree,
+      data: Data.objectsTree,
       leafKey: 'name',
       key: 'value',
       groups: [],

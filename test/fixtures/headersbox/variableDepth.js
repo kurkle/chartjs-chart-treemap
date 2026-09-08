@@ -12,7 +12,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: data,
+        data: data,
         key: 'value',
         groups: ['year', 'quarter', 'month'],
         spacing: 2,

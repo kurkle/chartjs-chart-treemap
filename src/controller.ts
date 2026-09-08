@@ -1,11 +1,11 @@
-import type { LayoutOptions } from './layout'
+import type { LayoutNode, LayoutOptions } from './layout'
 
 import { Chart, DatasetController, registry } from 'chart.js'
 import { clipArea, unclipArea, valueOrDefault } from 'chart.js/helpers'
 
 import { version } from '../package.json'
-import { arrayNotEqual, rectNotEqual, scaleRect } from './helpers/index'
-import { buildData } from './layout'
+import { rectNotEqual, scaleRect } from './helpers/index'
+import { buildNodes, flattenNodes, layoutNodes } from './layout'
 import { layoutDefaults } from './options'
 import { requireVersion } from './utils'
 
@@ -33,21 +33,25 @@ export default class TreemapController extends DatasetController {
   declare static readonly afterRegister: () => void
   declare static readonly afterUnregister: () => void
 
+  // Chart.js assigns this on the class when the controller is registered; its
+  // type definitions do not describe it.
+  declare dataElementType: new () => any
+
   options: any
-  _groups: any[] | undefined
-  _keys: any[] | undefined
   _rect: any
   _rectChanged: boolean
-  _prevTree: any
-  _prevTreeVersion: unknown
+  _nodes: LayoutNode[]
+  _layoutDirty: boolean
+  _fingerprint: string | undefined
 
   constructor(chart: any, datasetIndex: number) {
     super(chart, datasetIndex)
 
-    this._groups = undefined
-    this._keys = undefined
     this._rect = undefined
     this._rectChanged = true
+    this._nodes = []
+    this._layoutDirty = true
+    this._fingerprint = undefined
   }
 
   override initialize() {
@@ -116,39 +120,90 @@ export default class TreemapController extends DatasetController {
     }
   }
 
-  override update(mode: any) {
+  /**
+   * Chart.js calls this before `configure()`, so the chart area is not
+   * available here - see the hierarchy pass in `./layout`, which does not need
+   * one. Elements are created from the parsed nodes rather than from
+   * `dataset.data`, because a treemap with groups has more rectangles than the
+   * user supplied rows.
+   */
+  override buildOrUpdateElements(_resetNewElements?: boolean) {
+    this.parse(0, 0)
+
+    const meta = this.getMeta() as any
+    const count = (meta._parsed as unknown[]).length
+    const elements = meta.data as unknown[]
+    if (elements.length > count) {
+      elements.splice(count, elements.length - count)
+    }
+    while (elements.length < count) {
+      elements.push(new this.dataElementType())
+    }
+  }
+
+  override parse(_start: number, _count: number) {
     const dataset = this.getDataset() as any
-    const { data } = this.getMeta()
+    if (dataset.tree !== undefined) {
+      throw new Error(
+        'chartjs-chart-treemap v5: the "tree" option was renamed to "data". ' +
+          'See https://chartjs-chart-treemap.pages.dev/usage/'
+      )
+    }
+
     const options = this.options
-    const groups = options.groups || []
     const keys = [options.key || ''].concat(options.sumKeys || [])
-    dataset.tree = dataset.tree || dataset.data || []
-    const tree = dataset.tree
-    const treeVersion = dataset.treeVersion
+    const nodes = buildNodes(dataset.data || [], keys, this._layoutOptions())
+    const flat = flattenNodes(nodes)
+
+    // A `chart.update('none')` per wheel event must not re-run the layout when
+    // nothing about the data changed, so keep the previous nodes - and with
+    // them their geometry - when the hierarchy is identical.
+    const fingerprint = flat.map((node) => `${node.v}\u0000${node.g}\u0000${node.l}`).join('\u0001')
+    if (this._fingerprint === fingerprint) {
+      return
+    }
+
+    this._fingerprint = fingerprint
+    this._nodes = nodes
+    ;(this.getMeta() as any)._parsed = flat
+    this._layoutDirty = true
+  }
+
+  // `getContext` exists on DatasetController at runtime but not in its type
+  // definitions, so this cannot be declared as an override.
+  getContext(index: number, active?: boolean, mode?: string) {
+    const base = (DatasetController.prototype as any).getContext
+    const context = base.call(this, index, active, mode)
+    const parsed = typeof index === 'number' ? this.getParsed(index) : undefined
+    if (parsed) {
+      context.raw = parsed
+      context.parsed = parsed
+    }
+    return context
+  }
+
+  override getLabelAndValue(index: number) {
+    const node = this.getParsed(index) as any
+    if (!node) {
+      return { label: '', value: '' }
+    }
+    const dataset = this.getDataset() as any
+    const label = node.g ?? node._data?.label ?? dataset.label
+    return { label: label === undefined ? '' : `${label}`, value: `${node.v}` }
+  }
+
+  override update(mode: any) {
+    const { data } = this.getMeta()
 
     if (mode === 'reset') {
       // reset is called before 2nd configure and is only called if animations are enabled. So wen need an extra configure call here.
       this.configure()
     }
 
-    if (
-      this._rectChanged ||
-      arrayNotEqual(this._keys || [], keys) ||
-      arrayNotEqual(this._groups || [], groups) ||
-      this._prevTree !== tree ||
-      this._prevTreeVersion !== treeVersion
-    ) {
-      this._groups = groups.slice()
-      this._keys = keys.slice()
-      this._prevTree = tree
-      this._prevTreeVersion = treeVersion
+    if (this._layoutDirty || this._rectChanged) {
+      layoutNodes(this._nodes, this._rect, this._layoutOptions())
+      this._layoutDirty = false
       this._rectChanged = false
-
-      dataset.data = buildData(tree, this._keys, this._rect, this._layoutOptions())
-      // @ts-expect-error using private stuff
-      this._dataCheck()
-      // @ts-expect-error using private stuff
-      this._resyncElements()
     }
 
     this.updateElements(data, 0, data.length, mode)
@@ -156,7 +211,6 @@ export default class TreemapController extends DatasetController {
 
   override updateElements(rects: any[], start: number, count: number, mode: any) {
     const reset = mode === 'reset'
-    const dataset = this.getDataset() as any
     const firstOpts = this.resolveDataElementOptions(start, mode)
     this._rect.options = firstOpts
     const sharedOptions = this.getSharedOptions(firstOpts)
@@ -166,7 +220,9 @@ export default class TreemapController extends DatasetController {
 
     for (let i = start; i < start + count; i++) {
       const options = sharedOptions || this.resolveDataElementOptions(i, mode)
-      const properties: any = scaleRect(dataset.data[i], xScale, yScale, spacing)
+      const node = this.getParsed(i) as any
+      const properties: any = scaleRect(node, xScale, yScale, spacing)
+      properties.hidden = properties.hidden || !!node.hidden
       if (reset) {
         properties.width = 0
         properties.height = 0
@@ -184,8 +240,6 @@ export default class TreemapController extends DatasetController {
   override draw() {
     const { ctx, chartArea } = this.chart
     const metadata = ((this.getMeta() as any).data || []) as any[]
-    const dataset = this.getDataset() as any
-    const data = dataset.data
     const { displayMode, rtl, spacing } = this.options
     const layout = { displayMode, rtl, spacing }
 
@@ -193,7 +247,7 @@ export default class TreemapController extends DatasetController {
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i]
       if (!rect.hidden) {
-        rect.draw(ctx, data[i], layout)
+        rect.draw(ctx, this.getParsed(i) as any, layout)
       }
     }
     unclipArea(ctx)
@@ -247,10 +301,9 @@ export default class TreemapController extends DatasetController {
     tooltip: {
       callbacks: {
         label(item: any) {
-          const dataset = item.dataset
-          const dataItem = dataset.data[item.dataIndex]
-          const label = dataItem.g || dataItem._data.label || dataset.label
-          return (label ? `${label}: ` : '') + dataItem.v
+          const node = item.parsed
+          const label = node.g || node._data?.label || item.dataset.label
+          return (label ? `${label}: ` : '') + node.v
         },
         title(items: any[]) {
           if (items.length) {

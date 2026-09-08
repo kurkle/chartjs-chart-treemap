@@ -46,7 +46,7 @@ const config = {
     datasets: [
       {
         label: 'Fruits',
-        tree: DATA,
+        data: DATA,
         key: 'value',
         borderWidth: 0,
         borderRadius: 6,

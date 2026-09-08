@@ -32,7 +32,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: data,
+        data: data,
         key: 'value',
         captions: {
           display: false

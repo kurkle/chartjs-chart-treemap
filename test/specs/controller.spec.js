@@ -1,68 +1,99 @@
+/** The layout nodes, which v5 exposes as the parsed data. */
+function nodes(chart) {
+  const meta = chart.getDatasetMeta(0)
+  return meta.data.map((_element, index) => meta.controller.getParsed(index))
+}
+
 describe('controller', () => {
   it('should be registered', () => {
     expect(Chart.registry.controllers.items.treemap).toBeDefined()
   })
 
-  it('should not rebuild data when nothing has changed', () => {
-    const origData = [1, 2, 3]
+  it('never modifies the array the user passed', () => {
+    const data = [1, 2, 3]
     const chart = acquireChart({
-      data: {
-        datasets: [
-          {
-            tree: origData,
-          },
-        ],
-      },
-      type: 'treemap',
-    })
-    const buildData = chart.data.datasets[0].data
-    expect(buildData).not.toBe(origData)
-    chart.update()
-    expect(buildData).toBe(chart.data.datasets[0].data)
-  })
-
-  it('should rebuild data when the tree is mutated in place', () => {
-    const tree = [1, 2]
-    const dataset = { tree, treeVersion: 0 }
-    const chart = acquireChart({
-      data: {
-        datasets: [dataset],
-      },
+      data: { datasets: [{ data }] },
       type: 'treemap',
     })
 
-    expect(chart.data.datasets[0].data.map((item) => item.v)).toEqual([2, 1])
-
-    tree[0] = 9
-    dataset.treeVersion++
+    expect(chart.data.datasets[0].data).toBe(data)
+    expect(data).toEqual([1, 2, 3])
     chart.update()
-
-    expect(chart.data.datasets[0].data.map((item) => item.v)).toEqual([9, 2])
+    expect(chart.data.datasets[0].data).toBe(data)
+    expect(data).toEqual([1, 2, 3])
   })
 
-  it('should rebuild data when a tree item is mutated in place', () => {
-    const tree = [
+  it('keeps the same node objects when nothing has changed', () => {
+    const chart = acquireChart({
+      data: { datasets: [{ data: [1, 2, 3] }] },
+      type: 'treemap',
+    })
+    const before = nodes(chart)
+
+    chart.update()
+
+    expect(nodes(chart)[0]).toBe(before[0])
+    expect(nodes(chart).map((node) => node.v)).toEqual([3, 2, 1])
+  })
+
+  it('picks up an in-place edit without a version stamp', () => {
+    const data = [1, 2]
+    const chart = acquireChart({
+      data: { datasets: [{ data }] },
+      type: 'treemap',
+    })
+
+    expect(nodes(chart).map((node) => node.v)).toEqual([2, 1])
+
+    data[0] = 9
+    chart.update()
+
+    expect(nodes(chart).map((node) => node.v)).toEqual([9, 2])
+  })
+
+  it('picks up an in-place edit of an item without a version stamp', () => {
+    const data = [
       { category: 'a', value: 1 },
       { category: 'b', value: 2 },
     ]
-    const dataset = { groups: ['category'], key: 'value', tree, treeVersion: 'initial' }
     const chart = acquireChart({
-      data: {
-        datasets: [dataset],
-      },
+      data: { datasets: [{ data, groups: ['category'], key: 'value' }] },
       type: 'treemap',
     })
 
-    tree[0].value = 9
-    dataset.treeVersion = 'updated'
+    data[0].value = 9
     chart.update()
 
-    const category = chart.data.datasets[0].data.find((item) => item.g === 'a')
-    expect(category.v).toBe(9)
+    expect(nodes(chart).find((node) => node.g === 'a').v).toBe(9)
+  })
+
+  it('picks up a push without a version stamp', () => {
+    const data = [1, 2]
+    const chart = acquireChart({
+      data: { datasets: [{ data }] },
+      type: 'treemap',
+    })
+
+    expect(chart.getDatasetMeta(0).data.length).toBe(2)
+
+    data.push(5)
+    chart.update()
+
+    expect(chart.getDatasetMeta(0).data.length).toBe(3)
+    expect(nodes(chart).map((node) => node.v)).toEqual([5, 2, 1])
+  })
+
+  it('throws a migration message when the removed tree option is used', () => {
+    expect(() =>
+      acquireChart({
+        data: { datasets: [{ tree: [1, 2, 3] }] },
+        type: 'treemap',
+      })
+    ).toThrowError(/"tree" option was renamed to "data"/)
   })
 
   it('should group 3 levels of data', () => {
-    const tree = [
+    const data = [
       { a: 'a1', b: 'b1', c: 'c1', key: 10 },
       { a: 'a1', b: 'b1', c: 'c1', key: 20 },
       { a: 'a2', b: 'b1', c: 'c1', key: 40 },
@@ -77,15 +108,15 @@ describe('controller', () => {
       data: {
         datasets: [
           {
+            data,
             groups: ['a', 'b', 'c'],
             key: 'key',
-            tree,
           },
         ],
       },
       type: 'treemap',
     })
-    const buildData = chart.data.datasets[0].data
+    const buildData = nodes(chart)
 
     const a1b1 = buildData.find((o) => o._data.path === 'a1.b1')
     expect(a1b1.v).toBe(30)
@@ -125,7 +156,7 @@ describe('controller', () => {
   })
 
   it('should skip missing group levels', () => {
-    const tree = [
+    const data = [
       { component: null, file: 'index.js', folder: './src', key: 1, subFolder: null },
       { component: 'A', file: 'A.js', folder: './src', key: 2, subFolder: null },
       { component: 'A', file: 'B.js', folder: './src', key: 3, subFolder: 'nested' },
@@ -134,15 +165,15 @@ describe('controller', () => {
       data: {
         datasets: [
           {
+            data,
             groups: ['folder', 'component', 'subFolder', 'file'],
             key: 'key',
-            tree,
           },
         ],
       },
       type: 'treemap',
     })
-    const buildData = chart.data.datasets[0].data
+    const buildData = nodes(chart)
 
     const root = buildData.find((o) => o._data.path === './src')
     expect(root.v).toBe(6)
@@ -165,12 +196,13 @@ describe('controller', () => {
     expect(buildData.find((o) => o._data.path === './src.index.js.index.js')).toBeUndefined()
   })
 
-  it('should update labels when tree changes', () => {
+  it('should update labels when data changes', () => {
     const labels = []
     const chart = acquireChart({
       data: {
         datasets: [
           {
+            data: [1],
             labels: {
               display: true,
               formatter: (ctx) => {
@@ -178,7 +210,6 @@ describe('controller', () => {
                 return `${ctx.raw.v}`
               },
             },
-            tree: [1],
           },
         ],
       },
@@ -189,7 +220,7 @@ describe('controller', () => {
     expect(labels).toContain(1)
 
     labels.length = 0
-    chart.data.datasets[0].tree = [5]
+    chart.data.datasets[0].data = [5]
     chart.update()
 
     expect(labels).toContain(5)
@@ -201,6 +232,7 @@ describe('controller', () => {
       data: {
         datasets: [
           {
+            data: [1],
             labels: {
               display: false,
               formatter: (ctx) => {
@@ -208,7 +240,6 @@ describe('controller', () => {
                 return `${ctx.raw.v}`
               },
             },
-            tree: [1],
           },
         ],
       },
@@ -242,15 +273,15 @@ describe('controller', () => {
               display: true,
               formatter: oldFormatter,
             },
+            data: [
+              { division: 'b', region: 'a', state: 'c', value: 1 },
+              { division: 'b', region: 'a', state: 'd', value: 2 },
+            ],
             groups: ['region', 'division', 'state'],
             key: 'value',
             labels: {
               display: false,
             },
-            tree: [
-              { division: 'b', region: 'a', state: 'c', value: 1 },
-              { division: 'b', region: 'a', state: 'd', value: 2 },
-            ],
           },
         ],
       },
@@ -281,11 +312,11 @@ describe('controller', () => {
       data: {
         datasets: [
           {
+            data: [1],
             labels: {
               display: true,
               formatter: oldFormatter,
             },
-            tree: [1],
           },
         ],
       },
@@ -305,7 +336,7 @@ describe('controller', () => {
   it('resolves layout options from the dataset scope and ignores the elements scope', () => {
     const widths = (options) => {
       const chart = acquireChart({
-        data: { datasets: [{ tree: [4, 3, 2, 1] }] },
+        data: { datasets: [{ data: [4, 3, 2, 1] }] },
         options,
         type: 'treemap',
       })
@@ -321,5 +352,57 @@ describe('controller', () => {
     // ...while the dataset scope does, which is what makes the assertion above
     // a statement about scopes rather than about spacing being ignored.
     expect(widths({ datasets: { treemap: { spacing: 20 } } })).not.toEqual(base)
+  })
+
+  it('labels tooltips from the layout node, not from the dataset array', () => {
+    const chart = acquireChart({
+      data: {
+        datasets: [
+          {
+            data: [{ category: 'a', value: 3 }],
+            groups: ['category'],
+            key: 'value',
+            label: 'dataset label',
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+    const controller = chart.getDatasetMeta(0).controller
+
+    expect(controller.getLabelAndValue(0)).toEqual({ label: 'a', value: '3' })
+  })
+
+  it('falls back to the dataset label when a node has no group', () => {
+    const chart = acquireChart({
+      data: { datasets: [{ data: [3], label: 'dataset label' }] },
+      type: 'treemap',
+    })
+    const controller = chart.getDatasetMeta(0).controller
+
+    expect(controller.getLabelAndValue(0)).toEqual({ label: 'dataset label', value: '3' })
+  })
+
+  it('gives scriptable options the layout node as ctx.raw', () => {
+    const seen = []
+    acquireChart({
+      data: {
+        datasets: [
+          {
+            backgroundColor: (ctx) => {
+              if (ctx.raw) {
+                seen.push(ctx.raw.v)
+              }
+              return 'red'
+            },
+            data: [4, 2],
+          },
+        ],
+      },
+      type: 'treemap',
+    })
+
+    expect(seen).toContain(4)
+    expect(seen).toContain(2)
   })
 })

@@ -15,7 +15,7 @@ export default {
     data: {
       datasets: [
         {
-          tree: data,
+          data: data,
           key: 'value',
           groups: ['folder', 'component', 'subFolder', 'file'],
           spacing: 2,

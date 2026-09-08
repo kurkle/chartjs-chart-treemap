@@ -12,14 +12,23 @@ import { drawText, getCaptionHeight, shouldDrawCaption } from './text'
 
 type MockCall = [string, ...unknown[]]
 
+const fontSize = (font: string | undefined) => {
+  const match = /(\d+(?:\.\d+)?)px/.exec(font || '')
+  return match ? Number(match[1]) : 12
+}
+
 function createCtx() {
   const calls: MockCall[] = []
-  const ctx = {
+  const ctx: any = {
     beginPath: () => calls.push(['beginPath']),
     clip: () => calls.push(['clip']),
     fillText: (text: string, x: number, y: number) => calls.push(['fillText', text, x, y]),
     lineTo: (x: number, y: number) => calls.push(['lineTo', x, y]),
-    measureText: (text: string) => ({ width: text.length * 10 }),
+    // 10px per character at the default 12px font, and proportional below that,
+    // so a test can tell whether shrinking the font actually re-measured.
+    measureText: (text: string) => ({
+      width: text.length * 10 * (fontSize(ctx.font) / 12),
+    }),
     moveTo: (x: number, y: number) => calls.push(['moveTo', x, y]),
     rect: (x: number, y: number, w: number, h: number) => calls.push(['rect', x, y, w, h]),
     restore: () => calls.push(['restore']),
@@ -378,6 +387,75 @@ describe('text', () => {
       // Centred block spans 30..70.
       expect(drawLines('center', 'left')).toEqual([30, 30])
       expect(drawLines('center', 'right')).toEqual([70, 70])
+    })
+  })
+
+  describe('wrap and ellipsis', () => {
+    // The mock context measures 10px per character. A 100 wide rect with
+    // padding 3 leaves 94, so nine characters fit on a line.
+    const drawn = (labelOptions: Record<string, unknown>, rect: Partial<DrawRect> = {}) => {
+      const { calls, ctx } = createCtx()
+      const options = createOptions({
+        labels: { ...createOptions().labels, display: true, ...labelOptions },
+      })
+      drawText(
+        ctx,
+        createRect(rect),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
+      return calls.filter((call) => call[0] === 'fillText').map((call) => call[1])
+    }
+
+    it('does not wrap unless asked', () => {
+      expect(drawn({ formatter: () => 'aaa bbb ccc ddd' })).toEqual(['aaa bbb ccc ddd'])
+    })
+
+    it('wraps greedily on spaces', () => {
+      expect(drawn({ formatter: () => 'aaa bbb ccc ddd', wrap: true })).toEqual([
+        'aaa bbb',
+        'ccc ddd',
+      ])
+    })
+
+    it('breaks a word that is wider than the line', () => {
+      expect(drawn({ formatter: () => 'aaaaaaaaaaaaa', wrap: true })).toEqual(['aaaaaaaaa', 'aaaa'])
+    })
+
+    it('honours newlines in a string, which canvas cannot draw', () => {
+      expect(drawn({ formatter: () => 'one\ntwo' })).toEqual(['one', 'two'])
+    })
+
+    it('keeps the lines that fit and marks the cut with an ellipsis', () => {
+      const lines = drawn(
+        { formatter: () => ['one', 'two', 'three', 'four'], overflow: 'ellipsis' },
+        { h: 40 }
+      )
+
+      expect(lines.length).toBeLessThan(4)
+      expect(lines.at(-1)).toContain('...')
+    })
+
+    it('truncates a line that is too wide for the box', () => {
+      expect(drawn({ formatter: () => 'far too long to fit', overflow: 'ellipsis' })).toEqual([
+        'far to...',
+      ])
+    })
+
+    it('re-wraps once at the smaller size when fitting', () => {
+      const withoutFit = drawn({ formatter: () => 'aaa bbb ccc ddd', wrap: true })
+      const withFit = drawn(
+        {
+          formatter: () => 'aaa bbb ccc ddd',
+          overflow: 'fit',
+          wrap: true,
+        },
+        { h: 20 }
+      )
+
+      expect(withFit.length).toBeLessThan(withoutFit.length)
     })
   })
 })

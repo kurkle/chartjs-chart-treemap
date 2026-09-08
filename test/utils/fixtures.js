@@ -6,8 +6,11 @@
  * an optional JSON config and the reference PNG as an asset URL.
  */
 
+import { server } from 'vitest/browser'
+
 import { readImageData } from './canvas.js'
 import { acquireChart, releaseChart } from './chart.js'
+import { toEqualImageData } from './matchers.js'
 
 const PREFIX = '../fixtures/'
 
@@ -57,13 +60,35 @@ function prepareConfig(name, json) {
   return config
 }
 
+/**
+ * Asserts against the reference image, or rewrites it when updating.
+ *
+ * The update command exists only when `npm run fixtures:update` registered it,
+ * so the normal suite cannot take this path by accident. Even then it rewrites
+ * only images that actually changed, so an update is a reviewable diff rather
+ * than 62 touched files.
+ */
+async function compareOrSave(chart, name, inputs, json) {
+  const save = server.commands.saveFixtureImage
+  const expected = inputs.png ? await readImageData(inputs.png) : undefined
+
+  if (!save) {
+    expect(chart).toEqualImageData(expected, json)
+    return
+  }
+  if (expected && toEqualImageData(chart, expected, json).pass) {
+    return
+  }
+  await save(name, chart.ctx.canvas.toDataURL())
+}
+
 function specFromFixture(name, inputs) {
   it(name, async () => {
     const json = inputs.config
     if (!json) {
       throw new Error(`Missing config file for fixture ${name}`)
     }
-    if (!inputs.png) {
+    if (!inputs.png && !__UPDATE_FIXTURES__) {
       throw new Error(`Missing PNG comparison file for fixture ${name}`)
     }
     json.description = json.description || name
@@ -74,7 +99,7 @@ function specFromFixture(name, inputs) {
       if (typeof run === 'function') {
         await run(chart)
       }
-      expect(chart).toEqualImageData(await readImageData(inputs.png), json)
+      await compareOrSave(chart, name, inputs, json)
     } finally {
       releaseChart(chart)
     }

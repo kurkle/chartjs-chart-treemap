@@ -85,9 +85,10 @@ export type TreemapLabelsOptions = {
 }
 
 export interface TreemapControllerDatasetOptions<DType> {
-  spacing?: number
+  displayMode?: TreemapDisplayMode
   rtl?: boolean
-  displayType?: TreemapDisplayMode
+  spacing?: number
+  unsorted?: boolean
 
   backgroundColor?: Scriptable<Color, TreemapScriptableContext>
   borderColor?: Scriptable<Color, TreemapScriptableContext>
@@ -106,7 +107,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   groups?: Array<keyof DType>
   sumKeys?: Array<keyof DType>
   tree: number[] | DType[] | AnyObject
-  treeLeafKey?: keyof DType
+  leafKey?: keyof DType
   treeVersion?: number | string
   key?: keyof DType
 }
@@ -139,14 +140,19 @@ declare module 'chart.js' {
   }
 }
 
+/** Element scope: everything that can differ from one rectangle to the next. */
 export interface TreemapOptions {
   backgroundColor: Color
   borderColor: Color
   borderRadius: number | Partial<BorderRadius>
   borderWidth: TreemapBorderWidth
   captions: TreemapCaptionsOptions
-  displayMode: TreemapDisplayMode
   labels: TreemapLabelsOptions
+}
+
+/** Dataset scope: resolved once per dataset and passed into layout and draw. */
+export interface TreemapLayoutOptions {
+  displayMode: TreemapDisplayMode
   rtl: boolean
   spacing: number
 }

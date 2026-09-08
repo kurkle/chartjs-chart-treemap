@@ -247,3 +247,16 @@ const _datasetHasNoDividers: HasKey<
   TreemapControllerDatasetOptions<Record<string, unknown>>,
   'dividers'
 > = false
+
+// v5 moved the layout options from the element scope to the dataset scope.
+const _elementHasNoRtl: HasKey<TreemapOptions, 'rtl'> = false
+const _elementHasNoSpacing: HasKey<TreemapOptions, 'spacing'> = false
+const _elementHasNoDisplayMode: HasKey<TreemapOptions, 'displayMode'> = false
+
+type DatasetOptions = TreemapControllerDatasetOptions<Record<string, unknown>>
+const _datasetHasRtl: HasKey<DatasetOptions, 'rtl'> = true
+const _datasetHasSpacing: HasKey<DatasetOptions, 'spacing'> = true
+const _datasetHasDisplayMode: HasKey<DatasetOptions, 'displayMode'> = true
+const _datasetHasUnsorted: HasKey<DatasetOptions, 'unsorted'> = true
+const _datasetHasLeafKey: HasKey<DatasetOptions, 'leafKey'> = true
+const _datasetHasNoTreeLeafKey: HasKey<DatasetOptions, 'treeLeafKey'> = false

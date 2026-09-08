@@ -1,5 +1,10 @@
 import type { DrawRect } from './geometry'
-import type { TreemapDataPoint, TreemapOptions, TreemapScriptableContext } from './types'
+import type {
+  TreemapDataPoint,
+  TreemapLayoutOptions,
+  TreemapOptions,
+  TreemapScriptableContext,
+} from './types'
 
 import TreemapElement from './element'
 import { drawText, getCaptionHeight, shouldDrawCaption } from './text'
@@ -47,6 +52,15 @@ function createData(point: Partial<TreemapDataPoint> = {}): TreemapDataPoint {
   }
 }
 
+function createLayout(layout: Partial<TreemapLayoutOptions> = {}): TreemapLayoutOptions {
+  return {
+    displayMode: 'containerBoxes',
+    rtl: false,
+    spacing: 0,
+    ...layout,
+  }
+}
+
 function createOptions(options: Partial<TreemapOptions> = {}): TreemapOptions {
   return {
     backgroundColor: 'blue',
@@ -61,7 +75,6 @@ function createOptions(options: Partial<TreemapOptions> = {}): TreemapOptions {
       formatter: (ctx: TreemapScriptableContext) => ctx.raw.g || '',
       padding: 3,
     },
-    displayMode: 'containerBoxes',
     labels: {
       align: 'center',
       color: 'black',
@@ -72,8 +85,6 @@ function createOptions(options: Partial<TreemapOptions> = {}): TreemapOptions {
       padding: 3,
       position: 'middle',
     },
-    rtl: false,
-    spacing: 0.5,
     ...options,
   }
 }
@@ -115,7 +126,14 @@ describe('text', () => {
         labels: { ...createOptions().labels, formatter: () => '' },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls.find((call) => call[0] === 'fillText')).toBeUndefined()
     })
@@ -130,7 +148,14 @@ describe('text', () => {
         },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls.find((call) => call[0] === 'fillText')).toBeUndefined()
     })
@@ -145,7 +170,14 @@ describe('text', () => {
         },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'this label is too long']))
     })
@@ -159,7 +191,14 @@ describe('text', () => {
         },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'static']))
     })
@@ -175,7 +214,14 @@ describe('text', () => {
         },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls.find((item) => item[0] === 'fillText')).toEqual(
         expect.arrayContaining(['fillText', 'top', 97])
@@ -192,7 +238,14 @@ describe('text', () => {
         },
       })
 
-      drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'bottom']))
     })
@@ -211,7 +264,8 @@ describe('text', () => {
         createRect({ w: 60 }),
         options,
         createData({ _data: { children: [{}] }, g: 'group', l: 0 }),
-        createElement()
+        createElement(),
+        createLayout()
       )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'lo...']))
@@ -225,7 +279,6 @@ describe('text', () => {
           font: { size: 30 },
           formatter: 'caption',
         },
-        displayMode: 'headerBoxes',
       })
 
       drawText(
@@ -233,7 +286,8 @@ describe('text', () => {
         createRect({ h: 10 }),
         options,
         createData({ _data: { children: [{}] }, g: 'group', l: 0 }),
-        createElement()
+        createElement(),
+        createLayout({ displayMode: 'headerBoxes' })
       )
 
       expect(calls.find((call) => call[0] === 'fillText')).toBeUndefined()
@@ -246,7 +300,6 @@ describe('text', () => {
           ...createOptions().captions,
           formatter: '',
         },
-        displayMode: 'headerBoxes',
       })
 
       drawText(
@@ -254,7 +307,8 @@ describe('text', () => {
         createRect(),
         options,
         createData({ _data: { children: [{}] }, l: 0 }),
-        createElement()
+        createElement(),
+        createLayout({ displayMode: 'headerBoxes' })
       )
 
       expect(calls.find((call) => call[0] === 'fillText')).toBeUndefined()
@@ -267,7 +321,6 @@ describe('text', () => {
           ...createOptions().captions,
           formatter: 'caption',
         },
-        displayMode: 'headerBoxes',
       })
 
       drawText(
@@ -275,7 +328,8 @@ describe('text', () => {
         createRect({ w: 20 }),
         options,
         createData({ _data: { children: [{}] }, g: 'group', l: 0 }),
-        createElement()
+        createElement(),
+        createLayout({ displayMode: 'headerBoxes' })
       )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', '']))

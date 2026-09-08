@@ -3,28 +3,35 @@ import { clipArea, isObject, toFont, unclipArea, valueOrDefault } from 'chart.js
 
 import { version } from '../package.json'
 import { arrayNotEqual, rectNotEqual, scaleRect } from './helpers/index'
-import { parseBorderWidth } from './options'
+import { layoutDefaults, parseBorderWidth } from './options'
 import squarify from './squarify'
 import { getCaptionHeight, shouldDrawCaption } from './text'
 import { getGroupKey, group, normalizeTreeToArray, requireVersion } from './utils'
 
-function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
-  const treeLeafKey = dataset.treeLeafKey || '_leaf'
+type LayoutOptions = {
+  borderWidth: any
+  captions: any
+  displayMode: string
+  groups: any[]
+  leafKey: string
+  spacing: number
+}
+
+function buildData(tree: any, keys: any[], mainRect: any, layout: LayoutOptions) {
+  const { borderWidth, captions, displayMode, groups, leafKey } = layout
   if (isObject(tree)) {
-    tree = normalizeTreeToArray(keys, treeLeafKey, tree)
+    tree = normalizeTreeToArray(keys, leafKey, tree)
   }
-  const groups = dataset.groups || []
   const glen = groups.length
-  const sp = dataset.displayMode === 'headerBoxes' ? 0 : valueOrDefault(dataset.spacing, 0)
-  const captions = dataset.captions || {}
+  const sp = displayMode === 'headerBoxes' ? 0 : layout.spacing
   const font = toFont(captions.font)
   const padding = valueOrDefault(captions.padding, 3)
 
   function getSubRect(sq: any, rect: any) {
     const bw =
-      dataset.displayMode === 'headerBoxes'
+      displayMode === 'headerBoxes'
         ? { b: 0, l: 0, r: 0, t: 0 }
-        : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2)
+        : parseBorderWidth(borderWidth, sq.w / 2, sq.h / 2)
     const subRect = {
       ...rect,
       h: sq.h - 2 * sp - bw.t - bw.b,
@@ -32,8 +39,8 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
       x: sq.x + sp + bw.l,
       y: sq.y + sp + bw.t,
     }
-    if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
-      const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding)
+    if (shouldDrawCaption(displayMode as any, subRect, captions)) {
+      const captionHeight = getCaptionHeight(displayMode as any, subRect, font, padding)
       subRect.y += captionHeight
       subRect.h -= captionHeight
     }
@@ -46,7 +53,7 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
       treeElements,
       g,
       keys,
-      treeLeafKey,
+      leafKey,
       undefined,
       parent,
       groups.filter((_item: any, index: number) => index <= gidx),
@@ -77,13 +84,13 @@ function buildData(tree: any, dataset: any, keys: any[], mainRect: any) {
   const result = glen ? recur(tree, 0, mainRect) : squarify(tree, mainRect, keys)
   return result
     .map((d) => {
-      if (dataset.displayMode !== 'headerBoxes' || d.isLeaf) {
+      if (displayMode !== 'headerBoxes' || d.isLeaf) {
         return d
       }
-      if (!shouldDrawCaption(dataset.displayMode, d, captions)) {
+      if (!shouldDrawCaption(displayMode as any, d, captions)) {
         return undefined
       }
-      const captionHeight = getCaptionHeight(dataset.displayMode, d, font, padding)
+      const captionHeight = getCaptionHeight(displayMode as any, d, font, padding)
       return { ...d, h: captionHeight }
     })
     .filter(Boolean)
@@ -170,11 +177,37 @@ export default class TreemapController extends DatasetController {
     }
   }
 
+  /**
+   * Options that shape the layout rather than a single rectangle, resolved once
+   * per dataset. Reading them from `this.options` rather than from the raw
+   * dataset is what makes `options.datasets.treemap` work for all of them.
+   */
+  _layoutOptions(): LayoutOptions {
+    const dataset = this.getDataset() as any
+    const options = this.options
+    return {
+      // Still raw: resolving these with the dataset context is feature 2's
+      // change, and doing it here would move pixels in this refactor.
+      borderWidth: dataset.borderWidth,
+      captions: dataset.captions || {},
+      displayMode: options.displayMode,
+      groups: options.groups || [],
+      leafKey: options.leafKey,
+      // Deliberately NOT options.spacing. The child rectangle calculation has
+      // always defaulted spacing to 0 while the drawn rectangle defaults it to
+      // 0.5, so reading the resolved value here would inset every nested group
+      // by an extra 0.5 and move 11 fixtures. Unifying the two is a visual
+      // change that deserves its own pull request.
+      spacing: valueOrDefault(dataset.spacing, 0),
+    }
+  }
+
   override update(mode: any) {
     const dataset = this.getDataset() as any
     const { data } = this.getMeta()
-    const groups = dataset.groups || []
-    const keys = [dataset.key || ''].concat(dataset.sumKeys || [])
+    const options = this.options
+    const groups = options.groups || []
+    const keys = [options.key || ''].concat(options.sumKeys || [])
     dataset.tree = dataset.tree || dataset.data || []
     const tree = dataset.tree
     const treeVersion = dataset.treeVersion
@@ -197,7 +230,7 @@ export default class TreemapController extends DatasetController {
       this._prevTreeVersion = treeVersion
       this._rectChanged = false
 
-      dataset.data = buildData(tree, dataset, this._keys, this._rect)
+      dataset.data = buildData(tree, this._keys, this._rect, this._layoutOptions())
       // @ts-expect-error using private stuff
       this._dataCheck()
       // @ts-expect-error using private stuff
@@ -215,10 +248,11 @@ export default class TreemapController extends DatasetController {
     const sharedOptions = this.getSharedOptions(firstOpts)
     const includeOptions = this.includeOptions(mode, sharedOptions || {})
     const { xScale, yScale } = this.getMeta() as any
+    const spacing = this.options.spacing
 
     for (let i = start; i < start + count; i++) {
       const options = sharedOptions || this.resolveDataElementOptions(i, mode)
-      const properties: any = scaleRect(dataset.data[i], xScale, yScale, options.spacing)
+      const properties: any = scaleRect(dataset.data[i], xScale, yScale, spacing)
       if (reset) {
         properties.width = 0
         properties.height = 0
@@ -238,12 +272,14 @@ export default class TreemapController extends DatasetController {
     const metadata = ((this.getMeta() as any).data || []) as any[]
     const dataset = this.getDataset() as any
     const data = dataset.data
+    const { displayMode, rtl, spacing } = this.options
+    const layout = { displayMode, rtl, spacing }
 
     clipArea(ctx, chartArea)
     for (let i = 0, ilen = metadata.length; i < ilen; ++i) {
       const rect = metadata[i]
       if (!rect.hidden) {
-        rect.draw(ctx, data[i])
+        rect.draw(ctx, data[i], layout)
       }
     }
     unclipArea(ctx)
@@ -262,6 +298,14 @@ export default class TreemapController extends DatasetController {
     },
   },
   dataElementType: 'treemap',
+  displayMode: layoutDefaults.displayMode,
+  groups: [],
+  key: '',
+  leafKey: '_leaf',
+  rtl: layoutDefaults.rtl,
+  spacing: layoutDefaults.spacing,
+  sumKeys: [],
+  unsorted: false,
 }
 
 ;(TreemapController as any).descriptors = {

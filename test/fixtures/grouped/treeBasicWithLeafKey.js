@@ -34,7 +34,7 @@ export default {
     data: {
       datasets: [{
         tree: data,
-        treeLeafKey: '_test',
+        leafKey: '_test',
         key: 'value',
         groups: ['0', '1', '2', '_test'],
         captions: {

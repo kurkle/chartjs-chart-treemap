@@ -1,3 +1,5 @@
+import type { AnyObject } from './types'
+
 import { isObject } from 'chart.js/helpers'
 
 const isOlderPart = (act: string, req: string) =>
@@ -39,6 +41,17 @@ function scanTreeObject(
   }
   tree.splice(objIndex, 1)
   return result
+}
+
+/**
+ * Flattens a nested object into the array form of `data`.
+ *
+ * The controller does this at runtime, so JavaScript configurations never need
+ * it. TypeScript users who would rather pass an array than a generic can call
+ * it up front.
+ */
+export function flattenTree<T = AnyObject>(tree: AnyObject, keys: string[], leafKey: string): T[] {
+  return normalizeTreeToArray(keys, leafKey, tree) as T[]
 }
 
 export function normalizeTreeToArray(keys: string[], leafKey: string, obj: Record<string, any>) {

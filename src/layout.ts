@@ -61,7 +61,13 @@ function buildHierarchy(
       gidx < glen - 1 && nextGroupIndex < glen
         ? buildHierarchy(record.children, nextGroupIndex, keys, layout, node.g)
         : []
-    node._children = children
+    // Non-enumerable: the geometry pass needs it on every layout, but it
+    // must not show up in ctx.raw.
+    Object.defineProperty(node, '_children', {
+      configurable: true,
+      value: children,
+      writable: true,
+    })
     node.isLeaf = !children.length
   }
   return nodes
@@ -84,12 +90,7 @@ export function flattenNodes(nodes: LayoutNode[]): LayoutNode[] {
  * Packs each set of siblings into its parent's rectangle, writing the
  * coordinates onto the nodes the first pass produced.
  */
-export function layoutNodes(
-  nodes: LayoutNode[],
-  rect: any,
-  layout: LayoutOptions,
-  parentSum?: number
-) {
+function layoutLevel(nodes: LayoutNode[], rect: any, layout: LayoutOptions, parentSum?: number) {
   if (parentSum !== undefined) {
     for (const node of nodes) {
       node.gs = parentSum
@@ -99,9 +100,15 @@ export function layoutNodes(
 
   for (const node of nodes) {
     if (node._children?.length) {
-      layoutNodes(node._children, getSubRect(node, rect, layout), layout, node.s)
+      layoutLevel(node._children, getSubRect(node, rect, layout), layout, node.s)
     }
   }
+}
+
+/** Writes the geometry for a whole tree of nodes, then applies headerBoxes. */
+export function layoutNodes(nodes: LayoutNode[], rect: any, layout: LayoutOptions) {
+  layoutLevel(nodes, rect, layout)
+  applyHeaderBoxes(flattenNodes(nodes), layout)
 }
 
 /** The rectangle left for a group's children once its border and caption are taken. */
@@ -151,6 +158,32 @@ export function buildNodes(tree: any, keys: string[], layout: LayoutOptions): La
   return nodes
 }
 
+/**
+ * In headerBoxes mode a group is drawn as a header strip rather than a box
+ * around its children, and a group whose caption does not fit is not drawn at
+ * all. It is marked hidden rather than removed: the number of parsed nodes must
+ * not depend on the size of the chart area.
+ */
+function applyHeaderBoxes(nodes: LayoutNode[], layout: LayoutOptions) {
+  const { captions, displayMode } = layout
+  if (displayMode !== 'headerBoxes') {
+    return
+  }
+  const font = toFont(captions.font)
+  const padding = valueOrDefault(captions.padding, 3)
+  for (const node of nodes) {
+    if (node.isLeaf) {
+      continue
+    }
+    if (shouldDrawCaption(displayMode, node, captions)) {
+      node.h = getCaptionHeight(displayMode, node, font, padding)
+      node.hidden = false
+    } else {
+      node.hidden = true
+    }
+  }
+}
+
 /** Turns the user's input into the flat list of rectangles the chart draws. */
 export function buildData(
   tree: any,
@@ -158,24 +191,7 @@ export function buildData(
   mainRect: DrawRect,
   layout: LayoutOptions
 ): TreemapDataPoint[] {
-  const { captions, displayMode } = layout
   const nodes = buildNodes(tree, keys, layout)
   layoutNodes(nodes, mainRect, layout)
-
-  const font = toFont(captions.font)
-  const padding = valueOrDefault(captions.padding, 3)
   return flattenNodes(nodes)
-    .map((d) => {
-      // The nested link is internal; it must not reach ctx.raw.
-      delete d._children
-      if (displayMode !== 'headerBoxes' || d.isLeaf) {
-        return d
-      }
-      if (!shouldDrawCaption(displayMode, d, captions)) {
-        return undefined
-      }
-      const captionHeight = getCaptionHeight(displayMode, d, font, padding)
-      return { ...d, h: captionHeight }
-    })
-    .filter(Boolean) as TreemapDataPoint[]
 }

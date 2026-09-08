@@ -11,7 +11,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: data,
+        data: data,
         key: 'value',
         groups: ['category'],
         borderWidth: {top: 10, left: 5, right: 15, bottom: 20},

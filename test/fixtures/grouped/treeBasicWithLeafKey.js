@@ -33,7 +33,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: data,
+        data: data,
         leafKey: '_test',
         key: 'value',
         groups: ['0', '1', '2', '_test'],

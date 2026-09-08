@@ -34,7 +34,7 @@ describe('browser esm integration', () => {
       data: {
         datasets: [
           {
-            tree: [6, 6, 4, 3, 2, 2, 1],
+            data: [6, 6, 4, 3, 2, 2, 1],
           },
         ],
       },
@@ -43,7 +43,7 @@ describe('browser esm integration', () => {
 
     expect(chart.config.type).toBe('treemap')
     expect(chart.data.datasets.length).toBe(1)
-    expect(chart.data.datasets[0].tree.length).toBe(7)
+    expect(chart.data.datasets[0].data.length).toBe(7)
     expect(chart.getDatasetMeta(0).type).toBe('treemap')
     expect(chart.getDatasetMeta(0).controller).toBeTruthy()
 
@@ -57,7 +57,7 @@ describe('browser esm integration', () => {
     canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
     const chart = new Chart(canvas.getContext('2d'), {
-      data: { datasets: [{ tree: [1] }] },
+      data: { datasets: [{ data: [1] }] },
       type: 'treemap',
     })
 

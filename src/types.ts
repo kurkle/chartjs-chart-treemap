@@ -103,12 +103,14 @@ export interface TreemapControllerDatasetOptions<DType> {
   labels?: TreemapControllerDatasetLabelsOptions
   label?: string
 
-  data: TreemapDataPoint[]
+  /**
+   * Numbers, objects, or a nested object addressed through `leafKey`.
+   * The array is read, never written: the layout nodes live in the parsed data.
+   */
+  data: number[] | DType[] | AnyObject
   groups?: Array<keyof DType>
   sumKeys?: Array<keyof DType>
-  tree: number[] | DType[] | AnyObject
   leafKey?: keyof DType
-  treeVersion?: number | string
   key?: keyof DType
 }
 
@@ -125,6 +127,8 @@ export interface TreemapDataPoint {
   vs?: AnyObject
   _data?: AnyObject
   isLeaf?: boolean
+  /** headerBoxes: the group's caption does not fit, so nothing is drawn. */
+  hidden?: boolean
 }
 
 declare module 'chart.js' {
@@ -132,9 +136,9 @@ declare module 'chart.js' {
     treemap: {
       chartOptions: CoreChartOptions<'treemap'>
       datasetOptions: TreemapControllerDatasetOptions<Record<string, unknown>>
-      defaultDataPoint: TreemapDataPoint
+      defaultDataPoint: number | AnyObject
       metaExtensions: AnyObject
-      parsedDataType: unknown
+      parsedDataType: TreemapDataPoint
       scales: never
     }
   }

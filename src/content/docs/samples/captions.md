@@ -45,7 +45,7 @@ const config = {
   type: 'treemap',
   data: {
     datasets: [{
-      tree: Data.statsByState,
+      data: Data.statsByState,
       key: 'area',
       groups: GROUPS,
       spacing: 1,

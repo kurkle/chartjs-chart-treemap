@@ -32,7 +32,7 @@ const config = {
     datasets: [
       {
         label: 'My First dataset',
-        tree: Utils.numbers(NUMBER_CFG),
+        data: Utils.numbers(NUMBER_CFG),
         borderColor: (ctx) => colorFromRaw(ctx, true),
         borderWidth: 1,
         spacing: 0,
@@ -41,7 +41,11 @@ const config = {
           display: 'auto',
           anchor: 'start',
           align: 45,
-          formatter: (value) => Math.trunc(value.v),
+          // In v5 `dataset.data` holds the rows you passed, so the datalabels
+          // formatter's first argument is no longer a layout node. Read the
+          // node through the controller instead.
+          formatter: (_value, ctx) =>
+            Math.trunc(ctx.chart.getDatasetMeta(ctx.datasetIndex).controller.getParsed(ctx.dataIndex).v),
           color: 'white',
           font: {
             size: 20

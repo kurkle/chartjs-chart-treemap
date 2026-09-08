@@ -61,7 +61,7 @@ describe('browser esm integration', () => {
       type: 'treemap',
     })
 
-    expect(Tooltip.positioners.treemap).toEqual(jasmine.any(Function))
+    expect(Tooltip.positioners.treemap).toEqual(expect.any(Function))
 
     chart.destroy()
   })

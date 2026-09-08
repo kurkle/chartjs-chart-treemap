@@ -1,6 +1,6 @@
 describe('controller', () => {
   it('should be registered', () => {
-    expect(Chart.controllers.treemap).toBeDefined()
+    expect(Chart.registry.controllers.items.treemap).toBeDefined()
   })
 
   it('should not rebuild data when nothing has changed', () => {
@@ -149,18 +149,18 @@ describe('controller', () => {
 
     const index = buildData.find((o) => o._data.path === './src.index.js')
     expect(index.v).toBe(1)
-    expect(index.isLeaf).toBeTrue()
+    expect(index.isLeaf).toBe(true)
 
     const component = buildData.find((o) => o._data.path === './src.A')
     expect(component.v).toBe(5)
 
     const componentFile = buildData.find((o) => o._data.path === './src.A.A.js')
     expect(componentFile.v).toBe(2)
-    expect(componentFile.isLeaf).toBeTrue()
+    expect(componentFile.isLeaf).toBe(true)
 
     const nestedFile = buildData.find((o) => o._data.path === './src.A.nested.B.js')
     expect(nestedFile.v).toBe(3)
-    expect(nestedFile.isLeaf).toBeTrue()
+    expect(nestedFile.isLeaf).toBe(true)
 
     expect(buildData.find((o) => o._data.path === './src.index.js.index.js')).toBeUndefined()
   })

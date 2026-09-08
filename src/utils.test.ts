@@ -17,8 +17,8 @@ describe('utils', () => {
       ]
       const g1 = group(a, 'k', ['v'], 'leaf')
       expect(g1).toEqual([
-        jasmine.objectContaining({ k: 'a', v: 4 }),
-        jasmine.objectContaining({ k: 'b', v: 2 }),
+        expect.objectContaining({ k: 'a', v: 4 }),
+        expect.objectContaining({ k: 'b', v: 2 }),
       ])
     })
     it('should group 2 levels of data', () => {
@@ -29,8 +29,8 @@ describe('utils', () => {
       ]
       const g1 = group(a, 'k2', ['v'], 'leaf', 'k', 'a')
       expect(g1).toEqual([
-        jasmine.objectContaining({ k2: 'z', v: 1 }),
-        jasmine.objectContaining({ k2: 'x', v: 3 }),
+        expect.objectContaining({ k2: 'z', v: 1 }),
+        expect.objectContaining({ k2: 'x', v: 3 }),
       ])
     })
     it('should group 2 levels of data with additionl keys', () => {
@@ -41,8 +41,8 @@ describe('utils', () => {
       ]
       const g1 = group(a, 'k2', ['v', 'v1'], 'leaf', 'k', 'a')
       expect(g1).toEqual([
-        jasmine.objectContaining({ k2: 'z', v: 1, v1: 2 }),
-        jasmine.objectContaining({ k2: 'x', v: 3, v1: 10 }),
+        expect.objectContaining({ k2: 'z', v: 1, v1: 2 }),
+        expect.objectContaining({ k2: 'x', v: 3, v1: 10 }),
       ])
     })
     it('should skip missing group levels', () => {
@@ -53,7 +53,7 @@ describe('utils', () => {
       ]
       const groups = ['folder', 'component', 'subFolder', 'file']
       const g1 = group(a, 'folder', ['v'], 'leaf', undefined, undefined, ['folder'], groups, 0)
-      expect(g1).toEqual([jasmine.objectContaining({ folder: './src', groupIndex: 0, v: 6 })])
+      expect(g1).toEqual([expect.objectContaining({ folder: './src', groupIndex: 0, v: 6 })])
 
       const g2 = group(
         g1[0].children,
@@ -67,13 +67,13 @@ describe('utils', () => {
         1
       )
       expect(g2).toEqual([
-        jasmine.objectContaining({
+        expect.objectContaining({
           component: 'index.js',
           groupIndex: 3,
           path: './src.index.js',
           v: 1,
         }),
-        jasmine.objectContaining({ component: 'A', groupIndex: 1, path: './src.A', v: 5 }),
+        expect.objectContaining({ component: 'A', groupIndex: 1, path: './src.A', v: 5 }),
       ])
     })
 
@@ -81,7 +81,7 @@ describe('utils', () => {
       const a = [{ leaf: 'index.js', v: 1 }]
       const g1 = group(a, 'folder', ['v'], 'leaf')
       expect(g1).toEqual([
-        jasmine.objectContaining({
+        expect.objectContaining({
           folder: 'index.js',
           group: 'leaf',
           groupIndex: 0,
@@ -125,14 +125,14 @@ describe('utils', () => {
       const a = { A: { C: { value: 0 } }, B: { D: { value: 0 } } }
       const g1 = normalizeTreeToArray(['value'], 'leaf', a)
       expect(g1).toEqual([
-        jasmine.objectContaining({ 0: 'A', leaf: 'C', value: 0 }),
-        jasmine.objectContaining({ 0: 'B', leaf: 'D', value: 0 }),
+        expect.objectContaining({ 0: 'A', leaf: 'C', value: 0 }),
+        expect.objectContaining({ 0: 'B', leaf: 'D', value: 0 }),
       ])
     })
     it('should have 1 element of data', () => {
       const a = { A: { C: { value: 0 } }, B: { D: { none: 0 } } }
       const g1 = normalizeTreeToArray(['value'], 'leaf', a)
-      expect(g1).toEqual([jasmine.objectContaining({ 0: 'A', leaf: 'C', value: 0 })])
+      expect(g1).toEqual([expect.objectContaining({ 0: 'A', leaf: 'C', value: 0 })])
     })
     it('should not have any elements of data', () => {
       const a = { A: { C: { value: 0 } }, B: { D: { value: 0 } } }
@@ -143,8 +143,8 @@ describe('utils', () => {
       const a = { A: { C: { another: 3, value: 0 } }, B: { D: { another: 2, value: 0 } } }
       const g1 = normalizeTreeToArray(['value', 'another'], 'leaf', a)
       expect(g1).toEqual([
-        jasmine.objectContaining({ 0: 'A', another: 3, leaf: 'C', value: 0 }),
-        jasmine.objectContaining({ 0: 'B', another: 2, leaf: 'D', value: 0 }),
+        expect.objectContaining({ 0: 'A', another: 3, leaf: 'C', value: 0 }),
+        expect.objectContaining({ 0: 'B', another: 2, leaf: 'D', value: 0 }),
       ])
     })
   })
@@ -214,8 +214,8 @@ describe('utils', () => {
     })
 
     it('should return boolean when `strict` parameter is false', () => {
-      expect(requireVersion('test', '3.7', '2.9.3', false)).toBeFalse()
-      expect(requireVersion('test', '3.7', '3.8', false)).toBeTrue()
+      expect(requireVersion('test', '3.7', '2.9.3', false)).toBe(false)
+      expect(requireVersion('test', '3.7', '3.8', false)).toBe(true)
     })
   })
 })

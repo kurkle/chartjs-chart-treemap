@@ -93,20 +93,20 @@ function createElement() {
 describe('text', () => {
   describe('caption helpers', () => {
     it('determines if captions fit', () => {
-      expect(
-        shouldDrawCaption('containerBoxes', { h: 100, w: 100 }, { display: false })
-      ).toBeFalse()
-      expect(shouldDrawCaption('headerBoxes', { h: 1, w: 1 }, { display: true })).toBeTrue()
+      expect(shouldDrawCaption('containerBoxes', { h: 100, w: 100 }, { display: false })).toBe(
+        false
+      )
+      expect(shouldDrawCaption('headerBoxes', { h: 1, w: 1 }, { display: true })).toBe(true)
       expect(
         shouldDrawCaption('containerBoxes', { h: 8, w: 8 }, { display: true, font: { size: 12 } })
-      ).toBeFalse()
+      ).toBe(false)
       expect(
         shouldDrawCaption(
           'containerBoxes',
           { h: 100, w: 100 },
           { display: true, font: { size: 12 } }
         )
-      ).toBeTrue()
+      ).toBe(true)
     })
 
     it('calculates caption height', () => {
@@ -155,7 +155,7 @@ describe('text', () => {
 
       drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'this label is too long']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'this label is too long']))
     })
 
     it('draws static label formatter values', () => {
@@ -169,7 +169,7 @@ describe('text', () => {
 
       drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'static']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'static']))
     })
 
     it('positions labels at top and right', () => {
@@ -186,7 +186,7 @@ describe('text', () => {
       drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
 
       expect(calls.find((item) => item[0] === 'fillText')).toEqual(
-        jasmine.arrayContaining(['fillText', 'top', 97])
+        expect.arrayContaining(['fillText', 'top', 97])
       )
     })
 
@@ -202,7 +202,7 @@ describe('text', () => {
 
       drawText(ctx, createRect(), options, createData({ _data: {}, isLeaf: true }), createElement())
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'bottom']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'bottom']))
     })
 
     it('truncates captions to fit available width', () => {
@@ -222,7 +222,7 @@ describe('text', () => {
         createElement()
       )
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', 'lo...']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'lo...']))
     })
 
     it('skips captions when font is taller than the rect', () => {
@@ -286,7 +286,7 @@ describe('text', () => {
         createElement()
       )
 
-      expect(calls).toContain(jasmine.arrayContaining(['fillText', '']))
+      expect(calls).toContainEqual(expect.arrayContaining(['fillText', '']))
     })
   })
 
@@ -311,8 +311,8 @@ describe('text', () => {
         createData({ _data: { children: [{}, {}] }, g: 'group', l: 0 })
       )
 
-      expect(calls).toContain(jasmine.arrayContaining(['moveTo', 60, 0]))
-      expect(calls).toContain(jasmine.arrayContaining(['lineTo', 60, 60]))
+      expect(calls).toContainEqual(expect.arrayContaining(['moveTo', 60, 0]))
+      expect(calls).toContainEqual(expect.arrayContaining(['lineTo', 60, 60]))
     })
 
     it('skips dividers without child data', () => {

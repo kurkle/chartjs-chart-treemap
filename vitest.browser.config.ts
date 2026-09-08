@@ -3,6 +3,12 @@ import { defineConfig } from 'vitest/config'
 
 // The same flags karma.conf.cjs used, so the canvas is rasterized by the CPU
 // in both browsers and the pixel fixtures stay comparable.
+//
+// These belong to the provider, not to an instance. Vitest accepts a `launch`
+// or `launchOptions` key on an instance and silently ignores both: verified by
+// pointing `executablePath` at a file that does not exist and watching the run
+// pass anyway. At provider level the same sabotage fails the run, which is how
+// we know these reach Playwright.
 const chromiumArgs = [
   '--disable-accelerated-2d-canvas',
   '--disable-background-timer-throttling',
@@ -20,11 +26,10 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      instances: [
-        { browser: 'chromium', launch: { args: chromiumArgs } },
-        { browser: 'firefox', launch: { firefoxUserPrefs: firefoxPrefs } },
-      ],
-      provider: playwright(),
+      instances: [{ browser: 'chromium' }, { browser: 'firefox' }],
+      provider: playwright({
+        launchOptions: { args: chromiumArgs, firefoxUserPrefs: firefoxPrefs },
+      }),
       screenshotFailures: false,
     },
     // Istanbul, not v8: v8 coverage is collected over the Chrome DevTools

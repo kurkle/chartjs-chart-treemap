@@ -213,6 +213,15 @@ describe('utils', () => {
       expect(() => requireVersion('test', '16.13.2', '16.13.3-rc')).not.toThrowError()
     })
 
+    it('should reject every Chart.js 3 release and accept Chart.js 4', () => {
+      // The v5 baseline: chart.js 3 resolves `chart.js/helpers` through an
+      // exports map Webpack 5 does not accept, which is issue #182.
+      expect(() => requireVersion('chart.js', '4.0', '3.9.1')).toThrowError()
+      expect(() => requireVersion('chart.js', '4.0', '3.8.0')).toThrowError()
+      expect(() => requireVersion('chart.js', '4.0', '4.0.0')).not.toThrowError()
+      expect(() => requireVersion('chart.js', '4.0', '4.5.1')).not.toThrowError()
+    })
+
     it('should return boolean when `strict` parameter is false', () => {
       expect(requireVersion('test', '3.7', '2.9.3', false)).toBe(false)
       expect(requireVersion('test', '3.7', '3.8', false)).toBe(true)

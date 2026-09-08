@@ -1,6 +1,6 @@
 import Rect from './rect'
 import StatArray from './statArray'
-import { flatten, index, sort, sum } from './utils'
+import { index, sort, sum } from './utils'
 
 function compareAspectRatio(oldStat: any, newStat: any, args: any[]) {
   if (oldStat.sum === 0) {
@@ -16,6 +16,69 @@ function compareAspectRatio(oldStat: any, newStat: any, args: any[]) {
   return nr <= or
 }
 
+/**
+ * Builds the nodes for one set of siblings, without any geometry.
+ *
+ * Everything here depends only on the data: which item a node came from, its
+ * value, its group and level. The rectangle is not involved, which is what lets
+ * the controller know how many elements it needs before the chart area is known.
+ */
+export function toNodes(values: any[], keys: string[], grp?: string, lvl?: number) {
+  const items = values ? values.slice() : []
+  const key = index(items, keys[0])
+
+  return items.map((item: any) => {
+    const node: any = {
+      _data: values[item._idx],
+      v: key ? +item[key] : +item,
+      vs: undefined,
+    }
+    if (grp) {
+      node.g = item[grp]
+      node.gs = undefined
+      node.l = item.groupIndex ?? lvl
+      node.vs = keys.reduce<Record<string, number>>((obj, k) => {
+        obj[k] = +item[k]
+        return obj
+      }, {})
+    }
+    return node
+  })
+}
+
+/** Orders a set of siblings the way the layout draws them: largest first. */
+export function sortNodes(nodes: any[]) {
+  sort(nodes, 'v')
+}
+
+/**
+ * Packs already-ordered nodes into the rectangle, writing `x`, `y`, `w`, `h`,
+ * the row sum `s` and the normalized area `a` onto them.
+ */
+export function packInto(nodes: any[], rectangle: any) {
+  const n = nodes.length
+  if (!n) {
+    return
+  }
+  const rect = new Rect(rectangle)
+  const row = new StatArray('v', rect.area / sum(nodes, 'v'))
+  let length = rect.side
+  let o: any
+
+  for (let i = 0; i < n; ++i) {
+    o = row.pushIf(nodes[i], compareAspectRatio, length)
+    if (o) {
+      rect.map(row)
+      length = rect.side
+      row.reset()
+      row.push(o)
+    }
+  }
+  if (row.length) {
+    rect.map(row)
+  }
+}
+
 export default function squarify(
   values: any[],
   rectangle: any,
@@ -24,56 +87,15 @@ export default function squarify(
   lvl?: number,
   gsum?: number
 ) {
-  values = values || []
-  const rows: any[] = []
-  const rect = new Rect(rectangle)
-  const row = new StatArray('value', rect.area / sum(values, keys[0]))
-  let length = rect.side
-  const n = values.length
-  let i: number
-  let o: any
-
-  if (!n) {
-    return rows
+  const nodes = toNodes(values || [], keys, grp, lvl)
+  if (grp) {
+    for (const node of nodes) {
+      node.gs = gsum
+    }
   }
-
-  const tmp = values.slice()
-  const key = index(tmp, keys[0])
-
   if (!rectangle?.unsorted) {
-    sort(tmp, key)
+    sortNodes(nodes)
   }
-
-  const val = (idx: number) => (key ? +tmp[idx][key] : +tmp[idx])
-  const gval = (idx: number) => grp && tmp[idx][grp]
-
-  for (i = 0; i < n; ++i) {
-    o = {
-      _data: values[tmp[i]._idx],
-      group: undefined,
-      groupSum: gsum,
-      level: undefined,
-      value: val(i),
-    }
-    if (grp) {
-      o.level = tmp[i].groupIndex ?? lvl
-      o.group = gval(i)
-      const tmpRef = tmp[i]
-      o.values = keys.reduce<Record<string, number>>((obj, k) => {
-        obj[k] = +tmpRef[k]
-        return obj
-      }, {})
-    }
-    o = row.pushIf(o, compareAspectRatio, length)
-    if (o) {
-      rows.push(rect.map(row))
-      length = rect.side
-      row.reset()
-      row.push(o)
-    }
-  }
-  if (row.length) {
-    rows.push(rect.map(row))
-  }
-  return flatten(rows)
+  packInto(nodes, rectangle)
+  return nodes
 }

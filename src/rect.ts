@@ -11,24 +11,15 @@ function getDims(itm: any, w2: number, s2: number, key: string) {
 
 const getX = (rect: Rect, w: number) => (rect.rtl ? rect.x + rect.iw - w : rect.x + rect._ix)
 
-function buildRow(rect: Rect, itm: any, dims: any, sum: number) {
-  const r: Record<string, any> = {
-    _data: itm._data,
-    a: itm._normalized,
-    h: dims.h,
-    s: sum,
-    v: itm.value,
-    vs: itm.values,
-    w: dims.w,
-    x: getX(rect, dims.w),
-    y: rect.y + rect._iy,
-  }
-  if (itm.group) {
-    r.g = itm.group
-    r.l = itm.level
-    r.gs = itm.groupSum
-  }
-  return r
+/** Writes the geometry of one packed row onto the nodes themselves. */
+function assignRow(rect: Rect, itm: any, dims: any, sum: number) {
+  itm.a = itm._normalized
+  itm.h = dims.h
+  itm.s = sum
+  itm.w = dims.w
+  itm.x = getX(rect, dims.w)
+  itm.y = rect.y + rect._iy
+  delete itm._normalized
 }
 
 export default class Rect {
@@ -82,19 +73,17 @@ export default class Rect {
     const row = arr.get()
     const w2 = side * side
     const s2 = sum * sum
-    const ret: any[] = []
     let maxd2 = 0
     let totd1 = 0
     for (const itm of row) {
       const dims = getDims(itm, w2, s2, key)
       totd1 += dims.d1
       maxd2 = Math.max(maxd2, dims.d2)
-      ret.push(buildRow(this, itm, dims, arr.sum))
+      assignRow(this, itm, dims, arr.sum)
       this[key] += dims.d1
     }
 
     this[dir === 'x' ? '_iy' : '_ix'] += maxd2
     this[key] -= totd1
-    return ret
   }
 }

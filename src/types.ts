@@ -60,15 +60,6 @@ export type TreemapControllerDatasetLabelsOptions = {
   position?: Scriptable<LabelPosition, TreemapScriptableContext>
 }
 
-export type TreemapControllerDatasetDividersOptions = {
-  display?: boolean
-  lineCapStyle?: CanvasLineCap
-  lineColor?: Color
-  lineDash?: number[]
-  lineDashOffset?: number
-  lineWidth?: number
-}
-
 export type TreemapCaptionsOptions = {
   align?: LabelAlign
   color: Color
@@ -93,15 +84,6 @@ export type TreemapLabelsOptions = {
   position: LabelPosition
 }
 
-export type TreemapDividersOptions = {
-  display?: boolean
-  lineCapStyle: CanvasLineCap
-  lineColor: Color
-  lineDash: number[]
-  lineDashOffset: number
-  lineWidth: number
-}
-
 export interface TreemapControllerDatasetOptions<DType> {
   spacing?: number
   rtl?: boolean
@@ -117,7 +99,6 @@ export interface TreemapControllerDatasetOptions<DType> {
   hoverBorderWidth?: number
 
   captions?: TreemapControllerDatasetCaptionsOptions
-  dividers?: TreemapControllerDatasetDividersOptions
   labels?: TreemapControllerDatasetLabelsOptions
   label?: string
 
@@ -165,7 +146,6 @@ export interface TreemapOptions {
   borderWidth: TreemapBorderWidth
   captions: TreemapCaptionsOptions
   displayMode: TreemapDisplayMode
-  dividers: TreemapDividersOptions
   labels: TreemapLabelsOptions
   rtl: boolean
   spacing: number

@@ -28,6 +28,7 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
         const label = ctx.raw._data?.label
         return ctx.raw.g || (typeof label === 'string' ? label : '')
       },
+      overflow: 'ellipsis',
       padding: 3,
       textAlign: undefined,
     },
@@ -47,6 +48,7 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
       padding: 3,
       position: 'middle',
       textAlign: undefined,
+      wrap: false,
     },
   }
 

@@ -83,6 +83,7 @@
     "docs": "npm run build && astro build",
     "docs:dev": "npm run build && astro dev",
     "docs:version": "node ./docs/scripts/write-docs-version.cjs",
+    "fixtures:update": "node scripts/update-fixtures.mjs",
     "format": "biome check --write",
     "icons": "kurkle-generate-icons",
     "lint": "biome check",

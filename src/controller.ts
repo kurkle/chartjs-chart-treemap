@@ -112,6 +112,7 @@ export default class TreemapController extends DatasetController {
       // by an extra 0.5 and move 11 fixtures. Unifying the two is a visual
       // change that deserves its own pull request.
       spacing: valueOrDefault(dataset.spacing, 0),
+      unsorted: !!options.unsorted,
     }
   }
 

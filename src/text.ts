@@ -40,6 +40,8 @@ type TextElement = Element<TreemapConfig, TreemapOptions> & {
  */
 type TextBlock = {
   align: CanvasTextAlign
+  /** Vertical clip inset. Zero where the box was sized to hold the text. */
+  clipY: number
   colors: Color[]
   fonts: Font[]
   lines: string[]
@@ -108,11 +110,32 @@ export function drawText(
   }
 
   ctx.save()
-  ctx.beginPath()
-  ctx.rect(rect.x, rect.y, rect.w, rect.h)
-  ctx.clip()
+  clipToPadding(ctx, rect, block.padding, block.clipY)
   drawTextBlock(ctx, rect, block)
   ctx.restore()
+}
+
+/**
+ * Text is clipped at the padding, not at the element's border (#135).
+ * `overflow: 'cut'` used to run into the padding region, which made the padding
+ * mean one thing for placement and nothing for clipping.
+ *
+ * The vertical inset is separate because a headerBoxes caption sits in a strip
+ * whose height was derived from that caption's own line height. There is no
+ * vertical overflow to prevent there, and insetting would slice the glyphs of
+ * any font whose ascender and descender exceed its line height.
+ */
+function clipToPadding(
+  ctx: CanvasRenderingContext2D,
+  rect: DrawRect,
+  padding: number,
+  clipY: number
+) {
+  const x = Math.max(0, padding)
+  const y = Math.max(0, clipY)
+  ctx.beginPath()
+  ctx.rect(rect.x + x, rect.y + y, Math.max(0, rect.w - 2 * x), Math.max(0, rect.h - 2 * y))
+  ctx.clip()
 }
 
 function drawTextBlock(ctx: CanvasRenderingContext2D, rect: DrawRect, block: TextBlock) {
@@ -156,6 +179,26 @@ function resolveCaptionText(
   return resolveOption(captions.formatter, callbackContext(element, item)) || item.g || ''
 }
 
+/** The caption's text, truncated with an ellipsis when it does not fit. */
+function captionText(
+  ctx: CanvasRenderingContext2D,
+  rect: DrawRect,
+  captions: TreemapCaptionsOptions,
+  element: TextElement,
+  item: TreemapDataPoint,
+  fonts: Font[]
+) {
+  const text = resolveCaptionText(captions, element, item)
+  if (!text) {
+    return undefined
+  }
+  const padding = captions.padding
+  if (measureLabelSize(ctx, [text], fonts).width + 2 * padding > rect.w) {
+    return sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts)
+  }
+  return text
+}
+
 function captionBlock(
   ctx: CanvasRenderingContext2D,
   rect: DrawRect,
@@ -172,14 +215,11 @@ function captionBlock(
   if (oFont.lineHeight > rect.h) {
     return
   }
-  let text = resolveCaptionText(captions, element, item)
-  if (!text) {
+  const text = captionText(ctx, rect, captions, element, item, [oFont])
+  if (text === undefined) {
     return
   }
   const fonts = [oFont]
-  if (measureLabelSize(ctx, [text], fonts).width + 2 * padding > rect.w) {
-    text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts)
-  }
   // A caption is a single line, centred in the header strip in headerBoxes mode
   // and sitting under the top padding otherwise.
   const top =
@@ -188,6 +228,7 @@ function captionBlock(
       : rect.y + padding + spacing
   return {
     align: align || (rtl ? 'right' : 'left'),
+    clipY: displayMode === 'headerBoxes' ? 0 : padding,
     colors: [(rect.active ? hoverColor : color) || color],
     fonts,
     lines: [text],
@@ -223,6 +264,7 @@ function labelBlock(
   const optColor = (rect.active ? hoverColor : color) || color
   return {
     align,
+    clipY: padding,
     colors: isArray(optColor) ? optColor : [optColor],
     fonts,
     lines,

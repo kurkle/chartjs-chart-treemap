@@ -11,6 +11,7 @@
       "docs/styles/**/*.css",
       "package.json",
       "rollup.config.js",
+      "scripts/**/*.mjs",
       "src/**/*.js",
       "src/**/*.ts",
       "test/integration/**/*.cjs",

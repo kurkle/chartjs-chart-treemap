@@ -18,7 +18,7 @@ export type LabelPosition = 'top' | 'middle' | 'bottom'
 
 export type LabelAlign = 'left' | 'center' | 'right'
 
-export type LabelOverflow = 'cut' | 'hidden' | 'fit'
+export type LabelOverflow = 'cut' | 'ellipsis' | 'fit' | 'hidden'
 
 export type TreemapDisplayMode = 'containerBoxes' | 'headerBoxes'
 
@@ -38,6 +38,7 @@ export type TreemapFormatter<T> = T | ((context: TreemapScriptableContext) => T)
 
 export type TreemapControllerDatasetCaptionsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
+  overflow?: Scriptable<LabelOverflow, TreemapScriptableContext>
   textAlign?: Scriptable<LabelAlign, TreemapScriptableContext>
   color?: Scriptable<Color, TreemapScriptableContext>
   display?: boolean
@@ -51,6 +52,7 @@ export type TreemapControllerDatasetCaptionsOptions = {
 export type TreemapControllerDatasetLabelsOptions = {
   align?: Scriptable<LabelAlign, TreemapScriptableContext>
   textAlign?: Scriptable<LabelAlign, TreemapScriptableContext>
+  wrap?: boolean
   color?: Scriptable<Color | Color[], TreemapScriptableContext>
   display?: boolean
   formatter?: TreemapFormatter<string | string[]>
@@ -64,6 +66,7 @@ export type TreemapControllerDatasetLabelsOptions = {
 
 export type TreemapCaptionsOptions = {
   align?: LabelAlign
+  overflow?: LabelOverflow
   textAlign?: LabelAlign
   color: Color
   display?: boolean
@@ -77,6 +80,7 @@ export type TreemapCaptionsOptions = {
 export type TreemapLabelsOptions = {
   align: LabelAlign
   textAlign?: LabelAlign
+  wrap?: boolean
   color: Color | Color[]
   display?: boolean
   font: TreemapFontSpec | TreemapFontSpec[]

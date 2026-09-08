@@ -47,6 +47,8 @@ type TextBlock = {
   fonts: Font[]
   lines: string[]
   padding: number
+  /** Paragraph each line belongs to, which is what indexes fonts and colours. */
+  styles: number[]
   /** How each line sits inside the block. Follows `align` when undefined. */
   textAlign: CanvasTextAlign | undefined
   top: number
@@ -54,6 +56,8 @@ type TextBlock = {
   width: number
 }
 
+// Capped so a chart with many distinct labels cannot grow it without bound.
+const WIDTH_CACHE_LIMIT = 4096
 const widthCache = new Map<string, LabelSize>()
 
 export function shouldDrawCaption(
@@ -144,7 +148,7 @@ function clipToPadding(
 }
 
 function drawTextBlock(ctx: CanvasRenderingContext2D, rect: DrawRect, block: TextBlock) {
-  const { align, colors, fonts, lines, padding, textAlign, top, width } = block
+  const { align, colors, fonts, lines, padding, styles, textAlign, top, width } = block
   // `align` places the block in the rect, `textAlign` places each line in the
   // block. When they agree, which is the default, this is the same arithmetic
   // v4 did with a single x.
@@ -154,9 +158,10 @@ function drawTextBlock(ctx: CanvasRenderingContext2D, rect: DrawRect, block: Tex
   ctx.textBaseline = 'middle'
   let offset = 0
   lines.forEach((line, i) => {
-    const font = fonts[Math.min(i, fonts.length - 1)]
+    const style = styles[i]
+    const font = fontFor(fonts, style)
     ctx.font = font.string
-    ctx.fillStyle = colors[Math.min(i, colors.length - 1)]
+    ctx.fillStyle = colors[Math.min(style, colors.length - 1)]
     ctx.fillText(line, x, top + offset + font.lineHeight / 2)
     offset += font.lineHeight
   })
@@ -202,10 +207,19 @@ function captionText(
     return undefined
   }
   const padding = captions.padding
-  if (measureLabelSize(ctx, [text], fonts).width + 2 * padding > rect.w) {
-    return sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts)
+  if (measureLabelSize(ctx, [text], fonts).width + 2 * padding <= rect.w) {
+    return text
   }
-  return text
+  // `ellipsis` is the default and is what v4 always did; the other modes leave
+  // the clip to tell the whole story.
+  const overflow = captions.overflow || 'ellipsis'
+  if (overflow === 'hidden') {
+    return undefined
+  }
+  if (overflow === 'cut') {
+    return text
+  }
+  return sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts)
 }
 
 function captionBlock(
@@ -242,6 +256,7 @@ function captionBlock(
     fonts,
     lines: [text],
     padding,
+    styles: [0],
     textAlign: captions.textAlign,
     top,
     width: measureLabelSize(ctx, [text], fonts).width,
@@ -260,18 +275,39 @@ function labelBlock(
   if (!content) {
     return
   }
-  const lines = isArray(content) ? content : [content]
+  const { align, color, hoverColor, overflow, padding, wrap } = labels
+  const maxWidth = rect.w - padding * 2
+  const maxHeight = rect.h - padding * 2
+
   let fonts = getFontFromOptions(rect, labels)
-  let labelSize = measureLabelSize(ctx, lines, fonts)
+  let { lines, styles } = toLines(ctx, content, fonts, maxWidth, !!wrap)
+  let labelSize = measureLines(ctx, lines, styles, fonts)
+
   const lblToDraw = labelToDraw(rect, labels, labelSize)
   if (!lblToDraw) {
     return
   }
   if (isNumber(lblToDraw)) {
-    labelSize = { height: labelSize.height * lblToDraw, width: labelSize.width * lblToDraw }
     fonts = toFonts(fonts, lblToDraw)
+    if (wrap) {
+      // Shorter lines pack into fewer rows, so wrap once more at the smaller
+      // size rather than iterating towards a fixed point.
+      const rewrapped = toLines(ctx, content, fonts, maxWidth, true)
+      lines = rewrapped.lines
+      styles = rewrapped.styles
+      labelSize = measureLines(ctx, lines, styles, fonts)
+    } else {
+      labelSize = { height: labelSize.height * lblToDraw, width: labelSize.width * lblToDraw }
+    }
   }
-  const { color, hoverColor, align, padding } = labels
+
+  if (overflow === 'ellipsis') {
+    const trimmed = applyEllipsis(ctx, lines, styles, fonts, maxWidth, maxHeight)
+    lines = trimmed.lines
+    styles = trimmed.styles
+    labelSize = measureLines(ctx, lines, styles, fonts)
+  }
+
   const optColor = (rect.active ? hoverColor : color) || color
   return {
     align,
@@ -280,6 +316,7 @@ function labelBlock(
     fonts,
     lines,
     padding,
+    styles,
     textAlign: labels.textAlign,
     top: calculateBlockTop(rect, labels, labelSize),
     width: labelSize.width,
@@ -314,6 +351,140 @@ function sliceTextToFitWidth(
   return slicedText ? slicedText + ellipsis : ''
 }
 
+const fontFor = (fonts: Font[], index: number) => fonts[Math.min(index, fonts.length - 1)]
+
+/**
+ * Breaks one piece of text to `width`, greedily on spaces. A single word wider
+ * than the width is broken by character, because leaving it to overflow would
+ * defeat the point of asking for wrapping.
+ */
+function wrapToWidth(ctx: CanvasRenderingContext2D, text: string, font: Font, width: number) {
+  if (width <= 0) {
+    return [text]
+  }
+  const fits = (value: string) => measureLabelSize(ctx, [value], [font]).width <= width
+  const lines: string[] = []
+  let line = ''
+
+  const pushWord = (word: string) => {
+    if (fits(word)) {
+      line = word
+      return
+    }
+    let chunk = ''
+    for (const char of word) {
+      if (chunk && !fits(chunk + char)) {
+        lines.push(chunk)
+        chunk = ''
+      }
+      chunk += char
+    }
+    line = chunk
+  }
+
+  for (const word of text.split(' ')) {
+    const candidate = line ? `${line} ${word}` : word
+    if (fits(candidate)) {
+      line = candidate
+      continue
+    }
+    if (line) {
+      lines.push(line)
+      line = ''
+    }
+    pushWord(word)
+  }
+  if (line) {
+    lines.push(line)
+  }
+  return lines.length ? lines : ['']
+}
+
+/**
+ * Formatter output as drawable lines.
+ *
+ * An array is one paragraph per entry and a string breaks on newlines, which
+ * canvas would otherwise draw as a stray glyph. Colours and fonts are indexed
+ * by paragraph, so a wrapped paragraph keeps one style throughout.
+ */
+function toLines(
+  ctx: CanvasRenderingContext2D,
+  content: string | string[],
+  fonts: Font[],
+  width: number,
+  wrap: boolean
+) {
+  const paragraphs = (isArray(content) ? content : [content]).map((entry) => `${entry}`)
+  const lines: string[] = []
+  const styles: number[] = []
+
+  paragraphs.forEach((paragraph, index) => {
+    const font = fontFor(fonts, index)
+    for (const piece of paragraph.split('\n')) {
+      for (const line of wrap ? wrapToWidth(ctx, piece, font, width) : [piece]) {
+        lines.push(line)
+        styles.push(index)
+      }
+    }
+  })
+  return { lines, styles }
+}
+
+/** Measures a set of lines whose fonts are indexed by paragraph. */
+function measureLines(
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  styles: number[],
+  fonts: Font[]
+): LabelSize {
+  let width = 0
+  let height = 0
+  lines.forEach((line, i) => {
+    const font = fontFor(fonts, styles[i])
+    width = Math.max(width, measureLabelSize(ctx, [line], [font]).width)
+    height += font.lineHeight
+  })
+  return { height, width }
+}
+
+/**
+ * Keeps as many whole lines as fit, and marks the truncation with an ellipsis:
+ * on any line too wide for the box, and on the last line kept when there were
+ * more below it.
+ */
+function applyEllipsis(
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  styles: number[],
+  fonts: Font[],
+  maxWidth: number,
+  maxHeight: number
+) {
+  const keptLines: string[] = []
+  const keptStyles: number[] = []
+  let used = 0
+  for (let i = 0; i < lines.length; i++) {
+    const font = fontFor(fonts, styles[i])
+    if (keptLines.length && used + font.lineHeight > maxHeight) {
+      break
+    }
+    used += font.lineHeight
+    keptLines.push(lines[i])
+    keptStyles.push(styles[i])
+  }
+
+  const dropped = keptLines.length < lines.length
+  const last = keptLines.length - 1
+  for (let i = 0; i < keptLines.length; i++) {
+    const font = fontFor(fonts, keptStyles[i])
+    const tooWide = measureLabelSize(ctx, [keptLines[i]], [font]).width > maxWidth
+    if (tooWide || (dropped && i === last)) {
+      keptLines[i] = sliceTextToFitWidth(ctx, keptLines[i], maxWidth, [font])
+    }
+  }
+  return { lines: keptLines, styles: keptStyles }
+}
+
 function measureLabelSize(
   ctx: CanvasRenderingContext2D & { _measureText?: unknown },
   lines: string[],
@@ -339,6 +510,9 @@ function measureLabelSize(
     }
     ctx.restore()
     size = { height, width }
+    if (widthCache.size >= WIDTH_CACHE_LIMIT) {
+      widthCache.clear()
+    }
     widthCache.set(mapKey, size)
   }
   return size

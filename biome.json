@@ -3,6 +3,7 @@
   "files": {
     "includes": [
       "astro.config.mjs",
+      "bench/**/*.mjs",
       "biome.json",
       "docs/scripts/**/*.js",
       "docs/src/**/*.astro",

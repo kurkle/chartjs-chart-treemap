@@ -1,7 +1,7 @@
 const arrayN = (n) => Array.from({length: n}).map((_, i) => i);
 
 const groups = arrayN(5);
-const tree = groups.reduce((acc, grp) => [
+const data = groups.reduce((acc, grp) => [
   ...acc,
   ...arrayN(grp * 5).map(i => ({grp: `group: ${grp}`, sub: `sub: ${i}`, value: (i % 5) * 5}))
 ], []);
@@ -13,7 +13,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree,
+        data,
         backgroundColor: (ctx) => {
           if (ctx.raw.l === 0) {
             return 'dimgray';

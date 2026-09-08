@@ -38,7 +38,7 @@ const config = {
     datasets: [
       {
         label: 'My First dataset',
-        tree: Utils.numbers(NUMBER_CFG),
+        data: Utils.numbers(NUMBER_CFG),
         borderColor: 'red',
         borderWidth: 0.5,
         spacing: 0,

@@ -11,3 +11,4 @@ export type {
 
 export { default as TreemapController } from './controller'
 export { default as TreemapElement } from './element'
+export { flattenTree } from './utils'

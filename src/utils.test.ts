@@ -1,4 +1,13 @@
-import { flatten, group, index, normalizeTreeToArray, requireVersion, sort, sum } from './utils'
+import {
+  flatten,
+  flattenTree,
+  group,
+  index,
+  normalizeTreeToArray,
+  requireVersion,
+  sort,
+  sum,
+} from './utils'
 
 describe('utils', () => {
   describe('flatten', () => {
@@ -196,6 +205,16 @@ describe('utils', () => {
       ]
       expect(sum(a, 'x')).toEqual(16)
       expect(sum(a, 'y')).toEqual(6)
+    })
+  })
+
+  describe('flattenTree', () => {
+    it('flattens a nested object into the array form of data', () => {
+      const tree = { a: { one: 1, two: 2 }, b: { three: 3 } }
+
+      expect(flattenTree(tree, ['value'], 'name')).toEqual(
+        normalizeTreeToArray(['value'], 'name', tree)
+      )
     })
   })
 

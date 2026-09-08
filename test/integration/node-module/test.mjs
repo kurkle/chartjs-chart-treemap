@@ -11,7 +11,7 @@ export const chart = new Chart(ctx, {
   data: {
     datasets: [
       {
-        tree: [6, 6, 4, 3, 2, 2, 1],
+        data: [6, 6, 4, 3, 2, 2, 1],
       },
     ],
   },

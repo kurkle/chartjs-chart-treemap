@@ -68,6 +68,13 @@ Namespaces:
 The treemap chart allows a number of properties to be specified for each dataset.
 These are used to set display properties for a specific dataset.
 
+**Two scopes, on purpose.** Options that shape the whole layout - `displayMode`,
+`groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys` and `unsorted` - are resolved
+once per dataset and are **not** read from `options.elements.treemap`. Options that can
+differ from one rectangle to the next - the colors, borders, `captions` and `labels` -
+are element options and are resolved per element, so they can be
+[scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options).
+
 | Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
@@ -86,7 +93,7 @@ These are used to set display properties for a specific dataset.
 | [`spacing`](#styling) | `number` | - | `0.5`
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
 | [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
-| [`treeLeafKey`](#general) | `string` | - | `_leaf` |
+| [`leafKey`](#general) | `string` | - | `_leaf` |
 | [`treeVersion`](#general) | `number` \| `string` | - | `undefined` |
 | [`unsorted`](#general) | `boolean` | - | `false`
 | [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
@@ -103,11 +110,20 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically built.
-| `treeLeafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
+| `leafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
 | `treeVersion` | Change this value when mutating `tree` in place to rebuild the generated data on the next chart update.
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 
-Only the `tree`, `treeLeafKey`, `key`, `sumKeys` and `groups` options need to be specified in the dataset namespace.
+`displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys`, `tree` and
+`unsorted` are dataset options: set them on the dataset or in `options.datasets.treemap`.
+Setting them in `options.elements.treemap` has no effect.
+
+#### Options resolved at layout time
+
+`borderWidth`, `spacing` and the `captions` `font`, `padding` and `display` decide how much
+room is left inside a group for its children, so they are read once while the layout is
+built rather than per element. A scriptable `borderWidth` still draws per element, but the
+space reserved for the children uses the dataset-level value.
 
 ### TypeScript
 

@@ -1,6 +1,22 @@
-import type { TreemapBorderRadius, TreemapBorderWidth, TreemapOptions } from './types'
+import type {
+  TreemapBorderRadius,
+  TreemapBorderWidth,
+  TreemapLayoutOptions,
+  TreemapOptions,
+} from './types'
 
 import { toTRBL, toTRBLCorners } from 'chart.js/helpers'
+
+/**
+ * Options that shape the whole dataset's layout rather than a single element.
+ * They live in the controller's defaults; the element receives the resolved
+ * values as an argument to `draw`.
+ */
+export const layoutDefaults: TreemapLayoutOptions = {
+  displayMode: 'containerBoxes',
+  rtl: false,
+  spacing: 0.5,
+}
 
 export type ParsedBorderWidth = {
   b: number

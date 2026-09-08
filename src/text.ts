@@ -6,6 +6,7 @@ import type {
   TreemapDataPoint,
   TreemapDisplayMode,
   TreemapLabelsOptions,
+  TreemapLayoutOptions,
   TreemapOptions,
   TreemapScriptableContext,
 } from './types'
@@ -84,9 +85,11 @@ export function drawText(
   rect: DrawRect,
   options: TreemapOptions,
   item: TreemapDataPoint,
-  element: TextElement
+  element: TextElement,
+  layout: TreemapLayoutOptions
 ) {
-  const { captions, labels, displayMode } = options
+  const { captions, labels } = options
+  const { displayMode } = layout
   ctx.save()
   ctx.beginPath()
   ctx.rect(rect.x, rect.y, rect.w, rect.h)
@@ -98,7 +101,7 @@ export function drawText(
       block = labelBlock(ctx, rect, options, item, element)
     }
   } else if (shouldDrawCaption(displayMode, rect, captions)) {
-    block = captionBlock(ctx, rect, options, item, element)
+    block = captionBlock(ctx, rect, options, item, element, layout)
   }
   if (block) {
     drawTextBlock(ctx, rect, block)
@@ -152,9 +155,11 @@ function captionBlock(
   rect: DrawRect,
   options: TreemapOptions,
   item: TreemapDataPoint,
-  element: TextElement
+  element: TextElement,
+  layout: TreemapLayoutOptions
 ): TextBlock | undefined {
-  const { captions, spacing, rtl, displayMode } = options
+  const { displayMode, rtl, spacing } = layout
+  const { captions } = options
   const { color, hoverColor, font, hoverFont, padding, align } = captions
   const optFont = (rect.active ? hoverFont : font) || font
   const oFont = toFont(optFont)

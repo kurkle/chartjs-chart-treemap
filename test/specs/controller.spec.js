@@ -301,4 +301,25 @@ describe('controller', () => {
 
     expect(labels).toContain('new:1')
   })
+
+  it('resolves layout options from the dataset scope and ignores the elements scope', () => {
+    const widths = (options) => {
+      const chart = acquireChart({
+        data: { datasets: [{ tree: [4, 3, 2, 1] }] },
+        options,
+        type: 'treemap',
+      })
+      return chart.getDatasetMeta(0).data.map((element) => Math.round(element.width))
+    }
+
+    const base = widths({})
+
+    // v5 breaking change, asserted on purpose: spacing is a dataset option and
+    // the elements scope no longer reaches it.
+    expect(widths({ elements: { treemap: { spacing: 20 } } })).toEqual(base)
+
+    // ...while the dataset scope does, which is what makes the assertion above
+    // a statement about scopes rather than about spacing being ignored.
+    expect(widths({ datasets: { treemap: { spacing: 20 } } })).not.toEqual(base)
+  })
 })

@@ -9,7 +9,7 @@ const hasGroupValue = (value: unknown) => value !== undefined && value !== null 
 
 function scanTreeObject(
   keys: string[],
-  treeLeafKey: string,
+  leafKey: string,
   obj: Record<string, any>,
   tree: string[] = [],
   lvl = 0,
@@ -23,7 +23,7 @@ function scanTreeObject(
       }
       return reduced
     }, {})
-    record[treeLeafKey] = tree[objIndex]
+    record[leafKey] = tree[objIndex]
     keys.forEach((k) => {
       record[k] = obj[k]
     })
@@ -33,7 +33,7 @@ function scanTreeObject(
       const child = obj[childKey]
       if (isObject(child)) {
         tree.push(childKey)
-        scanTreeObject(keys, treeLeafKey, child, tree, lvl + 1, result)
+        scanTreeObject(keys, leafKey, child, tree, lvl + 1, result)
       }
     }
   }
@@ -41,12 +41,8 @@ function scanTreeObject(
   return result
 }
 
-export function normalizeTreeToArray(
-  keys: string[],
-  treeLeafKey: string,
-  obj: Record<string, any>
-) {
-  const data = scanTreeObject(keys, treeLeafKey, obj)
+export function normalizeTreeToArray(keys: string[], leafKey: string, obj: Record<string, any>) {
+  const data = scanTreeObject(keys, leafKey, obj)
   if (!data.length) {
     return data
   }
@@ -99,7 +95,7 @@ function getPath(groups: string[], value: Record<string, any>, defaultValue: str
 
 function resolveGroup(
   value: Record<string, any>,
-  treeLeafKey: string,
+  leafKey: string,
   allGroups: string[],
   groupIndex: number
 ) {
@@ -109,8 +105,8 @@ function resolveGroup(
       return { group: groupKey, groupIndex: idx, value: value[groupKey] }
     }
   }
-  if (hasGroupValue(value[treeLeafKey])) {
-    return { group: treeLeafKey, groupIndex, value: value[treeLeafKey] }
+  if (hasGroupValue(value[leafKey])) {
+    return { group: leafKey, groupIndex, value: value[leafKey] }
   }
   return undefined
 }
@@ -136,7 +132,7 @@ export function group(
   values: Record<string, any>[],
   grp: string,
   keys: string[],
-  treeLeafKey: string,
+  leafKey: string,
   mainGrp?: string,
   mainValue?: any,
   groups: string[] = [],
@@ -157,7 +153,7 @@ export function group(
     if (mainGrp && v[mainGrp] !== mainValue) {
       continue
     }
-    const itemGroup = resolveGroup(v, treeLeafKey, resolvedAllGroups, resolvedGroupIndex)
+    const itemGroup = resolveGroup(v, leafKey, resolvedAllGroups, resolvedGroupIndex)
     if (!itemGroup) {
       return []
     }

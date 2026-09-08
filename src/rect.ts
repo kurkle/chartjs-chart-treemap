@@ -1,5 +1,10 @@
 function getDims(itm: any, w2: number, s2: number, key: string) {
   const a = itm._normalized
+  if (!a) {
+    // A zero-area item would divide by its own zero side and produce NaN
+    // coordinates. It has nothing to draw, so give it nothing.
+    return { d1: 0, d2: 0, h: 0, w: 0 }
+  }
   const ar = (w2 * a) / s2
   const d1 = Math.sqrt(a * ar)
   const d2 = a / d1

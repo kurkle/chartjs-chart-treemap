@@ -2,6 +2,12 @@ import Rect from './rect'
 import StatArray from './statArray'
 import { index, sort, sum } from './utils'
 
+/**
+ * Where the layout weight lives when `valueScale` is not linear. Non-enumerable
+ * on the node, so `ctx.raw` keeps the shape it has always had.
+ */
+export const WEIGHT_KEY = '_weight'
+
 function compareAspectRatio(oldStat: any, newStat: any, args: any[]) {
   if (oldStat.sum === 0) {
     return true
@@ -47,21 +53,22 @@ export function toNodes(values: any[], keys: string[], grp?: string, lvl?: numbe
 }
 
 /** Orders a set of siblings the way the layout draws them: largest first. */
-export function sortNodes(nodes: any[]) {
-  sort(nodes, 'v')
+export function sortNodes(nodes: any[], weighted = false) {
+  sort(nodes, weighted ? WEIGHT_KEY : 'v')
 }
 
 /**
  * Packs already-ordered nodes into the rectangle, writing `x`, `y`, `w`, `h`,
  * the row sum `s` and the normalized area `a` onto them.
  */
-export function packInto(nodes: any[], rectangle: any) {
+export function packInto(nodes: any[], rectangle: any, weighted = false) {
   const n = nodes.length
   if (!n) {
     return
   }
+  const key = weighted ? WEIGHT_KEY : 'v'
   const rect = new Rect(rectangle)
-  const row = new StatArray('v', rect.area / sum(nodes, 'v'))
+  const row = new StatArray(key, rect.area / sum(nodes, key))
   let length = rect.side
   let o: any
 

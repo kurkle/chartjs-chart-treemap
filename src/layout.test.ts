@@ -20,6 +20,7 @@ const options = (over: Partial<LayoutOptions> = {}): LayoutOptions => ({
   leafKey: '_leaf',
   spacing: 0,
   unsorted: false,
+  valueScale: 'linear',
   ...over,
 })
 
@@ -88,5 +89,70 @@ describe('layout', () => {
     const nodes = buildData([3, 1, 2], [''], rect(300, 200), options({ unsorted: true }))
 
     expect(nodes.map((n) => n.v)).toEqual([3, 1, 2])
+  })
+
+  describe('valueScale', () => {
+    // The shape of issue #213: one huge value and four tiny ones.
+    const skewed = () => [134500, 19, 12, 8, 3]
+    const widths = (valueScale: LayoutOptions['valueScale']) =>
+      buildData(skewed(), [''], rect(800, 400), options({ valueScale })).map((n) => Math.round(n.w))
+
+    it('keeps area proportional to value when linear', () => {
+      const [big, ...small] = widths('linear')
+
+      expect(big).toBeGreaterThan(700)
+      expect(small.every((w) => w < 2)).toBe(true)
+    })
+
+    it('compresses the range with sqrt and log, leaving the small items visible', () => {
+      for (const scale of ['sqrt', 'log'] as const) {
+        const [big, ...small] = widths(scale)
+
+        expect(big).toBeGreaterThan(0)
+        expect(small.every((w) => w >= 2)).toBe(true)
+      }
+    })
+
+    it('leaves the raw values alone', () => {
+      const nodes = buildData(skewed(), [''], rect(800, 400), options({ valueScale: 'log' }))
+
+      expect(nodes.map((n) => n.v)).toEqual([134500, 19, 12, 8, 3])
+    })
+
+    it('accepts a function, and treats a negative or non-finite result as zero', () => {
+      const nodes = buildData(
+        [4, 1, 2],
+        [''],
+        rect(400, 200),
+        options({ valueScale: (value) => (value === 1 ? -5 : value) })
+      )
+      const byValue = new Map(nodes.map((n) => [n.v, Math.round(n.w)]))
+
+      expect(byValue.get(1)).toBe(0)
+      expect(byValue.get(4)).toBeGreaterThan(0)
+    })
+
+    it('sizes a group by the sum of its scaled children', () => {
+      const data = [
+        { grp: 'a', value: 100 },
+        { grp: 'a', value: 100 },
+        { grp: 'b', value: 1 },
+      ]
+      const nodes = buildData(
+        data,
+        ['value'],
+        rect(400, 200),
+        options({ groups: ['grp'], valueScale: 'sqrt' })
+      )
+      const a = nodes.find((n) => n.g === 'a')
+      const b = nodes.find((n) => n.g === 'b')
+      if (!a || !b) {
+        throw new Error('both groups must be laid out')
+      }
+
+      // sqrt(100) + sqrt(100) = 20 against sqrt(1) = 1, not 200 against 1.
+      expect((a.w * a.h) / (b.w * b.h)).toBeLessThan(50)
+      expect(a.v).toBe(200)
+    })
   })
 })

@@ -20,6 +20,16 @@ export type LabelAlign = 'left' | 'center' | 'right'
 
 export type LabelOverflow = 'cut' | 'ellipsis' | 'fit' | 'hidden'
 
+/**
+ * How a value becomes an area. `linear` keeps area proportional to value;
+ * the others compress a wide range so small items stay visible.
+ */
+export type TreemapValueScale<DType = AnyObject> =
+  | 'linear'
+  | 'log'
+  | 'sqrt'
+  | ((value: number, item: DType) => number)
+
 export type TreemapDisplayMode = 'containerBoxes' | 'headerBoxes'
 
 export type TreemapBorderWidth =
@@ -97,6 +107,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   rtl?: boolean
   spacing?: number
   unsorted?: boolean
+  valueScale?: TreemapValueScale<DType>
 
   backgroundColor?: Scriptable<Color, TreemapScriptableContext>
   borderColor?: Scriptable<Color, TreemapScriptableContext>

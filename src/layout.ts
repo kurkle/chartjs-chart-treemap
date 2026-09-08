@@ -1,10 +1,10 @@
 import type { DrawRect } from './geometry'
-import type { TreemapDataPoint, TreemapDisplayMode } from './types'
+import type { TreemapDataPoint, TreemapDisplayMode, TreemapValueScale } from './types'
 
 import { isObject, toFont, valueOrDefault } from 'chart.js/helpers'
 
 import { parseBorderWidth } from './options'
-import { packInto, sortNodes, toNodes } from './squarify'
+import { packInto, sortNodes, toNodes, WEIGHT_KEY } from './squarify'
 import { getCaptionHeight, shouldDrawCaption } from './text'
 import { getGroupKey, group, normalizeTreeToArray } from './utils'
 
@@ -16,6 +16,7 @@ export type LayoutOptions = {
   leafKey: string
   spacing: number
   unsorted: boolean
+  valueScale: TreemapValueScale
 }
 
 /** A node while the layout is being built; `_children` is dropped before use. */
@@ -33,6 +34,7 @@ function buildHierarchy(
   gidx: number,
   keys: string[],
   layout: LayoutOptions,
+  weighted: boolean,
   parentGroupValue?: string
 ): LayoutNode[] {
   const { groups, leafKey, unsorted } = layout
@@ -50,16 +52,13 @@ function buildHierarchy(
     gidx
   )
   const nodes = toNodes(gdata, keys, g, gidx) as LayoutNode[]
-  if (!unsorted) {
-    sortNodes(nodes)
-  }
 
   for (const node of nodes) {
     const record = node._data as any
     const nextGroupIndex = record.groupIndex + 1
     const children =
       gidx < glen - 1 && nextGroupIndex < glen
-        ? buildHierarchy(record.children, nextGroupIndex, keys, layout, node.g)
+        ? buildHierarchy(record.children, nextGroupIndex, keys, layout, weighted, node.g)
         : []
     // Non-enumerable: the geometry pass needs it on every layout, but it
     // must not show up in ctx.raw.
@@ -70,7 +69,43 @@ function buildHierarchy(
     })
     node.isLeaf = !children.length
   }
+
+  // Weights depend on the children, so they are set before the siblings are
+  // ordered: a scaled group can rank differently from a raw one.
+  if (weighted) {
+    applyValueScale(nodes, scaleFor(layout))
+  }
+  if (!unsorted) {
+    sortNodes(nodes, weighted)
+  }
   return nodes
+}
+
+/**
+ * The layout weight of every node, when `valueScale` is not linear.
+ *
+ * A leaf's weight is its scaled value; a group's is the sum of its children's,
+ * so a group still covers exactly the area its contents do. `v` is untouched:
+ * tooltips, labels and `sumKeys` stay in the units the data came in.
+ */
+function applyValueScale(nodes: LayoutNode[], scale: (value: number, item: any) => number) {
+  for (const node of nodes) {
+    const children = node._children
+    let weight: number
+    if (children?.length) {
+      applyValueScale(children, scale)
+      weight = children.reduce((total, child) => total + (child as any)[WEIGHT_KEY], 0)
+    } else {
+      const scaled = scale(node.v, node._data)
+      weight = Number.isFinite(scaled) && scaled > 0 ? scaled : 0
+    }
+    Object.defineProperty(node, WEIGHT_KEY, { configurable: true, value: weight, writable: true })
+  }
+}
+
+const VALUE_SCALES: Record<string, (value: number) => number> = {
+  log: (value) => Math.log1p(Math.max(value, 0)),
+  sqrt: (value) => Math.sqrt(Math.max(value, 0)),
 }
 
 /** Draw order: a set of siblings, then the descendants of each in turn. */
@@ -90,25 +125,45 @@ export function flattenNodes(nodes: LayoutNode[]): LayoutNode[] {
  * Packs each set of siblings into its parent's rectangle, writing the
  * coordinates onto the nodes the first pass produced.
  */
-function layoutLevel(nodes: LayoutNode[], rect: any, layout: LayoutOptions, parentSum?: number) {
+function layoutLevel(
+  nodes: LayoutNode[],
+  rect: any,
+  layout: LayoutOptions,
+  weighted: boolean,
+  parentSum?: number
+) {
   if (parentSum !== undefined) {
     for (const node of nodes) {
       node.gs = parentSum
     }
   }
-  packInto(nodes, rect)
+  packInto(nodes, rect, weighted)
 
   for (const node of nodes) {
     if (node._children?.length) {
-      layoutLevel(node._children, getSubRect(node, rect, layout), layout, node.s)
+      layoutLevel(node._children, getSubRect(node, rect, layout), layout, weighted, node.s)
     }
   }
 }
 
 /** Writes the geometry for a whole tree of nodes, then applies headerBoxes. */
 export function layoutNodes(nodes: LayoutNode[], rect: any, layout: LayoutOptions) {
-  layoutLevel(nodes, rect, layout)
+  layoutLevel(nodes, rect, layout, isWeighted(layout))
   applyHeaderBoxes(flattenNodes(nodes), layout)
+}
+
+/** Linear is the default and needs no weights, so it keeps v4's arithmetic. */
+function isWeighted(layout: LayoutOptions) {
+  const scale = layout.valueScale
+  return scale !== 'linear' && scale !== undefined
+}
+
+function scaleFor(layout: LayoutOptions) {
+  const scale = layout.valueScale
+  if (typeof scale === 'function') {
+    return scale
+  }
+  return VALUE_SCALES[scale as string] || ((value: number) => value)
 }
 
 /** The rectangle left for a group's children once its border and caption are taken. */
@@ -148,12 +203,18 @@ export function buildNodes(tree: any, keys: string[], layout: LayoutOptions): La
   const { groups, leafKey, unsorted } = layout
   const input = isObject(tree) ? normalizeTreeToArray(keys, leafKey, tree) : tree
 
+  const weighted = isWeighted(layout)
+  let nodes: LayoutNode[]
   if (groups.length) {
-    return buildHierarchy(input, 0, keys, layout)
-  }
-  const nodes = toNodes(input || [], keys) as LayoutNode[]
-  if (!unsorted) {
-    sortNodes(nodes)
+    nodes = buildHierarchy(input, 0, keys, layout, weighted)
+  } else {
+    nodes = toNodes(input || [], keys) as LayoutNode[]
+    if (weighted) {
+      applyValueScale(nodes, scaleFor(layout))
+    }
+    if (!unsorted) {
+      sortNodes(nodes, weighted)
+    }
   }
   return nodes
 }

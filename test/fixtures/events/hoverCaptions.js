@@ -18,7 +18,7 @@ export default {
     data: {
       datasets: [{
         label: 'Simple treemap',
-        tree: data,
+        data: data,
         key: 'value',
         groups: ['category', 'subcategory', 'value'],
         backgroundColor: 'red',

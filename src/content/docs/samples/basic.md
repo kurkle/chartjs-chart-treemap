@@ -32,7 +32,7 @@ const config = {
     datasets: [
       {
         label: 'My First dataset',
-        tree: Utils.numbers(NUMBER_CFG),
+        data: Utils.numbers(NUMBER_CFG),
         borderColor: (ctx) => colorFromRaw(ctx, true),
         borderWidth: 1,
         spacing: -0.5, // Animations look better when overlapping a little

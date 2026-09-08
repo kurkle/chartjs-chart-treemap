@@ -24,7 +24,7 @@ const config = {
     datasets: [
       {
         label: 'My treemap dataset',
-        tree: [15, 6, 6, 5, 4, 3, 2, 2],
+        data: [15, 6, 6, 5, 4, 3, 2, 2],
         borderColor: 'green',
         borderWidth: 1,
         spacing: 0,
@@ -82,6 +82,7 @@ are element options and are resolved per element, so they can be
 | [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
 | [`borderWidth`](#styling) | `number`\|`object` | - | `0`
 | [`captions`](#captions) | `object` | - |
+| [`data`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`groups`](#general) | `string[]` | - | `undefined` |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
@@ -92,9 +93,7 @@ are element options and are resolved per element, so they can be
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
-| [`tree`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
 | [`leafKey`](#general) | `string` | - | `_leaf` |
-| [`treeVersion`](#general) | `number` \| `string` | - | `undefined` |
 | [`unsorted`](#general) | `boolean` | - | `false`
 | [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
 
@@ -104,17 +103,16 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 
 | Name | Description
 | ---- | ----
+| `data` | Numbers, objects, or a nested object addressed through `leafKey`. The array is read, never written.
 | `groups` | Define how to display multiple levels of hierarchy. Data is summarized to groups internally.
 | `key` | Define the key name in data objects to use for value.
 | `label` | The label for the dataset which appears in the legend and tooltips.
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
-| `tree` | Tree data should be provided in `tree` property of dataset. `data` is then automatically built.
-| `leafKey` | The name of the key where the object key of leaf node of tree object is stored. Used only when `tree` is an `object`, as hierarchical data.
-| `treeVersion` | Change this value when mutating `tree` in place to rebuild the generated data on the next chart update.
+| `leafKey` | The name of the key where the object key of a leaf node is stored. Used only when `data` is a nested `object`.
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 
-`displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys`, `tree` and
+`data`, `displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys` and
 `unsorted` are dataset options: set them on the dataset or in `options.datasets.treemap`.
 Setting them in `options.elements.treemap` has no effect.
 
@@ -125,251 +123,44 @@ room is left inside a group for its children, so they are read once while the la
 built rather than per element. A scriptable `borderWidth` still draws per element, but the
 space reserved for the children uses the dataset-level value.
 
+### The parsed data
+
+`data` is read, never written. The rectangles the chart draws are the *parsed* data, one
+node per rectangle - a grouped treemap has more rectangles than you supplied rows.
+
+| To read a node | Use |
+| ---- | ---- |
+| in a scriptable option | `ctx.raw` (also `ctx.parsed`) |
+| in a tooltip callback | `item.parsed` |
+| anywhere else | `chart.getDatasetMeta(i).controller.getParsed(index)` |
+
+A node carries the raw value `v`, the summed keys `vs`, the group `g` and its level `l`,
+the original row or group record in `_data`, and its geometry.
+
+Editing `data` in place is picked up by the next `chart.update()`; there is no version
+stamp to bump.
+
+#### Plugins that read `dataset.data`
+
+A plugin that walks `dataset.data` alongside `chart.getDatasetMeta(i).data` will see
+different lengths whenever the chart has groups. The datalabels plugin is the common case:
+its formatter receives `dataset.data[index]` as the value, so read the node through the
+controller instead.
+
+```js
+formatter: (_value, ctx) =>
+  ctx.chart.getDatasetMeta(ctx.datasetIndex).controller.getParsed(ctx.dataIndex).v,
+```
+
 ### TypeScript
 
-The controller builds `data` from `tree` at runtime, so JavaScript configurations do not need to
-provide it. Chart.js's TypeScript definitions require the `data` property on every dataset, however.
-TypeScript configurations should provide an empty array to satisfy that requirement:
+A nested object needs the data type spelled out, either through the chart's generic or by
+flattening it up front with the exported `flattenTree`:
 
 ```ts
-const dataset = {
-  data: [],
-  tree: [15, 6, 6, 5, 4, 3, 2, 2],
-};
-```
+new Chart<'treemap', MyRow[]>(ctx, { data: { datasets: [{ data: myTree }] } })
 
-The controller replaces the empty array with the generated treemap data.
-
-```js
-function colorFromRaw(ctx) {
-  if (ctx.type !== 'data') {
-    return 'transparent';
-  }
-  const value = ctx.raw.v;
-  let alpha = (1 + Math.log(value)) / 5;
-  const color = 'green';
-  return helpers.color(color)
-    .alpha(alpha)
-    .rgbString();
-}
-
-const data = [
-  {category: 'main', value: 1},
-  {category: 'main', value: 2},
-  {category: 'main', value: 3},
-  {category: 'other', value: 4},
-  {category: 'other', value: 5},
-];
-
-const config = {
-  type: 'treemap',
-  data: {
-    datasets: [{
-      tree: data,
-      key: 'value',
-      groups: ['category'],
-      backgroundColor: (ctx) => colorFromRaw(ctx),
-    }]
-  },
-};
-```
-
-### Styling
-
-The style of the treemap element can be controlled with the following properties:
-
-| Name | Description
-| ---- | ----
-| `backgroundColor` | The treemap element background color.
-| `borderColor` | The treemap element border color.
-| [`borderRadius`](#borderradius) | Radius of the rectangle of treemap element (in pixels).
-| `borderWidth` | The treemap element border width (in pixels).
-| `spacing` | Fixed distance (in pixels) between all treemap elements.
-| [`displayMode`](#displaymode) | How to display the treemap parent groups.
-
-If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
-
-#### borderRadius
-
-If this value is a number, it is applied to all corners of the rectangle (topLeft, topRight, bottomLeft, bottomRight). If this value is an object, the `topLeft` property defines the top-left corners border radius. Similarly, the `topRight`, `bottomLeft`, and `bottomRight` properties can also be specified. Omitted corners have radius of 0.
-
-#### displayMode
-
-This property supports two values:
-
-* `'containerBoxes'` (default): The parent group is represented as a large rectangle, with its child elements displayed inside it.
-* `'headerBoxes'`: The parent group appears as a header, with its child elements positioned below it.
-
-### Interactions
-
-The interaction with each element can be controlled with the following properties:
-
-| Name | Description
-| ---- | -----------
-| `hoverBackgroundColor` | The treemap element background color when hovered.
-| `hoverBorderColor` | The treemap element border color when hovered.
-| `hoverBorderWidth` | The treemap element border width (in pixels) when hovered.
-
-If the value is `undefined`, fallbacks to the associated `elements.treemap.*` options.
-
-## Labels
-
-Namespaces:
-
-* `data.datasets[index].labels` - options for this dataset only
-* `options.datasets.treemap.labels` - options for all treemap datasets
-* `options.elements.treemap.labels` - options for all treemap elements
-* `options` - options for the whole chart
-
-The labels options can control if and how a label, to represent the data, can be shown in the rectangle, with the following properties:
-
-| Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
-| ---- | ---- | :----: | ----
-| [`align`](#align) | `string` | Yes | `center`
-| [`color`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `'black'`
-| `display` | `boolean` | - | `false`
-| [`formatter`](#formatter) | `function` | Yes |
-| [`font`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
-| [`hoverColor`](#fonts-and-colors) | `Color` \| `Color[]` | Yes | `undefined`
-| [`hoverFont`](#fonts-and-colors) | `Font` \| `Font[]` | Yes | `{}`
-| [`overflow`](#overflow) | `string` | Yes | `cut`
-| `padding` | `number` | - | `3`
-| [`position`](#position) | `string` | Yes | `middle`
-
-All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
-
-:::warning
-
-Labels only apply if `display` is `true`.
-
-:::
-
-### Align
-
-The align property specifies the text horizontal alignment used when drawing the label. The possible values are:
-
-* `center`: the text is centered. It is the default.
-* `left`: the text is left-aligned.
-* `right`: the text is right-aligned.
-
-### Overflow
-
-The overflow property controls what happens to a label that is too big to fit into a rectangle. The possible values are:
-
-* `cut`: if the label is too big, it will be cut to stay inside the rectangle. It is the default.
-* `hidden`:  the label is removed altogether if the rectangle is too small for it.
-* `fit`:  the label will be automatically fit inside the rectangle if its dimension is bigger than the rectangle size.
-
-### Position
-
-The position property specifies the text vertical alignment used when drawing the label. The possible values are:
-
-* `middle`: the text is in the middle of the rectangle. It is the default.
-* `top`: the text is in the top of the rectangle.
-* `bottom`: the text is in the bottom of the rectangle.
-
-### Formatter
-
-Data values are converted to string. If values are grouped, the value of the group and the value (as string) are shown.
-
-This default behavior can be overridden by the `formatter` which is a [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) option.
-
-A `formatter` can return a string (for a single line) or an array of strings (for multiple lines, where each item represents a new line).
-
-In the following example, every label of the treemap would be displayed with the unit.
-
-```js
-const config = {
-  type: 'treemap',
-  data: {
-    datasets: [{
-      tree: [15, 6, 6, 5, 4, 3, 2, 2],
-      labels: {
-        display: false,
-        formatter: (ctx) => 'Kmq ' + ctx.raw.v
-      }
-    }]
-  },
-};
-```
-
-### Fonts and colors
-
-When the label to draw has multiple lines, you can use different font and color for each row of the label. This is enabled configuring an array of fonts or colors for those options. When the lines are more than the configured fonts of colors, the last configuration of those options is used for all remaining lines.
-
-See on Chart.js documentation more details about [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) and [`color`](https://www.chartjs.org/docs/latest/general/colors.html) options.
-
-## Captions
-
-Namespaces:
-
-* `data.datasets[index].captions` - options for this dataset only
-* `options.datasets.treemap.captions` - options for all treemap datasets
-* `options.elements.treemap.captions` - options for all treemap elements
-* `options` - options for the whole chart
-
-The captions options can control if and how a captions, to represent the group of the chart, can be shown in the rectangle, with the following properties:
-
-| Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
-| ---- | ---- | :----: | ----
-| [`align`](#caption-align) | `string` | Yes | `undefined` but `left` is used because default `rtl` option is `false`.
-| `color` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `'black'`
-| `display` | `boolean` | - | `true`
-| [`font`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
-| [`formatter`](#caption-formatter) | `function` | Yes |
-| `hoverColor` | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
-| [`hoverFont`](https://www.chartjs.org/docs/latest/general/fonts.html) | `Font` | Yes | `{}`
-| `padding` | `number` | - | `3`
-
-All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
-
-### Caption Align
-
-The align property specifies the text horizontal alignment used when drawing the caption. The possible values are:
-
-* `left`: the text is left-aligned.
-* `center`: the text is centered.
-* `right`: the text is right-aligned.
-
-If `undefined`, `right` is used if `rtl` option is set to `true`, otherwise `left`.
-
-### Caption Formatter
-
-If values are grouped, the value of the group is shown in the chart as caption for all elements belonging to the group.
-
-This default behavior can be overridden by the `formatter` which is a [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) option.
-
-A `formatter` can return a string.
-
-In the following example, every caption of the treemap would be displayed with an additional label.
-
-```js
-const data = [
-  {category: 'main', subcategory: 'one', value: 1},
-  {category: 'main', subcategory: 'one', value: 5},
-  {category: 'main', subcategory: 'one', value: 3},
-  {category: 'main', subcategory: 'two', value: 2},
-  {category: 'main', subcategory: 'two', value: 1},
-  {category: 'main', subcategory: 'two', value: 8},
-  {category: 'other', subcategory: 'one', value: 4},
-  {category: 'other', subcategory: 'one', value: 5},
-  {category: 'other', subcategory: 'two', value: 4},
-  {category: 'other', subcategory: 'two', value: 1},
-];
-const config = {
-  type: 'treemap',
-  data: {
-    datasets: [{
-      tree: data,
-      key: 'value',
-      groups: ['category', 'subcategory', 'value'],
-      captions: {
-        display: true,
-        formatter(ctx) {
-          return ctx.type === 'data' ? 'G: ' + ctx.raw.g : '';
-        }
-      },
-    }]
-  },
-};
+// or
+import { flattenTree } from 'chartjs-chart-treemap'
+const data = flattenTree<MyRow>(myTree, ['value'], 'name')
 ```

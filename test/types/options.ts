@@ -18,7 +18,7 @@ const _chart = new Chart('test', {
     datasets: [
       {
         backgroundColor(ctx) {
-          const item = ctx.dataset.data[ctx.dataIndex]
+          const item = ctx.raw
           if (!item) {
             return 'transparent'
           }
@@ -27,7 +27,7 @@ const _chart = new Chart('test', {
         borderColor: 'rgba(180,180,180, 0.15)',
         borderRadius: 4,
         borderWidth: 2,
-        data: undefined,
+        data: [15, 6, 6, 5, 4, 3, 2, 2],
         label: 'Basic treemap',
         labels: {
           display: true,
@@ -35,8 +35,6 @@ const _chart = new Chart('test', {
             ctx.raw.g ? [ctx.raw.g, ctx.raw.v.toFixed(1)] : ctx.raw.v.toFixed(1),
         },
         spacing: 0.1,
-        tree: [15, 6, 6, 5, 4, 3, 2, 2],
-        treeVersion: 1,
       },
     ],
   },
@@ -52,7 +50,7 @@ const _chart1 = new Chart('test', {
         },
         borderColor: 'black',
         borderWidth: 2,
-        data: undefined,
+        data: [15, 6, 6, 5, 4, 3, 2, 2],
         label: 'Basic treemap',
         labels: {
           align: 'right',
@@ -61,7 +59,6 @@ const _chart1 = new Chart('test', {
           position: 'bottom',
         },
         spacing: 1,
-        tree: [15, 6, 6, 5, 4, 3, 2, 2],
       },
     ],
   },
@@ -94,7 +91,7 @@ const _chart2 = new Chart('test', {
     datasets: [
       {
         backgroundColor(ctx) {
-          const item = ctx.dataset.data[ctx.dataIndex]
+          const item = ctx.raw
           if (!item) {
             return 'black'
           }
@@ -135,11 +132,10 @@ const _chart2 = new Chart('test', {
             weight: 'bold',
           },
         },
-        data: [],
+        data: statsByState,
         groups: ['region', 'division', 'code'],
         key: 'population',
         spacing: 2,
-        tree: statsByState,
       },
     ],
   },
@@ -151,7 +147,7 @@ const _chart3 = new Chart('test', {
     datasets: [
       {
         backgroundColor(ctx) {
-          const item = ctx.dataset.data[ctx.dataIndex]
+          const item = ctx.raw
           if (!item) {
             return 'black'
           }
@@ -170,7 +166,7 @@ const _chart3 = new Chart('test', {
         captions: {
           display: false,
         },
-        data: [],
+        data: statsByState,
         groups: ['region', 'division', 'code'],
         key: 'population',
         labels: {
@@ -188,7 +184,6 @@ const _chart3 = new Chart('test', {
             weight: 'bold',
           },
         },
-        tree: statsByState,
       },
     ],
   },
@@ -202,13 +197,12 @@ const _chart4 = new Chart('test', {
         backgroundColor(_ctx) {
           return '#e6beff'
         },
-        data: [],
+        data: statsByState,
         groups: ['region', 'division', 'code'],
         key: 'population',
         labels: {
           display: false,
         },
-        tree: statsByState,
       },
     ],
   },
@@ -222,7 +216,7 @@ const _chart5 = new Chart('test', {
         backgroundColor(_ctx) {
           return '#e6beff'
         },
-        data: [],
+        data: statsByState,
         groups: ['region', 'division', 'code'],
         key: 'population',
         labels: {
@@ -230,7 +224,6 @@ const _chart5 = new Chart('test', {
           display: false,
           font: [{ size: 24 }, { size: 12 }],
         },
-        tree: statsByState,
       },
     ],
   },

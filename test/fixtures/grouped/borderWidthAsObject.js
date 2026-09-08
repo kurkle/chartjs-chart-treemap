@@ -1,4 +1,4 @@
-const tree = [
+const data = [
   {
     p1: '/etc',
     p2: 'passwd',
@@ -16,7 +16,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree,
+        data,
         groups: ['p1', 'p2'],
         key: 'value',
         borderColor: 'black',

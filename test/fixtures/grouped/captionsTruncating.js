@@ -22,7 +22,7 @@ export default {
     type: 'treemap',
     data: {
       datasets: [{
-        tree: data,
+        data: data,
         key: 'value',
         groups: ['category', 'subcategory', 'value'],
         backgroundColor: 'lightGreen',

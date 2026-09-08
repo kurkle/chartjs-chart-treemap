@@ -279,39 +279,6 @@ function drawLabel(
   })
 }
 
-export function drawDivider(
-  ctx: CanvasRenderingContext2D,
-  rect: DrawRect,
-  options: TreemapOptions,
-  item: TreemapDataPoint
-) {
-  const dividers = options.dividers
-  const children = item._data?.children
-  if (!dividers.display || !Array.isArray(children) || !children.length) {
-    return
-  }
-  const { x, y, w, h } = rect
-  const { lineColor, lineCapStyle, lineDash, lineDashOffset, lineWidth } = dividers
-  ctx.save()
-  ctx.strokeStyle = lineColor
-  ctx.lineCap = lineCapStyle
-  ctx.setLineDash(lineDash)
-  ctx.lineDashOffset = lineDashOffset
-  ctx.lineWidth = lineWidth
-  ctx.beginPath()
-  if (w > h) {
-    const w2 = w / 2
-    ctx.moveTo(x + w2, y)
-    ctx.lineTo(x + w2, y + h)
-  } else {
-    const h2 = h / 2
-    ctx.moveTo(x, y + h2)
-    ctx.lineTo(x + w, y + h2)
-  }
-  ctx.stroke()
-  ctx.restore()
-}
-
 function calculateXYLabel(rect: DrawRect, options: TreemapLabelsOptions, labelSize: LabelSize) {
   const { align, position, padding } = options
   const x = calculateX(rect, align, padding)

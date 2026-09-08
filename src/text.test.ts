@@ -2,7 +2,7 @@ import type { DrawRect } from './geometry'
 import type { TreemapDataPoint, TreemapOptions, TreemapScriptableContext } from './types'
 
 import TreemapElement from './element'
-import { drawDivider, drawText, getCaptionHeight, shouldDrawCaption } from './text'
+import { drawText, getCaptionHeight, shouldDrawCaption } from './text'
 
 type MockCall = [string, ...unknown[]]
 
@@ -62,14 +62,6 @@ function createOptions(options: Partial<TreemapOptions> = {}): TreemapOptions {
       padding: 3,
     },
     displayMode: 'containerBoxes',
-    dividers: {
-      display: false,
-      lineCapStyle: 'butt',
-      lineColor: 'black',
-      lineDash: [],
-      lineDashOffset: 0,
-      lineWidth: 1,
-    },
     labels: {
       align: 'center',
       color: 'black',
@@ -287,43 +279,6 @@ describe('text', () => {
       )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', '']))
-    })
-  })
-
-  describe('drawDivider', () => {
-    it('draws vertical dividers for wide rectangles', () => {
-      const { calls, ctx } = createCtx()
-      const options = createOptions({
-        dividers: {
-          display: true,
-          lineCapStyle: 'round',
-          lineColor: 'green',
-          lineDash: [2, 1],
-          lineDashOffset: 1,
-          lineWidth: 2,
-        },
-      })
-
-      drawDivider(
-        ctx,
-        createRect({ h: 60, w: 120 }),
-        options,
-        createData({ _data: { children: [{}, {}] }, g: 'group', l: 0 })
-      )
-
-      expect(calls).toContainEqual(expect.arrayContaining(['moveTo', 60, 0]))
-      expect(calls).toContainEqual(expect.arrayContaining(['lineTo', 60, 60]))
-    })
-
-    it('skips dividers without child data', () => {
-      const { calls, ctx } = createCtx()
-      const options = createOptions({
-        dividers: { ...createOptions().dividers, display: true },
-      })
-
-      drawDivider(ctx, createRect(), options, createData({ _data: {} }))
-
-      expect(calls.find((call) => call[0] === 'stroke')).toBeUndefined()
     })
   })
 })

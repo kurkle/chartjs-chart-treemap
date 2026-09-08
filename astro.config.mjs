@@ -53,7 +53,7 @@ export default defineConfig({
             { label: 'Missing Groups', link: '/samples/missinggroups/' },
             { label: 'Tree', link: '/samples/tree/' },
             { label: 'Captions', link: '/samples/captions/' },
-            { label: 'Dividers', link: '/samples/dividers/' },
+            { label: 'Outlining Groups', link: '/samples/outlining-groups/' },
             { label: 'Display Mode', link: '/samples/displaymode/' },
             { label: 'RTL', link: '/samples/rtl/' },
             { label: 'Datalabels', link: '/samples/datalabels/' },

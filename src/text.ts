@@ -90,11 +90,11 @@ export function drawText(
 ) {
   const { captions, labels } = options
   const { displayMode } = layout
-  ctx.save()
-  ctx.beginPath()
-  ctx.rect(rect.x, rect.y, rect.w, rect.h)
-  ctx.clip()
   const isLeaf = item && (!defined(item.l) || item.isLeaf)
+
+  // Resolve the text before touching the canvas. Most elements in a large
+  // treemap draw no text at all, and clipping is not free: this is the
+  // difference between five canvas calls per element and none.
   let block: TextBlock | undefined
   if (isLeaf) {
     if (labels.display) {
@@ -103,9 +103,15 @@ export function drawText(
   } else if (shouldDrawCaption(displayMode, rect, captions)) {
     block = captionBlock(ctx, rect, options, item, element, layout)
   }
-  if (block) {
-    drawTextBlock(ctx, rect, block)
+  if (!block) {
+    return
   }
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(rect.x, rect.y, rect.w, rect.h)
+  ctx.clip()
+  drawTextBlock(ctx, rect, block)
   ctx.restore()
 }
 

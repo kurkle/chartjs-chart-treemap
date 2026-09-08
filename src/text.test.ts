@@ -1,5 +1,6 @@
 import type { DrawRect } from './geometry'
 import type {
+  LabelAlign,
   TreemapDataPoint,
   TreemapLayoutOptions,
   TreemapOptions,
@@ -333,6 +334,50 @@ describe('text', () => {
       )
 
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', '']))
+    })
+  })
+
+  describe('textAlign', () => {
+    // The mock context measures 10px per character, so a 4-character line is
+    // 40 wide inside a 100 wide rect with padding 3.
+    const drawLines = (align: LabelAlign, textAlign?: LabelAlign) => {
+      const { calls, ctx } = createCtx()
+      const options = createOptions({
+        labels: {
+          ...createOptions().labels,
+          align,
+          formatter: () => ['abcd', 'ef'],
+          textAlign,
+        },
+      })
+      drawText(
+        ctx,
+        createRect(),
+        options,
+        createData({ _data: {}, isLeaf: true }),
+        createElement(),
+        createLayout()
+      )
+      return calls.filter((call) => call[0] === 'fillText').map((call) => call[2])
+    }
+
+    it('follows align when it is not set, which is the v4 behaviour', () => {
+      expect(drawLines('left', undefined)).toEqual([3, 3])
+      expect(drawLines('center', undefined)).toEqual([50, 50])
+      expect(drawLines('right', undefined)).toEqual([97, 97])
+    })
+
+    it('places the lines inside the block, not inside the rect', () => {
+      // Block is 40 wide. Left-aligned it starts at 3, so a right-aligned line
+      // inside it ends at 43 rather than at the rect's own right edge.
+      expect(drawLines('left', 'right')).toEqual([43, 43])
+      expect(drawLines('left', 'center')).toEqual([23, 23])
+      // Right-aligned block ends at 97, so it starts at 57.
+      expect(drawLines('right', 'left')).toEqual([57, 57])
+      expect(drawLines('right', 'center')).toEqual([77, 77])
+      // Centred block spans 30..70.
+      expect(drawLines('center', 'left')).toEqual([30, 30])
+      expect(drawLines('center', 'right')).toEqual([70, 70])
     })
   })
 })

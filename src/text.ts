@@ -39,6 +39,7 @@ type TextElement = Element<TreemapConfig, TreemapOptions> & {
  * they arrive at this, which is why they can share the drawing code.
  */
 type TextBlock = {
+  /** Where the block sits inside the padded rect. */
   align: CanvasTextAlign
   /** Vertical clip inset. Zero where the box was sized to hold the text. */
   clipY: number
@@ -46,7 +47,11 @@ type TextBlock = {
   fonts: Font[]
   lines: string[]
   padding: number
+  /** How each line sits inside the block. Follows `align` when undefined. */
+  textAlign: CanvasTextAlign | undefined
   top: number
+  /** Width of the widest line, which is the block's own width. */
+  width: number
 }
 
 const widthCache = new Map<string, LabelSize>()
@@ -139,9 +144,13 @@ function clipToPadding(
 }
 
 function drawTextBlock(ctx: CanvasRenderingContext2D, rect: DrawRect, block: TextBlock) {
-  const { align, colors, fonts, lines, padding, top } = block
-  const x = calculateX(rect, align, padding)
-  ctx.textAlign = align
+  const { align, colors, fonts, lines, padding, textAlign, top, width } = block
+  // `align` places the block in the rect, `textAlign` places each line in the
+  // block. When they agree, which is the default, this is the same arithmetic
+  // v4 did with a single x.
+  const lineAlign = textAlign || align
+  const x = calculateLineX(rect, align, lineAlign, padding, width)
+  ctx.textAlign = lineAlign
   ctx.textBaseline = 'middle'
   let offset = 0
   lines.forEach((line, i) => {
@@ -233,7 +242,9 @@ function captionBlock(
     fonts,
     lines: [text],
     padding,
+    textAlign: captions.textAlign,
     top,
+    width: measureLabelSize(ctx, [text], fonts).width,
   }
 }
 
@@ -269,7 +280,9 @@ function labelBlock(
     fonts,
     lines,
     padding,
+    textAlign: labels.textAlign,
     top: calculateBlockTop(rect, labels, labelSize),
+    width: labelSize.width,
   }
 }
 
@@ -369,11 +382,49 @@ function calculateBlockTop(rect: DrawRect, options: TreemapLabelsOptions, labelS
   return rect.y + (rect.h - labelSize.height) / 2 + padding
 }
 
-function calculateX(rect: DrawRect, align: CanvasTextAlign, padding: number) {
+/** The block's left edge inside the padded rect. */
+function calculateBlockLeft(
+  rect: DrawRect,
+  align: CanvasTextAlign,
+  padding: number,
+  width: number
+) {
   if (align === 'left') {
     return rect.x + padding
-  } else if (align === 'right') {
-    return rect.x + rect.w - padding
   }
-  return rect.x + rect.w / 2
+  if (align === 'right') {
+    return rect.x + rect.w - padding - width
+  }
+  return rect.x + (rect.w - width) / 2
+}
+
+/**
+ * The x every line is drawn at, given the canvas `textAlign` that will be in
+ * effect. When the two alignments agree this reduces to v4's single x, so the
+ * default output is unchanged.
+ */
+function calculateLineX(
+  rect: DrawRect,
+  align: CanvasTextAlign,
+  lineAlign: CanvasTextAlign,
+  padding: number,
+  width: number
+) {
+  if (align === lineAlign) {
+    if (align === 'left') {
+      return rect.x + padding
+    }
+    if (align === 'right') {
+      return rect.x + rect.w - padding
+    }
+    return rect.x + rect.w / 2
+  }
+  const left = calculateBlockLeft(rect, align, padding, width)
+  if (lineAlign === 'left') {
+    return left
+  }
+  if (lineAlign === 'right') {
+    return left + width
+  }
+  return left + width / 2
 }

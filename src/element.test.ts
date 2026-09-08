@@ -49,14 +49,6 @@ function createElement(
         padding: 3,
       },
       displayMode: 'containerBoxes',
-      dividers: {
-        display: false,
-        lineCapStyle: 'butt',
-        lineColor: 'black',
-        lineDash: [],
-        lineDashOffset: 0,
-        lineWidth: 1,
-      },
       labels: {
         align: 'center',
         color: 'black',
@@ -140,27 +132,17 @@ describe('Rectangle', () => {
       expect(calls).toContainEqual(expect.arrayContaining(['fillText', 'live:a']))
     })
 
-    it('should draw borders and dividers', () => {
+    it('should draw borders', () => {
       const { calls, ctx } = createCtx()
       const element = createElement({
         borderColor: 'red',
         borderRadius: 2,
         borderWidth: 2,
-        dividers: {
-          display: true,
-          lineCapStyle: 'round',
-          lineColor: 'green',
-          lineDash: [2, 1],
-          lineDashOffset: 1,
-          lineWidth: 2,
-        },
       })
 
       element.draw(ctx, createData({ _data: { children: [{}, {}] }, g: 'group', l: 0, v: 7 }))
 
       expect(calls).toContainEqual(expect.arrayContaining(['fill', 'evenodd']))
-      expect(calls).toContainEqual(expect.arrayContaining(['setLineDash', [2, 1]]))
-      expect(calls).toContainEqual(expect.arrayContaining(['stroke']))
     })
 
     it('should skip drawing without data', () => {

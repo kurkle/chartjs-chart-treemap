@@ -9,7 +9,7 @@ import { Element } from 'chart.js'
 import { addRoundedRectPath } from 'chart.js/helpers'
 
 import { addNormalRectPath, boundingRects, hasRadius, inRange } from './geometry'
-import { drawDivider, drawText } from './text'
+import { drawText } from './text'
 
 export default class TreemapElement extends Element<TreemapConfig, TreemapOptions> {
   static readonly id = 'treemap'
@@ -29,14 +29,6 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
       padding: 3,
     },
     displayMode: 'containerBoxes',
-    dividers: {
-      display: false,
-      lineCapStyle: 'butt',
-      lineColor: 'black',
-      lineDash: [],
-      lineDashOffset: 0,
-      lineWidth: 1,
-    },
     label: undefined,
     labels: {
       align: 'center',
@@ -116,7 +108,6 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
     ctx.fillStyle = options.backgroundColor
     ctx.fill()
 
-    drawDivider(ctx, inner, options, data)
     drawText(ctx, inner, options, data, this)
     ctx.restore()
   }

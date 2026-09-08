@@ -1,4 +1,6 @@
 import '../../dist/index.esm'
+import type { TreemapControllerDatasetOptions, TreemapOptions } from '../../dist/index.esm'
+
 import { Chart } from 'chart.js'
 import { color as colorLib } from 'chart.js/helpers'
 
@@ -201,11 +203,6 @@ const _chart4 = new Chart('test', {
           return '#e6beff'
         },
         data: [],
-        dividers: {
-          display: false,
-          lineDash: [1, 3],
-          lineWidth: 12,
-        },
         groups: ['region', 'division', 'code'],
         key: 'population',
         labels: {
@@ -239,3 +236,14 @@ const _chart5 = new Chart('test', {
   },
   type: 'treemap',
 })
+
+// `dividers` was removed in v5. A `@ts-expect-error` on an object literal only
+// proves the property is unknown in that position; this proves it is absent
+// from the public types, and starts failing if it is ever reintroduced.
+type HasKey<T, K extends string> = K extends keyof T ? true : false
+
+const _elementHasNoDividers: HasKey<TreemapOptions, 'dividers'> = false
+const _datasetHasNoDividers: HasKey<
+  TreemapControllerDatasetOptions<Record<string, unknown>>,
+  'dividers'
+> = false

@@ -1,6 +1,7 @@
 import type {
   TreemapConfig,
   TreemapDataPoint,
+  TreemapLayoutOptions,
   TreemapOptions,
   TreemapScriptableContext,
 } from './types'
@@ -9,6 +10,7 @@ import { Element } from 'chart.js'
 import { addRoundedRectPath } from 'chart.js/helpers'
 
 import { addNormalRectPath, boundingRects, hasRadius, inRange } from './geometry'
+import { layoutDefaults } from './options'
 import { drawText } from './text'
 
 export default class TreemapElement extends Element<TreemapConfig, TreemapOptions> {
@@ -28,8 +30,6 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
       },
       padding: 3,
     },
-    displayMode: 'containerBoxes',
-    label: undefined,
     labels: {
       align: 'center',
       color: 'black',
@@ -46,9 +46,6 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
       padding: 3,
       position: 'middle',
     },
-    rtl: false,
-    spacing: 0.5,
-    unsorted: false,
   }
 
   static readonly descriptors = {
@@ -84,7 +81,11 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D, data?: TreemapDataPoint) {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    data?: TreemapDataPoint,
+    layout: TreemapLayoutOptions = layoutDefaults
+  ) {
     if (!data) {
       return
     }
@@ -108,7 +109,7 @@ export default class TreemapElement extends Element<TreemapConfig, TreemapOption
     ctx.fillStyle = options.backgroundColor
     ctx.fill()
 
-    drawText(ctx, inner, options, data, this)
+    drawText(ctx, inner, options, data, this, layout)
     ctx.restore()
   }
 

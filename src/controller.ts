@@ -117,6 +117,7 @@ export default class TreemapController extends DatasetController {
       // change that deserves its own pull request.
       spacing: valueOrDefault(dataset.spacing, 0),
       unsorted: !!options.unsorted,
+      valueScale: options.valueScale || 'linear',
     }
   }
 
@@ -274,6 +275,7 @@ export default class TreemapController extends DatasetController {
   spacing: layoutDefaults.spacing,
   sumKeys: [],
   unsorted: false,
+  valueScale: 'linear',
 }
 
 ;(TreemapController as any).descriptors = {

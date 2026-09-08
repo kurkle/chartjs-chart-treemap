@@ -95,6 +95,7 @@ are element options and are resolved per element, so they can be
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
 | [`leafKey`](#general) | `string` | - | `_leaf` |
 | [`unsorted`](#general) | `boolean` | - | `false`
+| [`valueScale`](#general) | `string` \| `function` | - | `'linear'`
 | [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
@@ -111,9 +112,10 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `leafKey` | The name of the key where the object key of a leaf node is stored. Used only when `data` is a nested `object`.
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
+| `valueScale` | How a value becomes an area. See [Value scaling](#value-scaling).
 
-`data`, `displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys` and
-`unsorted` are dataset options: set them on the dataset or in `options.datasets.treemap`.
+`data`, `displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys`,
+`unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
 Setting them in `options.elements.treemap` has no effect.
 
 #### Options resolved at layout time
@@ -122,6 +124,32 @@ Setting them in `options.elements.treemap` has no effect.
 room is left inside a group for its children, so they are read once while the layout is
 built rather than per element. A scriptable `borderWidth` still draws per element, but the
 space reserved for the children uses the dataset-level value.
+
+### Value scaling
+
+A treemap gives each item an area proportional to its value. When one value
+dwarfs the rest, the small ones end up smaller than a pixel and disappear -
+the chart is correct and useless. `valueScale` compresses the range instead.
+
+| Value | Meaning |
+| ---- | ---- |
+| `'linear'` | Area is proportional to value. The default. |
+| `'sqrt'` | `Math.sqrt(value)`. Halves the spread. |
+| `'log'` | `Math.log1p(value)`, so zero and values below one stay finite and ordered. |
+| `function` | `(value, item) => number`. A negative or non-finite result is treated as zero. |
+
+**Area is no longer proportional to value** when the scale is not linear. Only the
+layout changes: `v`, the tooltips, the labels and `sumKeys` stay in the units the
+data came in, and a group covers exactly the area its contents do, because its
+weight is the sum of theirs.
+
+```js
+datasets: [{
+  data: prices,
+  key: 'price',
+  valueScale: 'log',
+}]
+```
 
 ### The parsed data
 

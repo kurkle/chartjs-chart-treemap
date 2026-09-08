@@ -1,4 +1,4 @@
-import type { Element } from 'chart.js'
+import type { Color, Element } from 'chart.js'
 import type { DrawRect } from './geometry'
 import type {
   TreemapCaptionsOptions,
@@ -30,6 +30,20 @@ type Font = ReturnType<typeof toFont>
 
 type TextElement = Element<TreemapConfig, TreemapOptions> & {
   $context?: TreemapScriptableContext
+}
+
+/**
+ * One block of text ready to draw: the lines, the styles they are drawn with,
+ * and where the block's top edge sits. Captions and labels differ only in how
+ * they arrive at this, which is why they can share the drawing code.
+ */
+type TextBlock = {
+  align: CanvasTextAlign
+  colors: Color[]
+  fonts: Font[]
+  lines: string[]
+  padding: number
+  top: number
 }
 
 const widthCache = new Map<string, LabelSize>()
@@ -78,12 +92,33 @@ export function drawText(
   ctx.rect(rect.x, rect.y, rect.w, rect.h)
   ctx.clip()
   const isLeaf = item && (!defined(item.l) || item.isLeaf)
-  if (isLeaf && labels.display) {
-    drawLabel(ctx, rect, options, item, element)
-  } else if (!isLeaf && shouldDrawCaption(displayMode, rect, captions)) {
-    drawCaption(ctx, rect, options, item, element)
+  let block: TextBlock | undefined
+  if (isLeaf) {
+    if (labels.display) {
+      block = labelBlock(ctx, rect, options, item, element)
+    }
+  } else if (shouldDrawCaption(displayMode, rect, captions)) {
+    block = captionBlock(ctx, rect, options, item, element)
+  }
+  if (block) {
+    drawTextBlock(ctx, rect, block)
   }
   ctx.restore()
+}
+
+function drawTextBlock(ctx: CanvasRenderingContext2D, rect: DrawRect, block: TextBlock) {
+  const { align, colors, fonts, lines, padding, top } = block
+  const x = calculateX(rect, align, padding)
+  ctx.textAlign = align
+  ctx.textBaseline = 'middle'
+  let offset = 0
+  lines.forEach((line, i) => {
+    const font = fonts[Math.min(i, fonts.length - 1)]
+    ctx.font = font.string
+    ctx.fillStyle = colors[Math.min(i, colors.length - 1)]
+    ctx.fillText(line, x, top + offset + font.lineHeight / 2)
+    offset += font.lineHeight
+  })
 }
 
 function callbackContext(element: TextElement, item: TreemapDataPoint): TreemapScriptableContext {
@@ -112,20 +147,17 @@ function resolveCaptionText(
   return resolveOption(captions.formatter, callbackContext(element, item)) || item.g || ''
 }
 
-function drawCaption(
+function captionBlock(
   ctx: CanvasRenderingContext2D,
   rect: DrawRect,
   options: TreemapOptions,
   item: TreemapDataPoint,
   element: TextElement
-) {
+): TextBlock | undefined {
   const { captions, spacing, rtl, displayMode } = options
   const { color, hoverColor, font, hoverFont, padding, align } = captions
-  const oColor = (rect.active ? hoverColor : color) || color
-  const oAlign = align || (rtl ? 'right' : 'left')
   const optFont = (rect.active ? hoverFont : font) || font
   const oFont = toFont(optFont)
-  const fonts = [oFont]
   if (oFont.lineHeight > rect.h) {
     return
   }
@@ -133,19 +165,59 @@ function drawCaption(
   if (!text) {
     return
   }
-  const captionSize = measureLabelSize(ctx, [text], fonts)
-  if (captionSize.width + 2 * padding > rect.w) {
+  const fonts = [oFont]
+  if (measureLabelSize(ctx, [text], fonts).width + 2 * padding > rect.w) {
     text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts)
   }
+  // A caption is a single line, centred in the header strip in headerBoxes mode
+  // and sitting under the top padding otherwise.
+  const top =
+    displayMode === 'headerBoxes'
+      ? rect.y + (rect.h - oFont.lineHeight) / 2
+      : rect.y + padding + spacing
+  return {
+    align: align || (rtl ? 'right' : 'left'),
+    colors: [(rect.active ? hoverColor : color) || color],
+    fonts,
+    lines: [text],
+    padding,
+    top,
+  }
+}
 
-  const lh = oFont.lineHeight / 2
-  const x = calculateX(rect, oAlign, padding)
-  ctx.fillStyle = oColor
-  ctx.font = oFont.string
-  ctx.textAlign = oAlign
-  ctx.textBaseline = 'middle'
-  const y = displayMode === 'headerBoxes' ? rect.y + rect.h / 2 : rect.y + padding + spacing + lh
-  ctx.fillText(text, x, y)
+function labelBlock(
+  ctx: CanvasRenderingContext2D,
+  rect: DrawRect,
+  options: TreemapOptions,
+  item: TreemapDataPoint,
+  element: TextElement
+): TextBlock | undefined {
+  const labels = options.labels
+  const content = resolveOption(labels.formatter, callbackContext(element, item))
+  if (!content) {
+    return
+  }
+  const lines = isArray(content) ? content : [content]
+  let fonts = getFontFromOptions(rect, labels)
+  let labelSize = measureLabelSize(ctx, lines, fonts)
+  const lblToDraw = labelToDraw(rect, labels, labelSize)
+  if (!lblToDraw) {
+    return
+  }
+  if (isNumber(lblToDraw)) {
+    labelSize = { height: labelSize.height * lblToDraw, width: labelSize.width * lblToDraw }
+    fonts = toFonts(fonts, lblToDraw)
+  }
+  const { color, hoverColor, align, padding } = labels
+  const optColor = (rect.active ? hoverColor : color) || color
+  return {
+    align,
+    colors: isArray(optColor) ? optColor : [optColor],
+    fonts,
+    lines,
+    padding,
+    top: calculateBlockTop(rect, labels, labelSize),
+  }
 }
 
 function sliceTextToFitWidth(
@@ -213,12 +285,7 @@ function toFonts(fonts: Font[], fitRatio: number) {
   })
 }
 
-function labelToDraw(
-  _ctx: CanvasRenderingContext2D,
-  rect: DrawRect,
-  options: TreemapLabelsOptions,
-  labelSize: LabelSize
-) {
+function labelToDraw(rect: DrawRect, options: TreemapLabelsOptions, labelSize: LabelSize) {
   const { overflow, padding } = options
   const { width, height } = labelSize
   if (overflow === 'hidden') {
@@ -238,59 +305,15 @@ function getFontFromOptions(rect: DrawRect, labels: TreemapLabelsOptions) {
   return Array.isArray(optFont) ? optFont.map((f) => toFont(f)) : [toFont(optFont)]
 }
 
-function drawLabel(
-  ctx: CanvasRenderingContext2D,
-  rect: DrawRect,
-  options: TreemapOptions,
-  item: TreemapDataPoint,
-  element: TextElement
-) {
-  const labels = options.labels
-  const content = resolveOption(labels.formatter, callbackContext(element, item))
-  if (!content) {
-    return
-  }
-  const contents = isArray(content) ? content : [content]
-  let fonts = getFontFromOptions(rect, labels)
-  let labelSize = measureLabelSize(ctx, contents, fonts)
-  const lblToDraw = labelToDraw(ctx, rect, labels, labelSize)
-  if (!lblToDraw) {
-    return
-  }
-  if (isNumber(lblToDraw)) {
-    labelSize = { height: labelSize.height * lblToDraw, width: labelSize.width * lblToDraw }
-    fonts = toFonts(fonts, lblToDraw)
-  }
-  const { color, hoverColor, align } = labels
-  const optColor = (rect.active ? hoverColor : color) || color
-  const colors = isArray(optColor) ? optColor : [optColor]
-  const xyPoint = calculateXYLabel(rect, labels, labelSize)
-  ctx.textAlign = align
-  ctx.textBaseline = 'middle'
-  let lhs = 0
-  contents.forEach((l, i) => {
-    const c = colors[Math.min(i, colors.length - 1)]
-    const f = fonts[Math.min(i, fonts.length - 1)]
-    const lh = f.lineHeight
-    ctx.font = f.string
-    ctx.fillStyle = c
-    ctx.fillText(l, xyPoint.x, xyPoint.y + lh / 2 + lhs)
-    lhs += lh
-  })
-}
-
-function calculateXYLabel(rect: DrawRect, options: TreemapLabelsOptions, labelSize: LabelSize) {
-  const { align, position, padding } = options
-  const x = calculateX(rect, align, padding)
-  let y: number
+function calculateBlockTop(rect: DrawRect, options: TreemapLabelsOptions, labelSize: LabelSize) {
+  const { position, padding } = options
   if (position === 'top') {
-    y = rect.y + padding
-  } else if (position === 'bottom') {
-    y = rect.y + rect.h - padding - labelSize.height
-  } else {
-    y = rect.y + (rect.h - labelSize.height) / 2 + padding
+    return rect.y + padding
   }
-  return { x, y }
+  if (position === 'bottom') {
+    return rect.y + rect.h - padding - labelSize.height
+  }
+  return rect.y + (rect.h - labelSize.height) / 2 + padding
 }
 
 function calculateX(rect: DrawRect, align: CanvasTextAlign, padding: number) {

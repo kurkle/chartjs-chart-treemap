@@ -110,6 +110,7 @@ export default class TreemapController extends DatasetController {
       displayMode: options.displayMode,
       groups: options.groups || [],
       leafKey: options.leafKey,
+      others: options.others || false,
       // Deliberately NOT options.spacing. The child rectangle calculation has
       // always defaulted spacing to 0 while the drawn rectangle defaults it to
       // 0.5, so reading the resolved value here would inset every nested group
@@ -190,7 +191,12 @@ export default class TreemapController extends DatasetController {
     }
     const dataset = this.getDataset() as any
     const label = node.g ?? node._data?.label ?? dataset.label
-    return { label: label === undefined ? '' : `${label}`, value: `${node.v}` }
+    const text = label === undefined ? '' : `${label}`
+    const others = node.isOthers ? node._data?.others?.length : undefined
+    return {
+      label: others ? `${text} (${others} items)` : text,
+      value: `${node.v}`,
+    }
   }
 
   override update(mode: any) {
@@ -271,6 +277,7 @@ export default class TreemapController extends DatasetController {
   groups: [],
   key: '',
   leafKey: '_leaf',
+  others: false,
   rtl: layoutDefaults.rtl,
   spacing: layoutDefaults.spacing,
   sumKeys: [],

@@ -1,5 +1,6 @@
 import type { DrawRect } from './geometry'
 import type { LayoutOptions } from './layout'
+import type { TreemapDataPoint } from './types'
 
 import { buildData, buildNodes, flattenNodes } from './layout'
 
@@ -18,6 +19,7 @@ const options = (over: Partial<LayoutOptions> = {}): LayoutOptions => ({
   displayMode: 'containerBoxes',
   groups: [],
   leafKey: '_leaf',
+  others: false,
   spacing: 0,
   unsorted: false,
   valueScale: 'linear',
@@ -153,6 +155,105 @@ describe('layout', () => {
       // sqrt(100) + sqrt(100) = 20 against sqrt(1) = 1, not 200 against 1.
       expect((a.w * a.h) / (b.w * b.h)).toBeLessThan(50)
       expect(a.v).toBe(200)
+    })
+  })
+
+  describe('others', () => {
+    const othersOf = (nodes: TreemapDataPoint[]) => {
+      const bucket = nodes.find((node) => node.isOthers)
+      if (!bucket?._data) {
+        throw new Error('expected an "others" bucket')
+      }
+      return bucket as TreemapDataPoint & { _data: Record<string, any> }
+    }
+
+    const prices = () => [134500, 20, 6, 6, 0.4]
+
+    it('does nothing unless asked', () => {
+      const nodes = buildData(prices(), [''], rect(800, 400), options())
+
+      expect(nodes.length).toBe(5)
+      expect(nodes.some((n) => n.isOthers)).toBe(false)
+    })
+
+    it('replaces the leaves below the threshold with one tile', () => {
+      const nodes = buildData(
+        prices(),
+        [''],
+        rect(800, 400),
+        options({ others: { threshold: 0.01 } })
+      )
+      const bucket = othersOf(nodes)
+
+      expect(nodes.length).toBe(2)
+      expect(bucket.v).toBe(32.4)
+      expect(bucket._data.label).toBe('Other')
+      expect(bucket._data.others.length).toBe(4)
+    })
+
+    it('takes a label', () => {
+      const nodes = buildData(
+        prices(),
+        [''],
+        rect(800, 400),
+        options({ others: { label: 'The rest', threshold: 0.01 } })
+      )
+
+      expect(othersOf(nodes)._data.label).toBe('The rest')
+    })
+
+    it('leaves the data alone when too few items are small', () => {
+      const nodes = buildData(
+        prices(),
+        [''],
+        rect(800, 400),
+        options({ others: { minCount: 5, threshold: 0.01 } })
+      )
+
+      expect(nodes.length).toBe(5)
+    })
+
+    it('buckets inside each group, and never buckets a group', () => {
+      const data = [
+        { grp: 'a', value: 1000 },
+        { grp: 'a', value: 1 },
+        { grp: 'a', value: 2 },
+        { grp: 'a', value: 3 },
+        { grp: 'b', value: 500 },
+      ]
+      const nodes = buildData(
+        data,
+        ['value'],
+        rect(800, 400),
+        options({ groups: ['grp', 'value'], others: { threshold: 0.01 } })
+      )
+
+      // The two groups survive; the three tiny leaves inside 'a' become one tile.
+      expect(
+        nodes
+          .filter((n) => n.l === 0)
+          .map((n) => n.g)
+          .sort()
+      ).toEqual(['a', 'b'])
+      expect(nodes.filter((n) => n.isOthers).length).toBe(1)
+    })
+
+    it('sums the sumKeys of what it absorbed', () => {
+      const data = [
+        { extra: 100, grp: 'x', value: 1000 },
+        { extra: 2, grp: 'x', value: 1 },
+        { extra: 3, grp: 'x', value: 2 },
+      ]
+      const nodes = buildData(
+        data,
+        ['value', 'extra'],
+        rect(800, 400),
+        options({ groups: ['grp', 'value'], others: { threshold: 0.01 } })
+      )
+      const bucket = othersOf(nodes)
+
+      expect(bucket.v).toBe(3)
+      expect(bucket.vs?.extra).toBe(5)
     })
   })
 })

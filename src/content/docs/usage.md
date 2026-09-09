@@ -75,30 +75,49 @@ differ from one rectangle to the next - the colors, borders, `captions` and `lab
 are element options and are resolved per element, so they can be
 [scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options).
 
+#### Data
+
+What is charted, and how it is summarised. Dataset scope.
+
+| Name | Type | Default
+| ---- | ---- | ----
+| [`data`](#general) | `number[]` \| `object[]` \| `object` | **required**
+| [`key`](#general) | `string` | `undefined`
+| [`sumKeys`](#general) | `string[]` | `undefined`
+| [`groups`](#general) | `string[]` | `undefined`
+| [`leafKey`](#general) | `string` | `'_leaf'`
+| [`valueScale`](#value-scaling) | `string` \| `function` | `'linear'`
+| [`others`](#an-other-tile-instead) | `object` \| `false` | `false`
+
+#### Layout
+
+How the rectangles are placed. Dataset scope: these are **not** read from
+`options.elements.treemap`.
+
+| Name | Type | Default
+| ---- | ---- | ----
+| [`displayMode`](#styling) | `string` | `'containerBoxes'`
+| [`region`](#regions) | `object` | `undefined`
+| [`rtl`](#general) | `boolean` | `false`
+| [`spacing`](#styling) | `number` | `0.5`
+| [`unsorted`](#general) | `boolean` | `false`
+| [`label`](#general) | `string` | `undefined`
+
+#### Elements
+
+How each rectangle looks. Element scope, and scriptable per element.
+
 | Name | Type | [Scriptable](https://www.chartjs.org/docs/latest/general/options.html#scriptable-options) | Default
 | ---- | ---- | :----: | ----
 | [`backgroundColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderColor`](#styling) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`borderRadius`](#styling) | `number` \| `object` | Yes | `0`
-| [`borderWidth`](#styling) | `number`\|`object` | - | `0`
+| [`borderWidth`](#styling) | `number` \| `object` | - | `0`
 | [`captions`](#captions) | `object` | - |
-| [`data`](#general) | `number[]` \| `object[]` \| `object` | - |  **required**
-| [`groups`](#general) | `string[]` | - | `undefined` |
+| [`labels`](#labels) | `object` | - |
 | [`hoverBackgroundColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderColor`](#interactions) | [`Color`](https://www.chartjs.org/docs/latest/general/colors.html) | Yes | `undefined`
 | [`hoverBorderWidth`](#interactions) | `number` | Yes | `undefined`
-| [`key`](#general) | `string` | - | `undefined` |
-| [`label`](#general) | `string` | - | `undefined`
-| [`labels`](#labels) | `object` | - |
-| [`others`](#value-scaling) | `object` \| `false` | - | `false`
-| [`region`](#regions) | `object` | - | `undefined`
-| [`rtl`](#general) | `boolean` | - | `false`
-| [`spacing`](#styling) | `number` | - | `0.5`
-| [`sumKeys`](#general) | `string[]` | - | `undefined` |
-| [`leafKey`](#general) | `string` | - | `_leaf` |
-| [`unsorted`](#general) | `boolean` | - | `false`
-| [`valueScale`](#general) | `string` \| `function` | - | `'linear'`
-| [`displayMode`](#styling) | `string` | - | `'containerBoxes'`
 
 All these values, if `undefined`, fallback to the scopes described in [option resolution](https://www.chartjs.org/docs/latest/general/options.html).
 
@@ -118,9 +137,8 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 | `valueScale` | How a value becomes an area. See [Value scaling](#value-scaling).
 
-`data`, `displayMode`, `groups`, `key`, `leafKey`, `others`, `region`, `rtl`,
-`spacing`, `sumKeys`, `unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
-Setting them in `options.elements.treemap` has no effect.
+Set a dataset option on the dataset itself or in `options.datasets.treemap`.
+Setting one in `options.elements.treemap` has no effect.
 
 #### Options resolved at layout time
 

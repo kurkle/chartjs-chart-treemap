@@ -24,6 +24,14 @@ export type LabelOverflow = 'cut' | 'ellipsis' | 'fit' | 'hidden'
  * How a value becomes an area. `linear` keeps area proportional to value;
  * the others compress a wide range so small items stay visible.
  */
+export type TreemapOthers = {
+  /** Bucket a leaf below this share of its siblings' total layout weight. */
+  threshold: number
+  label?: string
+  /** Only bucket when at least this many leaves fall below the threshold. */
+  minCount?: number
+}
+
 export type TreemapValueScale<DType = AnyObject> =
   | 'linear'
   | 'log'
@@ -106,6 +114,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   displayMode?: TreemapDisplayMode
   rtl?: boolean
   spacing?: number
+  others?: false | TreemapOthers
   unsorted?: boolean
   valueScale?: TreemapValueScale<DType>
 
@@ -146,6 +155,8 @@ export interface TreemapDataPoint {
   vs?: AnyObject
   _data?: AnyObject
   isLeaf?: boolean
+  /** Set on the synthetic node that absorbed the items below `others.threshold`. */
+  isOthers?: boolean
   /** headerBoxes: the group's caption does not fit, so nothing is drawn. */
   hidden?: boolean
 }

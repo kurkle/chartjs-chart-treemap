@@ -90,6 +90,7 @@ are element options and are resolved per element, so they can be
 | [`key`](#general) | `string` | - | `undefined` |
 | [`label`](#general) | `string` | - | `undefined`
 | [`labels`](#labels) | `object` | - |
+| [`others`](#value-scaling) | `object` \| `false` | - | `false`
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
@@ -111,11 +112,12 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `leafKey` | The name of the key where the object key of a leaf node is stored. Used only when `data` is a nested `object`.
+| `others` | Replace the leaves too small to see with one tile. See [Value scaling](#value-scaling).
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 | `valueScale` | How a value becomes an area. See [Value scaling](#value-scaling).
 
-`data`, `displayMode`, `groups`, `key`, `leafKey`, `rtl`, `spacing`, `sumKeys`,
-`unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
+`data`, `displayMode`, `groups`, `key`, `leafKey`, `others`, `rtl`, `spacing`,
+`sumKeys`, `unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
 Setting them in `options.elements.treemap` has no effect.
 
 #### Options resolved at layout time
@@ -150,6 +152,36 @@ datasets: [{
   valueScale: 'log',
 }]
 ```
+
+#### An "Other" tile instead
+
+`others` answers the same question a different way: rather than distorting the
+areas, it admits the small items are too small and gives them one name.
+
+```js
+datasets: [{
+  data: sales,
+  key: 'amount',
+  others: { threshold: 0.01, label: 'Other', minCount: 2 },
+}]
+```
+
+| Name | Description |
+| ---- | ---- |
+| `threshold` | Bucket a leaf below this share of its siblings' total layout weight. |
+| `label` | Name of the tile. `'Other'` by default. |
+| `minCount` | Only bucket when at least this many leaves fall below the threshold. Two by default. |
+
+Only leaves are bucketed; a group is already a summary. With `groups`, a bucket
+appears inside each smallest group. The tile's node carries `isOthers: true` and
+`_data.others`, the absorbed items, so a formatter can list them, and the default
+tooltip reads `Other (20 items): 20`. Its `v` and `sumKeys` are the sums of what
+it absorbed.
+
+**The two are alternatives, not a pair.** The threshold is measured against the
+*scaled* weight, so a compressing `valueScale` can lift every item above it and
+leave nothing to bucket. Reach for the scale when the areas should still mean
+something, and for the bucket when a long tail should collapse into one tile.
 
 ### The parsed data
 

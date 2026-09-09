@@ -1,5 +1,10 @@
 import type { DrawRect } from './geometry'
-import type { TreemapDataPoint, TreemapDisplayMode, TreemapValueScale } from './types'
+import type {
+  TreemapDataPoint,
+  TreemapDisplayMode,
+  TreemapOthers,
+  TreemapValueScale,
+} from './types'
 
 import { isObject, toFont, valueOrDefault } from 'chart.js/helpers'
 
@@ -14,6 +19,7 @@ export type LayoutOptions = {
   displayMode: TreemapDisplayMode
   groups: any[]
   leafKey: string
+  others: false | TreemapOthers
   spacing: number
   unsorted: boolean
   valueScale: TreemapValueScale
@@ -75,10 +81,11 @@ function buildHierarchy(
   if (weighted) {
     applyValueScale(nodes, scaleFor(layout))
   }
+  const withOthers = layout.others ? applyOthers(nodes, layout.others, weighted) : nodes
   if (!unsorted) {
-    sortNodes(nodes, weighted)
+    sortNodes(withOthers, weighted)
   }
-  return nodes
+  return withOthers
 }
 
 /**
@@ -101,6 +108,73 @@ function applyValueScale(nodes: LayoutNode[], scale: (value: number, item: any) 
     }
     Object.defineProperty(node, WEIGHT_KEY, { configurable: true, value: weight, writable: true })
   }
+}
+
+/**
+ * Replaces the leaves too small to see with one tile that stands for all of
+ * them.
+ *
+ * The question behind #213 is "where did my small items go", and a compressed
+ * scale answers it by distorting the areas. This answers it by admitting the
+ * items are too small and naming them instead. Groups are never bucketed: a
+ * group is already a summary.
+ */
+function applyOthers(nodes: LayoutNode[], others: TreemapOthers, weighted: boolean) {
+  const { label = 'Other', minCount = 2, threshold } = others
+  // A node with children is a group, and a group is already a summary.
+  if (!(threshold > 0) || nodes.some((node) => node._children?.length)) {
+    return nodes
+  }
+
+  const weightOf = (node: LayoutNode) => (weighted ? (node as any)[WEIGHT_KEY] : node.v)
+  const total = nodes.reduce((sum, node) => sum + weightOf(node), 0)
+  if (!(total > 0)) {
+    return nodes
+  }
+
+  const small = nodes.filter((node) => weightOf(node) / total < threshold)
+  if (small.length < Math.max(2, minCount)) {
+    return nodes
+  }
+
+  const kept = nodes.filter((node) => !small.includes(node))
+  const bucket: LayoutNode = {
+    _data: { label, others: small.map((node) => node._data) },
+    h: 0,
+    isLeaf: true,
+    isOthers: true,
+    s: 0,
+    v: small.reduce((sum, node) => sum + node.v, 0),
+    vs: sumValues(small),
+    w: 0,
+    x: 0,
+    y: 0,
+  }
+  const grouped = nodes.find((node) => node.g !== undefined)
+  if (grouped) {
+    bucket.g = label
+    bucket.l = grouped.l
+  }
+  if (weighted) {
+    Object.defineProperty(bucket, WEIGHT_KEY, {
+      configurable: true,
+      value: small.reduce((sum, node) => sum + weightOf(node), 0),
+      writable: true,
+    })
+  }
+  kept.push(bucket)
+  return kept
+}
+
+/** The `sumKeys` totals of the absorbed items, so the bucket carries them too. */
+function sumValues(nodes: LayoutNode[]) {
+  const totals: Record<string, number> = {}
+  for (const node of nodes) {
+    for (const [key, value] of Object.entries(node.vs || {})) {
+      totals[key] = (totals[key] || 0) + (value as number)
+    }
+  }
+  return Object.keys(totals).length ? totals : undefined
 }
 
 const VALUE_SCALES: Record<string, (value: number) => number> = {
@@ -211,6 +285,9 @@ export function buildNodes(tree: any, keys: string[], layout: LayoutOptions): La
     nodes = toNodes(input || [], keys) as LayoutNode[]
     if (weighted) {
       applyValueScale(nodes, scaleFor(layout))
+    }
+    if (layout.others) {
+      nodes = applyOthers(nodes, layout.others, weighted)
     }
     if (!unsorted) {
       sortNodes(nodes, weighted)

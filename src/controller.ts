@@ -9,6 +9,11 @@ import { buildNodes, flattenNodes, layoutNodes } from './layout'
 import { layoutDefaults } from './options'
 import { requireVersion } from './utils'
 
+/** Region fractions are shares of the chart area, so outside 0..1 means nothing. */
+function clampFraction(value: number | undefined, fallback: number) {
+  return value === undefined ? fallback : Math.min(Math.max(value, 0), 1)
+}
+
 function registerTooltipPositioner() {
   const tooltipPlugin = registry.plugins.get('tooltip') as any
   if (!tooltipPlugin || tooltipPlugin.positioners.treemap) {
@@ -41,6 +46,7 @@ export default class TreemapController extends DatasetController {
   _rect: any
   _rectChanged: boolean
   _nodes: LayoutNode[]
+  _regionWarned: boolean
   _layoutDirty: boolean
   _fingerprint: string | undefined
 
@@ -49,6 +55,7 @@ export default class TreemapController extends DatasetController {
 
     this._rect = undefined
     this._rectChanged = true
+    this._regionWarned = false
     this._nodes = []
     this._layoutDirty = true
     this._fingerprint = undefined
@@ -79,7 +86,11 @@ export default class TreemapController extends DatasetController {
 
     const w = xScale.right - xScale.left
     const h = yScale.bottom - yScale.top
-    const rect = { h, rtl: !!this.options.rtl, unsorted: !!this.options.unsorted, w, x: 0, y: 0 }
+    const rect = {
+      ...this._regionBounds(w, h),
+      rtl: !!this.options.rtl,
+      unsorted: !!this.options.unsorted,
+    }
 
     if (rectNotEqual(this._rect, rect)) {
       this._rect = rect
@@ -91,6 +102,37 @@ export default class TreemapController extends DatasetController {
       xScale.configure()
       yScale.max = h
       yScale.configure()
+    }
+  }
+
+  /**
+   * The part of the chart area this dataset lays out into.
+   *
+   * Every dataset shares the chart's single pair of linear scales, whose max is
+   * the full chart area in pixels, so a region is just a rectangle in that
+   * space and no scale has to change.
+   */
+  _regionBounds(w: number, h: number) {
+    const region = this.options.region
+    if (!region) {
+      return { h, w, x: 0, y: 0 }
+    }
+    const left = clampFraction(region.left, 0)
+    const top = clampFraction(region.top, 0)
+    const width = clampFraction(region.width, 1)
+    const height = clampFraction(region.height, 1)
+
+    if (!this._regionWarned && (left + width > 1 || top + height > 1)) {
+      this._regionWarned = true
+      console.warn(
+        'chartjs-chart-treemap: a dataset region reaches outside the chart area and is clipped to it.'
+      )
+    }
+    return {
+      h: h * Math.min(height, 1 - top),
+      w: w * Math.min(width, 1 - left),
+      x: w * left,
+      y: h * top,
     }
   }
 
@@ -278,6 +320,7 @@ export default class TreemapController extends DatasetController {
   key: '',
   leafKey: '_leaf',
   others: false,
+  region: undefined,
   rtl: layoutDefaults.rtl,
   spacing: layoutDefaults.spacing,
   sumKeys: [],

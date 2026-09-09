@@ -24,6 +24,17 @@ export type LabelOverflow = 'cut' | 'ellipsis' | 'fit' | 'hidden'
  * How a value becomes an area. `linear` keeps area proportional to value;
  * the others compress a wide range so small items stay visible.
  */
+/**
+ * The part of the chart area a dataset lays out into, as fractions of it.
+ * Two datasets can then sit side by side instead of painting over each other.
+ */
+export type TreemapRegion = {
+  left?: number
+  top?: number
+  width?: number
+  height?: number
+}
+
 export type TreemapOthers = {
   /** Bucket a leaf below this share of its siblings' total layout weight. */
   threshold: number
@@ -115,6 +126,7 @@ export interface TreemapControllerDatasetOptions<DType> {
   rtl?: boolean
   spacing?: number
   others?: false | TreemapOthers
+  region?: TreemapRegion
   unsorted?: boolean
   valueScale?: TreemapValueScale<DType>
 

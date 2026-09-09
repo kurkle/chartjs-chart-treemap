@@ -405,4 +405,78 @@ describe('controller', () => {
     expect(seen).toContain(4)
     expect(seen).toContain(2)
   })
+
+  describe('region', () => {
+    const bounds = (chart, datasetIndex) => {
+      const elements = chart.getDatasetMeta(datasetIndex).data
+      return {
+        bottom: Math.max(...elements.map((e) => e.y + e.height)),
+        left: Math.min(...elements.map((e) => e.x)),
+        right: Math.max(...elements.map((e) => e.x + e.width)),
+        top: Math.min(...elements.map((e) => e.y)),
+      }
+    }
+
+    // spacing insets every element, so it is off here to make the edges exact.
+    const chartWith = (region) =>
+      acquireChart({
+        data: { datasets: [{ data: [4, 3, 2, 1], region, spacing: 0 }] },
+        options: { events: [] },
+        type: 'treemap',
+      })
+
+    it('fills the chart area when there is no region', () => {
+      const chart = chartWith(undefined)
+      const { left, right } = bounds(chart, 0)
+      const area = chart.chartArea
+
+      expect(Math.round(left)).toBe(Math.round(area.left))
+      expect(Math.round(right)).toBe(Math.round(area.right))
+    })
+
+    it('keeps a half-width dataset in its half', () => {
+      const chart = chartWith({ width: 0.5 })
+      const { left, right } = bounds(chart, 0)
+      const area = chart.chartArea
+      const middle = area.left + (area.right - area.left) / 2
+
+      expect(Math.round(left)).toBe(Math.round(area.left))
+      expect(right).toBeLessThanOrEqual(middle + 1)
+    })
+
+    it('offsets a dataset by left and top', () => {
+      const chart = chartWith({ height: 0.5, left: 0.5, top: 0.5 })
+      const { left, top } = bounds(chart, 0)
+      const area = chart.chartArea
+
+      expect(left).toBeGreaterThanOrEqual(area.left + (area.right - area.left) / 2 - 1)
+      expect(top).toBeGreaterThanOrEqual(area.top + (area.bottom - area.top) / 2 - 1)
+    })
+
+    it('clamps a region that reaches outside the chart area', () => {
+      const chart = chartWith({ left: 0.75, width: 2 })
+      const { right } = bounds(chart, 0)
+
+      expect(right).toBeLessThanOrEqual(chart.chartArea.right + 1)
+    })
+
+    it('hovers only the dataset whose region was pointed at', async () => {
+      const chart = acquireChart({
+        data: {
+          datasets: [
+            { data: [4, 3, 2, 1], region: { width: 0.5 }, spacing: 0 },
+            { data: [4, 3, 2, 1], region: { left: 0.5, width: 0.5 }, spacing: 0 },
+          ],
+        },
+        type: 'treemap',
+      })
+      const area = chart.chartArea
+      const target = { x: area.left + (area.right - area.left) * 0.25, y: area.top + 10 }
+
+      await triggerMouseEvent(chart, 'mousemove', target)
+
+      expect(chart.getActiveElements().length).toBeGreaterThan(0)
+      expect(chart.getActiveElements().every((item) => item.datasetIndex === 0)).toBe(true)
+    })
+  })
 })

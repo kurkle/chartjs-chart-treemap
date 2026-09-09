@@ -91,6 +91,7 @@ are element options and are resolved per element, so they can be
 | [`label`](#general) | `string` | - | `undefined`
 | [`labels`](#labels) | `object` | - |
 | [`others`](#value-scaling) | `object` \| `false` | - | `false`
+| [`region`](#regions) | `object` | - | `undefined`
 | [`rtl`](#general) | `boolean` | - | `false`
 | [`spacing`](#styling) | `number` | - | `0.5`
 | [`sumKeys`](#general) | `string[]` | - | `undefined` |
@@ -109,6 +110,7 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `groups` | Define how to display multiple levels of hierarchy. Data is summarized to groups internally.
 | `key` | Define the key name in data objects to use for value.
 | `label` | The label for the dataset which appears in the legend and tooltips.
+| `region` | The part of the chart area this dataset lays out into. See [Regions](#regions).
 | `rtl` | If `true`, the treemap elements are rendering from right to left.
 | `sumKeys` | Define multiple keys to add additional sums, on top of the `key` one, for scriptable options use.
 | `leafKey` | The name of the key where the object key of a leaf node is stored. Used only when `data` is a nested `object`.
@@ -116,8 +118,8 @@ All these values, if `undefined`, fallback to the scopes described in [option re
 | `unsorted` | If `true`, treemap elements are rendered unsorted.
 | `valueScale` | How a value becomes an area. See [Value scaling](#value-scaling).
 
-`data`, `displayMode`, `groups`, `key`, `leafKey`, `others`, `rtl`, `spacing`,
-`sumKeys`, `unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
+`data`, `displayMode`, `groups`, `key`, `leafKey`, `others`, `region`, `rtl`,
+`spacing`, `sumKeys`, `unsorted` and `valueScale` are dataset options: set them on the dataset or in `options.datasets.treemap`.
 Setting them in `options.elements.treemap` has no effect.
 
 #### Options resolved at layout time
@@ -182,6 +184,34 @@ it absorbed.
 *scaled* weight, so a compressing `valueScale` can lift every item above it and
 leave nothing to bucket. Reach for the scale when the areas should still mean
 something, and for the bucket when a long tail should collapse into one tile.
+
+### Regions
+
+Every dataset lays out into the whole chart area by default, so two datasets
+simply paint over each other. `region` gives each one a part of it, as fractions
+of the chart area:
+
+| Name | Default | Meaning |
+| ---- | ---- | ---- |
+| `left` | `0` | left edge, as a share of the chart area's width |
+| `top` | `0` | top edge, as a share of its height |
+| `width` | `1` | width, as a share of its width |
+| `height` | `1` | height, as a share of its height |
+
+A gainers and losers view, where the largest of each meet in the middle:
+
+```js
+datasets: [
+  { label: 'Gainers', data: up,   key: 'change', region: { width: 0.5 }, rtl: true },
+  { label: 'Losers',  data: down, key: 'change', region: { left: 0.5, width: 0.5 } },
+]
+```
+
+Fractions outside `0..1` are clamped, and a region reaching past the chart area
+is clipped to it with one console warning. Interaction is unaffected: pointing
+at one region finds only the dataset that owns it, because hit testing already
+works per element. Hiding a dataset from the legend leaves its region empty -
+regions are fixed, not shared out.
 
 ### The parsed data
 

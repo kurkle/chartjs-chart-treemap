@@ -5,7 +5,7 @@ title: Missing Groups
 Treemap groups can include missing hierarchy levels. `null`, `undefined`, and empty group values are skipped so each branch continues at the next available group.
 
 ```js chart-editor
-// <block:setup:2>
+// <block:setup:1>
 const data = [
   { folder: './src', component: null, subFolder: null, file: 'index.js', value: 6 },
   { folder: './src', component: 'A', subFolder: null, file: 'A.js', value: 8 },
@@ -17,30 +17,6 @@ const data = [
 
 const colors = ['#9ca3af', '#2563eb', '#14b8a6', '#f59e0b'];
 // </block:setup>
-
-// <block:options:1>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Project coverage by folder path'
-    },
-    legend: {
-      display: false
-    },
-    tooltip: {
-      callbacks: {
-        label(item) {
-          const raw = item.raw;
-          const source = raw._data;
-          const label = raw.g || source.file || source.subFolder || source.component || source.folder;
-          return label + ': ' + raw.v;
-        }
-      }
-    }
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -71,7 +47,27 @@ const config = {
       }
     }]
   },
-  options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Project coverage by folder path'
+      },
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label(item) {
+            const raw = item.raw;
+            const source = raw._data;
+            const label = raw.g || source.file || source.subFolder || source.component || source.folder;
+            return label + ': ' + raw.v;
+          }
+        }
+      }
+    }
+  }
 };
 // </block:config>
 

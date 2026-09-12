@@ -3,7 +3,7 @@ title: Captions
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const GROUPS = ['region', 'division', 'state'];
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
@@ -12,33 +12,6 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 // </block:setup>
-
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: (ctx) => 'US area by ' + GROUPS.join(' / ')
-    },
-    legend: {
-      display: false
-    },
-    tooltip: {
-      callbacks: {
-        title(items) {
-          return capitalizeFirstLetter(items[0].dataset.key);
-        },
-        label(item) {
-          const dataItem = item.raw;
-          const obj = dataItem._data;
-          const label = obj.state || obj.division || obj.region;
-          return label + ': ' + dataItem.v;
-        }
-      }
-    }
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -72,23 +45,42 @@ const config = {
       }
     }]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: (ctx) => 'US area by ' + GROUPS.join(' / ')
+      },
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          title(items) {
+            return capitalizeFirstLetter(items[0].dataset.key);
+          },
+          label(item) {
+            const dataItem = item.raw;
+            const obj = dataItem._data;
+            const label = obj.state || obj.division || obj.region;
+            return label + ': ' + dataItem.v;
+          }
+        }
+      }
+    }
+  }
 };
 // </block:config>
 
-const actions = [
-  {
-    name: 'Toggle labels',
-    handler(chart) {
-      const labels = chart.data.datasets[0].labels;
-      labels.display = !labels.display;
-      chart.update('none');
-    }
-  }
-];
-
 module.exports = {
   config,
-  actions
+  choices: [
+    {
+      path: 'data.datasets.0.labels.display',
+      values: [false, true],
+      control: 'checkbox',
+      label: 'Data labels'
+    }
+  ]
 };
 ```

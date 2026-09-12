@@ -3,7 +3,7 @@ title: Dividers
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const data = [
   {category: 'main', value: 1},
   {category: 'main', value: 2},
@@ -12,20 +12,6 @@ const data = [
   {category: 'other', value: 5},
 ];
 // </block:setup>
-
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Using dividers'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -47,9 +33,18 @@ const config = {
       }
     }]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Using dividers'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

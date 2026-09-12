@@ -5,8 +5,6 @@ title: Captions
 ```js chart-editor
 // <block:setup:1>
 const GROUPS = ['region', 'division', 'state'];
-const DATA_COUNT = 12;
-const NUMBER_CFG = {count: DATA_COUNT, min: 2, max: 40};
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);

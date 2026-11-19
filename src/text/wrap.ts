@@ -1,8 +1,8 @@
-import type { Font } from './measure'
+import type { Font } from './measure.js'
 
 import { isArray } from 'chart.js/helpers'
 
-import { fontFor, measureLabelSize } from './measure'
+import { fontFor, measureLabelSize } from './measure.js'
 
 export /**
  * Breaks one piece of text to `width`, greedily on spaces. A single word wider

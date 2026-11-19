@@ -1,9 +1,9 @@
 import type { Color } from 'chart.js'
-import type { DrawRect } from '../geometry'
-import type { TreemapLabelsOptions } from '../types'
-import type { Font, LabelSize } from './measure'
+import type { DrawRect } from '../geometry.js'
+import type { TreemapLabelsOptions } from '../types.js'
+import type { Font, LabelSize } from './measure.js'
 
-import { fontFor } from './measure'
+import { fontFor } from './measure.js'
 
 /**
  * One block of text ready to draw: the lines, the styles they are drawn with,

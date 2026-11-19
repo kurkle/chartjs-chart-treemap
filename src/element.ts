@@ -4,14 +4,14 @@ import type {
   TreemapLayoutOptions,
   TreemapOptions,
   TreemapScriptableContext,
-} from './types'
+} from './types.js'
 
 import { Element } from 'chart.js'
 import { addRoundedRectPath } from 'chart.js/helpers'
 
-import { addNormalRectPath, boundingRects, hasRadius, inRange } from './geometry'
-import { layoutDefaults } from './options'
-import { drawText } from './text'
+import { addNormalRectPath, boundingRects, hasRadius, inRange } from './geometry.js'
+import { layoutDefaults } from './options.js'
+import { drawText } from './text/index.js'
 
 export default class TreemapElement extends Element<TreemapConfig, TreemapOptions> {
   static readonly id = 'treemap'

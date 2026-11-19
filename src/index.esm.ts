@@ -7,8 +7,8 @@ export type {
   TreemapDataPoint,
   TreemapElement as TreemapElementType,
   TreemapOptions,
-} from './types'
+} from './types.js'
 
-export { default as TreemapController } from './controller'
-export { default as TreemapElement } from './element'
-export { flattenTree } from './utils'
+export { default as TreemapController } from './controller.js'
+export { default as TreemapElement } from './element.js'
+export { flattenTree } from './utils.js'

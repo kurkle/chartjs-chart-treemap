@@ -1,13 +1,13 @@
-import type { LayoutNode, LayoutOptions } from './layout'
+import type { LayoutNode, LayoutOptions } from './layout.js'
 
 import { Chart, DatasetController, registry } from 'chart.js'
 import { clipArea, unclipArea, valueOrDefault } from 'chart.js/helpers'
 
 import { version } from '../package.json'
-import { rectNotEqual, scaleRect } from './helpers/index'
-import { buildNodes, flattenNodes, layoutNodes } from './layout'
-import { layoutDefaults } from './options'
-import { requireVersion } from './utils'
+import { rectNotEqual, scaleRect } from './helpers/index.js'
+import { buildNodes, flattenNodes, layoutNodes } from './layout.js'
+import { layoutDefaults } from './options.js'
+import { requireVersion } from './utils.js'
 
 /** Region fractions are shares of the chart area, so outside 0..1 means nothing. */
 function clampFraction(value: number | undefined, fallback: number) {

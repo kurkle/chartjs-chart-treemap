@@ -1,14 +1,14 @@
-import type { DrawRect } from '../geometry'
+import type { DrawRect } from '../geometry.js'
 import type {
   LabelAlign,
   TreemapDataPoint,
   TreemapLayoutOptions,
   TreemapOptions,
   TreemapScriptableContext,
-} from '../types'
+} from '../types.js'
 
-import TreemapElement from '../element'
-import { drawText, getCaptionHeight, shouldDrawCaption } from './index'
+import TreemapElement from '../element.js'
+import { drawText, getCaptionHeight, shouldDrawCaption } from './index.js'
 
 type MockCall = [string, ...unknown[]]
 

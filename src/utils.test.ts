@@ -7,7 +7,7 @@ import {
   requireVersion,
   sort,
   sum,
-} from './utils'
+} from './utils.js'
 
 describe('utils', () => {
   describe('flatten', () => {

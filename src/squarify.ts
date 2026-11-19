@@ -1,6 +1,6 @@
-import Rect from './rect'
-import StatArray from './statArray'
-import { index, sort, sum } from './utils'
+import Rect from './rect.js'
+import StatArray from './statArray.js'
+import { index, sort, sum } from './utils.js'
 
 /**
  * Where the layout weight lives when `valueScale` is not linear. Non-enumerable

@@ -1,7 +1,7 @@
 import { Chart } from 'chart.js'
 
-import TreemapController from './controller'
-import TreemapElement from './element'
+import TreemapController from './controller.js'
+import TreemapElement from './element.js'
 
 Chart.register(TreemapController as any, TreemapElement as any)
 
@@ -14,7 +14,7 @@ export type {
   TreemapDataPoint,
   TreemapElement as TreemapElementType,
   TreemapOptions,
-} from './types'
+} from './types.js'
 
-export * from './utils'
+export * from './utils.js'
 export { TreemapController, TreemapElement }

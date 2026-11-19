@@ -1,5 +1,5 @@
 import type { Element } from 'chart.js'
-import type { DrawRect } from '../geometry'
+import type { DrawRect } from '../geometry.js'
 import type {
   TreemapCaptionsOptions,
   TreemapConfig,
@@ -9,16 +9,16 @@ import type {
   TreemapLayoutOptions,
   TreemapOptions,
   TreemapScriptableContext,
-} from '../types'
-import type { TextBlock } from './draw'
-import type { Font } from './measure'
+} from '../types.js'
+import type { TextBlock } from './draw.js'
+import type { Font } from './measure.js'
 
 import { defined, isArray, isNumber, toFont, valueOrDefault } from 'chart.js/helpers'
 
-import { calculateBlockTop, clipToPadding, drawTextBlock } from './draw'
-import { applyEllipsis, labelToDraw, sliceTextToFitWidth } from './fit'
-import { measureLabelSize, measureLines, toFonts } from './measure'
-import { toLines } from './wrap'
+import { calculateBlockTop, clipToPadding, drawTextBlock } from './draw.js'
+import { applyEllipsis, labelToDraw, sliceTextToFitWidth } from './fit.js'
+import { measureLabelSize, measureLines, toFonts } from './measure.js'
+import { toLines } from './wrap.js'
 
 type RectSize = {
   h: number

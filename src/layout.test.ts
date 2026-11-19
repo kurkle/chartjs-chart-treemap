@@ -1,8 +1,8 @@
-import type { DrawRect } from './geometry'
-import type { LayoutOptions } from './layout'
-import type { TreemapDataPoint } from './types'
+import type { DrawRect } from './geometry.js'
+import type { LayoutOptions } from './layout.js'
+import type { TreemapDataPoint } from './types.js'
 
-import { buildData, buildNodes, flattenNodes } from './layout'
+import { buildData, buildNodes, flattenNodes } from './layout.js'
 
 const rect = (w: number, h: number) =>
   ({

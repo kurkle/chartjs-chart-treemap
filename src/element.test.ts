@@ -1,6 +1,6 @@
-import type { TreemapDataPoint, TreemapLayoutOptions, TreemapScriptableContext } from './types'
+import type { TreemapDataPoint, TreemapLayoutOptions, TreemapScriptableContext } from './types.js'
 
-import TreemapElement from './element'
+import TreemapElement from './element.js'
 
 type MockCall = [string, ...unknown[]]
 type ElementConfig = NonNullable<ConstructorParameters<typeof TreemapElement>[0]>

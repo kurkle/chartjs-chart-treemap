@@ -1,7 +1,7 @@
-import type { Element } from 'chart.js'
-import type { TreemapBorderRadius, TreemapConfig, TreemapOptions } from './types'
+import type { BorderRadius, Element } from 'chart.js'
+import type { TreemapBorderRadius, TreemapConfig, TreemapOptions } from './types.js'
 
-import { parseBorderRadius, parseBorderWidth } from './options'
+import { parseBorderRadius, parseBorderWidth } from './options.js'
 
 export type DrawRect = {
   active?: boolean
@@ -24,7 +24,11 @@ export function boundingRects(rect: TreemapElementBase) {
   const width = bounds.right - bounds.left
   const height = bounds.bottom - bounds.top
   const border = parseBorderWidth(rect.options.borderWidth, width / 2, height / 2)
-  const radius = parseBorderRadius(rect.options.borderRadius, width / 2, height / 2)
+  const radius: Required<BorderRadius> = parseBorderRadius(
+    rect.options.borderRadius,
+    width / 2,
+    height / 2
+  )
   const outer = {
     active: rect.active,
     h: height,

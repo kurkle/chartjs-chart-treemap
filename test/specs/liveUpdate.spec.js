@@ -1,3 +1,5 @@
+import { animator } from 'chart.js'
+
 // Applications and the docs editor change an option on the live config in
 // place and call `chart.update()`. These specs hold the controller to that
 // contract: the change lands on the first update, every element is fully
@@ -56,10 +58,11 @@ function geometry(chart) {
 }
 
 function settled(chart) {
-  // Resolves when the running animations have finished.
+  // Resolves when the running animations have finished. An animation only
+  // registers on the first frame, so look again after two.
   return new Promise((resolve) => {
-    const check = () => (chart.animating ? requestAnimationFrame(check) : resolve())
-    check()
+    const check = () => (animator.running(chart) ? requestAnimationFrame(check) : resolve())
+    requestAnimationFrame(() => requestAnimationFrame(check))
   })
 }
 
@@ -179,6 +182,46 @@ describe('in-place option changes', () => {
         const fresh = create(datasetFor({ ...start, ...change }))
         expect(geometry(chart)).toEqual(geometry(fresh))
       })
+    }
+  })
+
+  describe('changing an option of the rectangles', () => {
+    const cases = [
+      ['backgroundColor', (ds) => (ds.backgroundColor = 'rgb(200,30,30)')],
+      ['borderColor', (ds) => (ds.borderColor = 'rgb(0,0,200)')],
+      ['borderWidth', (ds) => (ds.borderWidth = 4)],
+      ['labels.display', (ds) => (ds.labels.display = true)],
+      ['captions.color', (ds) => (ds.captions.color = 'rgb(0,160,0)')],
+    ]
+    const base = () =>
+      datasetFor({
+        backgroundColor: 'rgba(220,230,220,0.3)',
+        borderColor: 'rgba(200,200,200,1)',
+        captions: { color: 'red', display: true },
+        groups: ALL,
+        labels: { display: false, overflow: 'hidden' },
+      })
+    const pixels = (chart) => chart.canvas.getContext('2d').getImageData(0, 0, 400, 300).data.join()
+
+    for (const [animName, animation] of Object.entries(animationModes)) {
+      for (const [name, apply] of cases) {
+        it(`draws ${name} after an in-place change, ${animName}`, async () => {
+          const chart = create(base(), animation)
+          await settled(chart)
+          const initial = pixels(chart)
+
+          apply(chart.data.datasets[0])
+          chart.update()
+          await settled(chart)
+
+          const changed = base()
+          apply(changed)
+          const fresh = create(changed, animation)
+          await settled(fresh)
+          expect(pixels(fresh)).not.toBe(initial)
+          expect(pixels(chart)).toBe(pixels(fresh))
+        })
+      }
     }
   })
 

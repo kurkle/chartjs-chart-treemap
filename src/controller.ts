@@ -297,7 +297,11 @@ export default class TreemapController extends DatasetController {
     const firstOpts = this.resolveDataElementOptions(start, mode)
     this._rect.options = firstOpts
     const sharedOptions = this.getSharedOptions(firstOpts)
-    const includeOptions = this.includeOptions(mode, sharedOptions || {})
+    // `sharedOptions` is undefined whenever the options cannot be shared, and
+    // Chart.js then expects every element to receive its own. Passing an empty
+    // object instead made `includeOptions()` false under animation, so elements
+    // kept the options they were created with.
+    const includeOptions = this.includeOptions(mode, sharedOptions as any)
     const { xScale, yScale } = this.getMeta() as any
     const spacing = this.options.spacing
 
@@ -317,7 +321,7 @@ export default class TreemapController extends DatasetController {
       this.updateElement(rects[i], i, properties, mode)
     }
 
-    this.updateSharedOptions(sharedOptions || {}, mode, firstOpts)
+    this.updateSharedOptions(sharedOptions as any, mode, firstOpts)
   }
 
   override draw() {

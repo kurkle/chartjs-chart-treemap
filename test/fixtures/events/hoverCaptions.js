@@ -11,8 +11,14 @@ const data = [
   {category: 'other', subcategory: 'two', value: 6},
 ];
 
+// Sprite text is not an option: the hover colour of the glyphs is what this
+// fixture tests, and sprite glyphs have a fixed colour. The real glyph
+// rasterization differs between platforms; the differing pixels are glyph
+// edges. Against the reference image pixelmatch 8 counts 585px (0.45%) in
+// Chromium and 283px in Firefox on macOS, and 264px in Chromium and 273px in
+// Firefox on Linux CI.
 export default {
-  tolerance: 0.0045,
+  tolerance: 0.0070,
   config: {
     type: 'treemap',
     data: {

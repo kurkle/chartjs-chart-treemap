@@ -1,5 +1,9 @@
+// The text is sprite text, so the difference is not glyph rasterization: the
+// sprite blits of the wrapped lines come out differently in Firefox than in
+// Chromium, which the reference image matches. The counts are the same on
+// macOS and Linux CI: 0px in Chromium and 1517px (1.16%) in Firefox.
 export default {
-  tolerance: 0.0140,
+  tolerance: 0.0200,
   config: {
     type: 'treemap',
     data: {

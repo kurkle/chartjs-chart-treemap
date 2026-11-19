@@ -1,5 +1,11 @@
+// Sprite text is not an option here: it blits fixed 16px glyphs and measures
+// them regardless of the font size, so the 64px font would never need fitting.
+// The real glyph rasterization differs between platforms; the differing
+// pixels are all glyph edges. Against the reference image pixelmatch 8 counts
+// 904px (0.69%) in Chromium and 883px (0.67%) in Firefox on macOS, and 1018px
+// (0.78%) in Chromium on Linux CI.
 export default {
-  tolerance: 0.0075,
+  tolerance: 0.01,
   config: {
     type: 'treemap',
     data: {

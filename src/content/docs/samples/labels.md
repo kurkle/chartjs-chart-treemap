@@ -85,7 +85,7 @@ const actions = [
     name: 'Randomize',
     handler(chart) {
       chart.data.datasets.forEach(dataset => {
-        dataset.tree = Utils.numbers(NUMBER_CFG);
+        dataset.data = Utils.numbers(NUMBER_CFG);
       });
       chart.update();
     }

@@ -42,7 +42,7 @@ new Chart(document.getElementById('chart'), {
   data: {
     datasets: [
       {
-        tree: [6, 6, 4, 3, 2, 2, 1],
+        data: [6, 6, 4, 3, 2, 2, 1],
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
       },
     ],

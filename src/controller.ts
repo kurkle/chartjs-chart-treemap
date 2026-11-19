@@ -49,6 +49,7 @@ export default class TreemapController extends DatasetController {
   _regionWarned: boolean
   _layoutDirty: boolean
   _fingerprint: string | undefined
+  _layoutKey: string | undefined
   _resetFrom: number | undefined
 
   constructor(chart: any, datasetIndex: number) {
@@ -174,6 +175,13 @@ export default class TreemapController extends DatasetController {
    * user supplied rows.
    */
   override buildOrUpdateElements(resetNewElements?: boolean) {
+    // Chart.js rebuilds `this.options` in `configure()`, which it calls from
+    // `_updateDatasets` - after this method. Parsing reads the grouping options
+    // from `this.options`, and the layout read in `update()` primes a resolver's
+    // per-property cache, so without a rebuild here parsing would see the
+    // previous update's values. Only the options are rebuilt: the scales and the
+    // region are configured by `configure()` once the chart area is known.
+    super.configure()
     this.parse(0, 0)
 
     const meta = this.getMeta() as any
@@ -203,7 +211,8 @@ export default class TreemapController extends DatasetController {
 
     const options = this.options
     const keys = [options.key || ''].concat(options.sumKeys || [])
-    const nodes = buildNodes(dataset.data || [], keys, this._layoutOptions())
+    const layoutOptions = this._layoutOptions()
+    const nodes = buildNodes(dataset.data || [], keys, layoutOptions)
     const flat = flattenNodes(nodes)
 
     // A `chart.update('none')` per wheel event must not re-run the layout when
@@ -211,7 +220,18 @@ export default class TreemapController extends DatasetController {
     // them their geometry - when the hierarchy is identical.
     const fingerprint = flat.map((node) => `${node.v}\u0000${node.g}\u0000${node.l}`).join('\u0001')
 
+    // Options such as spacing, borderWidth or the captions move the rectangles
+    // without changing the hierarchy.
+    const layoutKey = JSON.stringify(layoutOptions, (_key, value) =>
+      typeof value === 'function' ? String(value) : value
+    )
+    const layoutChanged = this._layoutKey !== layoutKey
+    this._layoutKey = layoutKey
+
     if (this._fingerprint === fingerprint) {
+      if (layoutChanged) {
+        this._layoutDirty = true
+      }
       return
     }
 

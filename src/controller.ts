@@ -49,6 +49,7 @@ export default class TreemapController extends DatasetController {
   _regionWarned: boolean
   _layoutDirty: boolean
   _fingerprint: string | undefined
+  _resetFrom: number | undefined
 
   constructor(chart: any, datasetIndex: number) {
     super(chart, datasetIndex)
@@ -59,6 +60,7 @@ export default class TreemapController extends DatasetController {
     this._nodes = []
     this._layoutDirty = true
     this._fingerprint = undefined
+    this._resetFrom = undefined
   }
 
   override initialize() {
@@ -171,18 +173,23 @@ export default class TreemapController extends DatasetController {
    * `dataset.data`, because a treemap with groups has more rectangles than the
    * user supplied rows.
    */
-  override buildOrUpdateElements(_resetNewElements?: boolean) {
+  override buildOrUpdateElements(resetNewElements?: boolean) {
     this.parse(0, 0)
 
     const meta = this.getMeta() as any
     const count = (meta._parsed as unknown[]).length
     const elements = meta.data as unknown[]
-    if (elements.length > count) {
-      elements.splice(count, elements.length - count)
+    const previous = elements.length
+    if (previous > count) {
+      elements.splice(count, previous - count)
     }
     while (elements.length < count) {
       elements.push(new this.dataElementType())
     }
+    // New elements start from a reset, as in Chart.js's `_insertElements`, but
+    // that needs their geometry, which only exists after `update()` has laid
+    // the nodes out.
+    this._resetFrom = resetNewElements && count > previous ? previous : undefined
   }
 
   override parse(_start: number, _count: number) {
@@ -203,6 +210,7 @@ export default class TreemapController extends DatasetController {
     // nothing about the data changed, so keep the previous nodes - and with
     // them their geometry - when the hierarchy is identical.
     const fingerprint = flat.map((node) => `${node.v}\u0000${node.g}\u0000${node.l}`).join('\u0001')
+
     if (this._fingerprint === fingerprint) {
       return
     }
@@ -253,6 +261,12 @@ export default class TreemapController extends DatasetController {
       layoutNodes(this._nodes, this._rect, this._layoutOptions())
       this._layoutDirty = false
       this._rectChanged = false
+    }
+
+    const resetFrom = this._resetFrom
+    this._resetFrom = undefined
+    if (resetFrom !== undefined && mode !== 'reset') {
+      this.updateElements(data, resetFrom, data.length - resetFrom, 'reset')
     }
 
     this.updateElements(data, 0, data.length, mode)

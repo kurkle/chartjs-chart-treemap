@@ -8,6 +8,10 @@ on:
       # is bound to this workflow's filename, so the branch is added to the
       # existing workflow rather than given one of its own.
       - next
+      # Maintenance releases of the previous major (4.x, for Chart.js 3 users)
+      # publish from here, for the same trusted-publishing reason. Releases
+      # from this branch go to the `release-4.x` dist-tag, not `latest`.
+      - 4.x
 
 permissions:
   contents: read
@@ -76,8 +80,10 @@ jobs:
 
   docs-deploy:
     needs: release
-    # Prereleases must not overwrite the published site while the previous
-    # major is still `latest`.
+    # Only releases from main may update the published site: prereleases must
+    # not overwrite it while the previous major is still `latest`, and
+    # maintenance releases from 4.x must not overwrite the site that documents
+    # the current major.
     if: needs.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
     uses: kurkle/configs/.github/workflows/docs-deploy.yml@v1
     with:

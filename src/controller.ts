@@ -64,6 +64,19 @@ export default class TreemapController extends DatasetController {
     this._resetFrom = undefined
   }
 
+  /**
+   * Chart.js listens on the observed data array and queues what `push`,
+   * `splice` and the like did, for `_resyncElements` to replay on the next
+   * update. This controller re-parses the whole dataset on every update and
+   * never calls `_resyncElements`, so the queue would only grow. Not listening
+   * also releases a replaced array, which would otherwise keep a reference to
+   * this controller.
+   */
+  _dataCheck() {
+    // Deliberately empty: not attaching the array listener is the point. See
+    // above for why the queue it feeds is of no use here.
+  }
+
   override initialize() {
     // The tooltip can be registered after the treemap controller. At chart creation time all
     // components are available, so retry here to make registration order irrelevant.
@@ -218,7 +231,17 @@ export default class TreemapController extends DatasetController {
     // A `chart.update('none')` per wheel event must not re-run the layout when
     // nothing about the data changed, so keep the previous nodes - and with
     // them their geometry - when the hierarchy is identical.
-    const fingerprint = flat.map((node) => `${node.v}\u0000${node.g}\u0000${node.l}`).join('\u0001')
+    // The sums of `sumKeys` are part of it: they can change while `v` does not.
+    const sums = (node: LayoutNode) => {
+      let text = ''
+      for (const name of keys) {
+        text += `${node.vs?.[name]},`
+      }
+      return text
+    }
+    const fingerprint = `${keys.join(',')}\u0002${flat
+      .map((node) => `${node.v}\u0000${node.g}\u0000${node.l}\u0000${sums(node)}`)
+      .join('\u0001')}`
 
     // Options such as spacing, borderWidth or the captions move the rectangles
     // without changing the hierarchy.
@@ -229,6 +252,16 @@ export default class TreemapController extends DatasetController {
     this._layoutKey = layoutKey
 
     if (this._fingerprint === fingerprint) {
+      // The geometry is kept, but the rows are not: an equal-looking row may be
+      // a new object, and tooltips and scriptable options read it through the
+      // node. The flat order is the same, so the nodes pair up by index.
+      const kept = (this.getMeta() as any)._parsed as LayoutNode[]
+      flat.forEach((node, i) => {
+        const old = kept[i]
+        if (old) {
+          old._data = node._data
+        }
+      })
       if (layoutChanged) {
         this._layoutDirty = true
       }

@@ -77,7 +77,6 @@ The following commands will then be available from the repository root:
 ### Release branches
 
 - `main`: the current major, published to the `latest` dist-tag.
-- `next`: prereleases of the next major, published to the `next` dist-tag.
 - `4.x`: maintenance branch for the 4.x line, the last one that supports Chart.js 3. Fixes for those users go here and are published to the `release-4.x` dist-tag, so `latest` is not affected.
 - `2.x`: Chart.js 2, no longer released.
 

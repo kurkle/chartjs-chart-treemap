@@ -71,6 +71,7 @@ function expectWellFormed(chart) {
 }
 
 const animationModes = {
+  'animations off': { animation: false },
   'animations on': { animation: { duration: 50 } },
 }
 
@@ -115,6 +116,72 @@ describe('in-place option changes', () => {
     }
   })
 
+  describe('changing an option that shapes the layout', () => {
+    const cases = [
+      ['groups', { groups: ALL }, (ds) => (ds.groups = [...ALL]), { groups: REGION }],
+      [
+        'displayMode',
+        { displayMode: 'headerBoxes' },
+        (ds) => (ds.displayMode = 'headerBoxes'),
+        { displayMode: 'containerBoxes', groups: ALL },
+      ],
+      ['rtl', { rtl: true }, (ds) => (ds.rtl = true), { rtl: false }],
+      ['spacing', { spacing: 8 }, (ds) => (ds.spacing = 8), { groups: ALL, spacing: 0 }],
+      [
+        'captions.display',
+        { captions: { display: false } },
+        (ds) => (ds.captions = { ...ds.captions, display: false }),
+        { captions: { display: true }, groups: ALL, spacing: 4 },
+      ],
+      [
+        'captions.padding',
+        { captions: { padding: 20 } },
+        (ds) => (ds.captions = { ...ds.captions, padding: 20 }),
+        { captions: { padding: 3 }, groups: ALL, spacing: 4 },
+      ],
+      ['borderWidth', { borderWidth: 6 }, (ds) => (ds.borderWidth = 6), { groups: ALL }],
+      ['valueScale', { valueScale: 'log' }, (ds) => (ds.valueScale = 'log'), { groups: ALL }],
+      ['unsorted', { unsorted: true }, (ds) => (ds.unsorted = true), { groups: ALL }],
+      ['others', { others: 3 }, (ds) => (ds.others = 3), { groups: ALL, key: 'area' }],
+      ['leafKey', { leafKey: 'state' }, (ds) => (ds.leafKey = 'state'), { groups: ALL }],
+    ]
+    for (const [name, change, apply, start] of cases) {
+      it(`applies ${name} on the first update()`, () => {
+        const chart = create(datasetFor(start))
+        const initial = geometry(chart)
+
+        apply(chart.data.datasets[0])
+        chart.update()
+
+        const fresh = create(datasetFor({ ...start, ...change }))
+        expectWellFormed(chart)
+        expect(geometry(chart)).toEqual(geometry(fresh))
+        // Guard against a case that changes nothing, which would pass vacuously.
+        if (
+          [
+            'groups',
+            'displayMode',
+            'rtl',
+            'spacing',
+            'captions.padding',
+            'unsorted',
+            'valueScale',
+          ].includes(name)
+        ) {
+          expect(geometry(fresh)).not.toEqual(initial)
+        }
+      })
+
+      it(`applies ${name} on the first update('none')`, () => {
+        const chart = create(datasetFor(start))
+        apply(chart.data.datasets[0])
+        chart.update('none')
+        const fresh = create(datasetFor({ ...start, ...change }))
+        expect(geometry(chart)).toEqual(geometry(fresh))
+      })
+    }
+  })
+
   describe('an animation in flight', () => {
     it('can be drawn every frame while growing and shrinking', async () => {
       const chart = create(datasetFor({ groups: REGION }), { animation: { duration: 80 } })
@@ -128,6 +195,37 @@ describe('in-place option changes', () => {
       }
       await settled(chart)
       expectWellFormed(chart)
+    })
+  })
+
+  describe('an update with nothing changed', () => {
+    it("does not rebuild the nodes or re-run the layout on update('none')", () => {
+      const chart = create(datasetFor({ groups: ALL }))
+      const meta = chart.getDatasetMeta(0)
+      const nodes = meta.controller._nodes
+      const parsed = meta._parsed
+
+      // A layout pass would overwrite this.
+      nodes[0].x = -999
+
+      chart.update('none')
+      chart.update('none')
+
+      expect(meta.controller._nodes).toBe(nodes)
+      expect(meta._parsed).toBe(parsed)
+      expect(nodes[0].x).toBe(-999)
+    })
+
+    it('does re-run the layout when a layout option changed', () => {
+      const chart = create(datasetFor({ groups: ALL }))
+      const meta = chart.getDatasetMeta(0)
+      const nodes = meta.controller._nodes
+      nodes[0].x = -999
+
+      chart.data.datasets[0].spacing = 5
+      chart.update('none')
+
+      expect(nodes[0].x).not.toBe(-999)
     })
   })
 })

@@ -3,7 +3,7 @@ title: Other Bucket
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const data = [
   {name: 'alpha', value: 100},
   {name: 'beta', value: 80},
@@ -11,20 +11,6 @@ const data = [
   ...Array.from({length: 20}).map((_, i) => ({name: 'tail ' + (i + 1), value: 1})),
 ];
 // </block:setup>
-
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Twenty items too small to read, as one tile'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -48,9 +34,18 @@ const config = {
       }
     }]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Twenty items too small to read, as one tile'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

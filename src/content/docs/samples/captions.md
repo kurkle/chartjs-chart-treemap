@@ -58,7 +58,7 @@ const config = {
             return capitalizeFirstLetter(items[0].dataset.key);
           },
           label(item) {
-            const dataItem = item.raw;
+            const dataItem = item.parsed;
             const obj = dataItem._data;
             const label = obj.state || obj.division || obj.region;
             return label + ': ' + dataItem.v;

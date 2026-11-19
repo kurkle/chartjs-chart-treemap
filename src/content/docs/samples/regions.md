@@ -3,7 +3,7 @@ title: Regions
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const gainers = [
   {name: 'AAA', change: 12},
   {name: 'BBB', change: 8},
@@ -18,26 +18,7 @@ const losers = [
 ];
 // </block:setup>
 
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Gainers and losers, meeting in the middle'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
-
 // <block:config:0>
-const label = {
-  display: true,
-  formatter: (ctx) => [ctx.raw._data.name, ctx.raw.v + '%']
-};
-
 const config = {
   type: 'treemap',
   data: {
@@ -52,7 +33,10 @@ const config = {
         borderWidth: 1,
         borderColor: 'rgba(60,130,80,1)',
         backgroundColor: 'rgba(140,200,150,0.7)',
-        labels: label
+        labels: {
+          display: true,
+          formatter: (ctx) => [ctx.raw._data.name, ctx.raw.v + '%']
+        }
       },
       {
         label: 'Losers',
@@ -63,13 +47,25 @@ const config = {
         borderWidth: 1,
         borderColor: 'rgba(160,70,80,1)',
         backgroundColor: 'rgba(230,160,165,0.7)',
-        labels: label
+        labels: {
+          display: true,
+          formatter: (ctx) => [ctx.raw._data.name, ctx.raw.v + '%']
+        }
       }
     ]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Gainers and losers, meeting in the middle'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

@@ -10,6 +10,10 @@ const data = [
 const colors = ['#9ca3af', '#2563eb', '#14b8a6', '#f59e0b']
 
 export default {
+  // Firefox resamples the fractionally positioned sprite text blits slightly
+  // differently from the reference: 133px (0.101%) with pixelmatch 8, on
+  // macOS and on Linux CI. Chromium matches exactly.
+  tolerance: 0.0015,
   config: {
     type: 'treemap',
     data: {

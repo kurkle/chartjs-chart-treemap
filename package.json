@@ -90,6 +90,7 @@
     "predev": "playwright install chromium firefox",
     "predocs": "npm run docs:version",
     "predocs:dev": "npm run docs:version",
+    "prefixtures:update": "playwright install chromium",
     "prepack": "npm run build",
     "prepare": "git config core.hooksPath .githooks || true",
     "pretest:fixture": "playwright install chromium firefox",

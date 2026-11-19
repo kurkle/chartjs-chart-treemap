@@ -3,7 +3,7 @@ title: Value Scales
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 // One dominant value and a handful of small ones: the shape that makes a
 // treemap useless without help.
 const data = [
@@ -31,20 +31,6 @@ const dataset = (scale, region, color) => ({
 });
 // </block:setup>
 
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'The same data as linear, sqrt and log'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
-
 // <block:config:0>
 const config = {
   type: 'treemap',
@@ -55,9 +41,18 @@ const config = {
       dataset('log', {left: 2 / 3, width: 1 / 3}, '#61a5c2'),
     ]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'The same data as linear, sqrt and log'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

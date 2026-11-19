@@ -10,6 +10,9 @@
  * never engages for this element type. See the pull request for the analysis.
  *
  *   npm run bench
+ *
+ * `--smoke` runs one tiny size once, to prove the script still works against the
+ * built package. `npm test` does that; the numbers it prints mean nothing.
  */
 import { createCanvas } from '@napi-rs/canvas'
 import { Chart, LinearScale, Tooltip } from 'chart.js'
@@ -17,6 +20,9 @@ import { Chart, LinearScale, Tooltip } from 'chart.js'
 import { TreemapController, TreemapElement } from '../dist/chartjs-chart-treemap.esm.js'
 
 Chart.register(LinearScale, Tooltip, TreemapController, TreemapElement)
+
+const smoke = process.argv.includes('--smoke')
+const RUNS = smoke ? 1 : 9
 
 const median = (values) => values.slice().sort((a, b) => a - b)[Math.floor(values.length / 2)]
 
@@ -50,7 +56,6 @@ function measure(count, groups) {
   const data = rows(count, groups.length)
   const canvas = createCanvas(800, 600)
   const ctx = canvas.getContext('2d')
-  ctx.canvas = canvas
 
   const start = performance.now()
   const chart = new Chart(ctx, {
@@ -62,10 +67,10 @@ function measure(count, groups) {
   const nodes = chart.getDatasetMeta(0)._parsed.length
 
   // The zoom plugin's case: an update per wheel event with nothing changed.
-  const idle = time(9, () => chart.update('none'))
+  const idle = time(RUNS, () => chart.update('none'))
 
   let n = 0
-  const edited = time(9, () => {
+  const edited = time(RUNS, () => {
     data[0].value = 1 + (n++ % 90)
     chart.update('none')
   })
@@ -84,7 +89,7 @@ console.log(
     pad('update, idle', 15) +
     'update, edited'
 )
-for (const count of [1000, 10000, 50000]) {
+for (const count of smoke ? [200] : [1000, 10000, 50000]) {
   for (const groups of [[], ['g1', 'g2']]) {
     const r = measure(count, groups)
     console.log(

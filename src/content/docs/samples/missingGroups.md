@@ -59,7 +59,7 @@ const config = {
       tooltip: {
         callbacks: {
           label(item) {
-            const raw = item.raw;
+            const raw = item.parsed;
             const source = raw._data;
             const label = raw.g || source.file || source.subFolder || source.component || source.folder;
             return label + ': ' + raw.v;

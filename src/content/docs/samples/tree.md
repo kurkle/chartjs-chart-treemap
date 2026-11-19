@@ -39,7 +39,7 @@ const config = {
       tooltip: {
         callbacks: {
           title(items) {
-            const dataItem = items[0].raw;
+            const dataItem = items[0].parsed;
             const obj = dataItem._data;
             return obj.name;
           },

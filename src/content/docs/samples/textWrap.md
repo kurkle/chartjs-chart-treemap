@@ -3,7 +3,7 @@ title: Wrapping and Ellipsis
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const data = [
   {name: 'North America', value: 24},
   {name: 'South America', value: 18},
@@ -13,20 +13,6 @@ const data = [
   {name: 'Oceania', value: 8},
 ];
 // </block:setup>
-
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Labels wrapped to the box, and cut with an ellipsis when they still do not fit'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -48,9 +34,18 @@ const config = {
       }
     }]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Labels wrapped to the box, and cut with an ellipsis when they still do not fit'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

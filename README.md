@@ -71,7 +71,7 @@ The following commands will then be available from the repository root:
 > npm run dev           // build and watch for changes
 > npm test              // run all tests
 > npm run lint          // perform code linting
-> npm package           // create an archive with dist files and samples
+> npm package           // create an archive with the dist files
 ```
 
 ### Release branches

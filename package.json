@@ -46,10 +46,15 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/chartjs-chart-treemap.esm.js",
-      "require": "./dist/chartjs-chart-treemap.cjs",
-      "script": "./dist/chartjs-chart-treemap.min.js",
-      "types": "./dist/index.esm.d.ts"
+      "import": {
+        "types": "./dist/index.esm.d.ts",
+        "default": "./dist/chartjs-chart-treemap.esm.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/chartjs-chart-treemap.cjs"
+      },
+      "script": "./dist/chartjs-chart-treemap.min.js"
     },
     "./package.json": "./package.json"
   },
@@ -78,7 +83,7 @@
   "scripts": {
     "autobuild": "rollup -c -w",
     "bench": "node bench/update.mjs",
-    "build": "rollup -c && tsc -p tsconfig.json --emitDeclarationOnly",
+    "build": "rollup -c && tsc -p tsconfig.json --emitDeclarationOnly && kurkle-build-cjs-types",
     "dev": "vitest --config vitest.browser.config.ts",
     "docs": "npm run build && astro build",
     "docs:dev": "npm run build && astro dev",
@@ -95,12 +100,13 @@
     "prepare": "git config core.hooksPath .githooks || true",
     "pretest:fixture": "playwright install chromium firefox",
     "pretest:integration:browser-module": "playwright install chromium",
-    "test": "npm run test:unit && npm run test:fixture && npm run test:integration:browser-module && npm run test:integration:node-commonjs && npm run test:integration:node-module && npm run test:integration:webpack",
+    "test": "npm run test:unit && npm run test:fixture && npm run test:integration:browser-module && npm run test:integration:node-commonjs && npm run test:integration:node-module && npm run test:integration:webpack && npm run test:pack",
     "test:fixture": "vitest run --config vitest.browser.config.ts --coverage",
     "test:integration:browser-module": "vitest run --config vitest.integration.config.ts",
     "test:integration:node-commonjs": "node test/integration/node-commonjs/test.cjs",
     "test:integration:node-module": "node test/integration/node-module/test.mjs",
     "test:integration:webpack": "node test/integration/webpack/test.mjs",
+    "test:pack": "kurkle-check-package",
     "test:unit": "vitest run --config vitest.config.ts --coverage",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json && tsc -p tsconfig.json --emitDeclarationOnly && tsc --noEmit -p test/types/ && tsc --noEmit -p tsconfig.tooling.json",
     "typecheck:docs": "astro check"

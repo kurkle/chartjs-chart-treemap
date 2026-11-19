@@ -1,4 +1,4 @@
-import { parseBorderRadius, parseBorderWidth } from './options'
+import { parseBorderRadius, parseBorderWidth } from './options.js'
 
 describe('options', () => {
   describe('parseBorderWidth', () => {

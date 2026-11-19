@@ -1,4 +1,4 @@
-import type { AnyObject } from './types'
+import type { AnyObject } from './types.js'
 
 import { isObject } from 'chart.js/helpers'
 

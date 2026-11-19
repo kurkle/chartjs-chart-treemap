@@ -16,6 +16,15 @@ updates:
       # Remove this once @astrojs/check supports TypeScript 7.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # The preset major must match the conventional-changelog-writer major
+      # that @semantic-release/release-notes-generator loads. 14.1.1 (the
+      # latest stable, used by semantic-release 25) depends on writer ^8, and
+      # preset 10 throws "Missing helper" in generateNotes against it. This
+      # only shows up when a release is due, so CI stays green.
+      # Remove this once @semantic-release/release-notes-generator ships a
+      # stable release depending on conventional-changelog-writer >= 9.
+      - dependency-name: "conventional-changelog-conventionalcommits"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

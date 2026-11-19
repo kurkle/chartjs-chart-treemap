@@ -1,8 +1,8 @@
-import type { DrawRect } from '../geometry'
-import type { TreemapLabelsOptions } from '../types'
-import type { Font, LabelSize } from './measure'
+import type { DrawRect } from '../geometry.js'
+import type { TreemapLabelsOptions } from '../types.js'
+import type { Font, LabelSize } from './measure.js'
 
-import { fontFor, measureLabelSize } from './measure'
+import { fontFor, measureLabelSize } from './measure.js'
 
 export function sliceTextToFitWidth(
   ctx: CanvasRenderingContext2D,

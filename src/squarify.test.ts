@@ -1,4 +1,4 @@
-import squarify from './squarify'
+import squarify from './squarify.js'
 
 type SquarifyRect = {
   h: number

@@ -3,7 +3,7 @@ import type {
   TreemapBorderWidth,
   TreemapLayoutOptions,
   TreemapOptions,
-} from './types'
+} from './types.js'
 
 import { toTRBL, toTRBLCorners } from 'chart.js/helpers'
 

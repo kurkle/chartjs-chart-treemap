@@ -1,17 +1,17 @@
-import type { DrawRect } from './geometry'
+import type { DrawRect } from './geometry.js'
 import type {
   TreemapDataPoint,
   TreemapDisplayMode,
   TreemapOthers,
   TreemapValueScale,
-} from './types'
+} from './types.js'
 
 import { isObject, toFont, valueOrDefault } from 'chart.js/helpers'
 
-import { parseBorderWidth } from './options'
-import { packInto, sortNodes, toNodes, WEIGHT_KEY } from './squarify'
-import { getCaptionHeight, shouldDrawCaption } from './text'
-import { getGroupKey, group, normalizeTreeToArray } from './utils'
+import { parseBorderWidth } from './options.js'
+import { packInto, sortNodes, toNodes, WEIGHT_KEY } from './squarify.js'
+import { getCaptionHeight, shouldDrawCaption } from './text/index.js'
+import { getGroupKey, group, normalizeTreeToArray } from './utils.js'
 
 export type LayoutOptions = {
   borderWidth: any

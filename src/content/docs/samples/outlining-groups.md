@@ -3,26 +3,12 @@ title: Outlining Groups
 ---
 
 ```js chart-editor
-// <block:setup:3>
+// <block:setup:1>
 const GROUPS = ['region', 'division'];
 
 // Group containers are the nodes with a level; leaves have none.
 const isContainer = (ctx) => ctx.raw && ctx.raw.l < GROUPS.length - 1;
 // </block:setup>
-
-// <block:options:2>
-const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'US area, group containers outlined'
-    },
-    legend: {
-      display: false
-    },
-  }
-};
-// </block:options>
 
 // <block:config:0>
 const config = {
@@ -44,9 +30,18 @@ const config = {
       hoverBackgroundColor: 'rgba(220,230,220,0.5)',
     }]
   },
-  options: options
+  options: {
+    plugins: {
+      title: {
+        display: true,
+        text: 'US area, group containers outlined'
+      },
+      legend: {
+        display: false
+      },
+    }
+  }
 };
-
 // </block:config>
 
 module.exports = {

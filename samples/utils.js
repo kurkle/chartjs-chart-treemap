@@ -4,7 +4,7 @@
 	const chartjsUrl = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.js';
 	const dateFnsUrl = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js';
 	const localUrl = '../dist/chartjs-chart-treemap.js';
-	const remoteUrl = 'https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@next/dist/chartjs-chart-treemap.js';
+	const remoteUrl = 'https://cdn.jsdelivr.net/npm/chartjs-chart-treemap/dist/chartjs-chart-treemap.min.js';
 
 	function addScript(url, done, error) {
 		const head = document.getElementsByTagName('head')[0];

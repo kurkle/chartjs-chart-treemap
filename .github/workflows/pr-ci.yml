@@ -2,7 +2,7 @@ name: PR CI
 
 on:
   pull_request:
-    branches: [ main, next, 4.x ]
+    branches: [ main, 4.x ]
 
 permissions:
   contents: read

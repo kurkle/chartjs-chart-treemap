@@ -62,6 +62,8 @@ export default defineConfig({
             { label: 'Value Scales', link: '/samples/valuescales/' },
             { label: 'Other Bucket', link: '/samples/othersbucket/' },
             { label: 'Regions', link: '/samples/regions/' },
+            { label: 'Key', link: '/samples/key/' },
+            { label: 'Hierarchy Colors', link: '/samples/hierarchycolors/' },
             { label: 'Zoom', link: '/samples/zoom/' },
           ],
           label: 'Samples',

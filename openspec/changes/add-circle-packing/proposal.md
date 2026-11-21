@@ -6,6 +6,7 @@ Issue #15 asks for circles instead of rectangles: values drawn as touching circl
 
 - A new chart type `circlepack` next to `treemap`, with its own controller and element, exported from both entry points and auto-registered by the script bundle.
 - A circle-packing layout written in-house (front-chain sibling packing and a smallest-enclosing-circle step). No runtime dependency is added.
+- The top-level cluster is shaped like the area it is drawn in, if an experiment with aspect-aware placement meets its acceptance test; otherwise the cluster is round and the documentation says so.
 - With `groups`, each group is a circle enclosing its members, at every level.
 - Labels of leaves are placed in the square inscribed in the circle; hit testing, hover and tooltips follow the round shape; circles animate from their own centre.
 - Deliberate additions beyond the issue: the cluster is turned to the orientation that fits the area better, the layout is deterministic, and the chart works with the zoom plugin (circles become ellipses when only one axis is zoomed).

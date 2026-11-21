@@ -41,6 +41,7 @@
 
 ## 8. P8 — Controller and first fixtures (`refactor:`)
 
+- [ ] 8.0 Confirm P12 is merged or closed, so the baselines are generated once
 - [ ] 8.1 Add `test/fixtures/circlepack/{basic,single,fourValues,region,labels}` configs (`fourValues` is `[65, 46, 14, 11]` in a 2:1 canvas; the first two are the values visible in the issue's screenshot, the others are invented) and the `describe('circlepack', …)` line (fails: no such chart type)
 - [ ] 8.2 Write `test/specs/circlepack.spec.js`: rectangle-only options leave the nodes identical, `borderWidth` from `options.datasets.circlepack` widens the group ring, a function `borderWidth` reading `ctx.raw` does not throw and gives no ring and no border (pin what `hoverBorderWidth` does), `update('none')` keeps node objects, reset starts at the centre, unregistering keeps the `treemap` tooltip positioner
 - [ ] 8.3 Add `CirclePackControllerDatasetOptions` to `src/pack/types.ts` and implement `CirclePackController` in `src/pack/controller.ts`
@@ -66,3 +67,11 @@
 
 - [ ] 11.1 Add a circlepack case to `bench/update.mjs` (fails before: the case does not exist in `npm run test:bench`)
 - [ ] 11.2 Record the 10 000-circle layout time in the pull request; if it is slow, lower the ring iteration cap first
+
+## 12. P12 — Aspect-aware placement, built after P6 and before P8 (`refactor:`, experiment)
+
+- [ ] 12.1 Write the acceptance test: for seeded sets of 10, 50 and 200 circles in 2:1 and 3:1 rectangles the share of the rectangle covered by circles is at least 15 % higher than with `aspect` 1; not lower in a square; no overlap; every circle touches another (fails: no `aspect` parameter)
+- [ ] 12.2 Add the optional `aspect` parameter to `packSiblings`: measure the insertion score with the horizontal axis divided by `aspect`
+- [ ] 12.3 Pass the rectangle's long side over its short side from `packNodes` for the top-level sibling set only; keep the orientation choice
+- [ ] 12.4 Render the round and the aspect-aware cluster for the test sets and attach the images to the pull request
+- [ ] 12.5 If 12.1 cannot be met, close the pull request unmerged, remove the "Wide area" scenario from `specs/circle-packing-layout/spec.md` and note the result in `design.md` D18

@@ -54,6 +54,11 @@ The cluster SHALL be centred in the dataset's area and, in whichever of its two 
 - **WHEN** the same dataset is drawn in a tall area
 - **THEN** one circle sits above the other
 
+#### Scenario: Wide area
+
+- **WHEN** many values are drawn in an area twice as wide as it is tall
+- **THEN** the cluster is wider than it is tall and its circles are larger than they would be in a round cluster
+
 #### Scenario: Region
 
 - **WHEN** a dataset has a `region`

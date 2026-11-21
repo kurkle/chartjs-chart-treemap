@@ -30,8 +30,8 @@ Where the release plan's scoping no longer fits the code: the layout cannot be "
 
 **Non-Goals**
 
-- Filling a non-square rectangle. The cluster is roughly round; in a 2:1 area with many circles about half the area stays empty. Rectangle-aware packing has no standard algorithm and is not attempted.
-- An anchor option for "an arbitrary point". `region` positions a cluster; see Open Questions.
+- Filling a non-square rectangle completely. Without P12 the cluster is roughly round and in a 2:1 area with many circles about half the area stays empty; P12 tries to shape the cluster like the area (D18). Corners stay empty either way.
+- An anchor option for "an arbitrary point". `region` positions a cluster (D17).
 - Group captions, text along an arc, wrapping to the chord width.
 - Any change to the `treemap` chart type.
 
@@ -70,7 +70,7 @@ Where the release plan's scoping no longer fits the code: the layout cannot be "
 
 **D14. Modules live in `src/pack/`**, as the text engine lives in `src/text/`: `siblings.ts`, `enclose.ts`, `tree.ts`, `layout.ts`, `element.ts`, `controller.ts`, `types.ts`. Until the publishing piece no entry point imports them, so the bundles do not change.
 
-**D15. Groundwork is released as nothing.** Pieces P1–P9 and P11 use `refactor:` or `test:`, which cut no release under the conventionalcommits preset. P8 registers the chart type in `test/setup.js` only. P10 is the single `feat:` and the only piece that changes what the package exports.
+**D15. Groundwork is released as nothing.** Pieces P1–P9, P11 and P12 use `refactor:` or `test:`, which cut no release under the conventionalcommits preset. P8 registers the chart type in `test/setup.js` only. P10 is the single `feat:` and the only piece that changes what the package exports.
 
 **D16. What the design review changed.** Four reviews (architecture, complexity, scope, rule-readers) were checked against the code; these were accepted:
 
@@ -82,9 +82,25 @@ Where the release plan's scoping no longer fits the code: the layout cannot be "
 - The specs now state that a group's area is not proportional to its value, the `cut` overflow default, the overlap for negative spacing, one ring tolerance (1 %), and that registering circlepack registers the treemap controller. The fixture named after the issue became `fourValues`: the issue has no data list, and its last two values are invented.
 - Kept as designed after being questioned: nested groups (about a third of the work, see Q3), the orientation choice, ellipses under one-axis zoom, and the fixed-seed shuffle. The orientation choice, the zoom behaviour and the determinism requirement go beyond what the issue asks; they are listed in the proposal as deliberate additions.
 
+**D17. The maintainer's decisions (2026-11-21).**
+
+- **This package**, not a new one, although a 2021 comment on the issue suggested its own package: nearly everything but the layout and the element is reused.
+- **Names:** chart type `circlepack`, classes `CirclePackController` and `CirclePackElement`.
+- **Nested groups are in the first release**, knowing they are about a third of the work (P4, the ring and its iteration in P5 and P6, half of P9).
+- **No group captions.** Groups are identified by colour and tooltip.
+- **Default `spacing` is 0**, so circles touch; the treemap's default stays 0.5.
+- **No anchor option.** "Around an arbitrary point" from the issue is answered by `region`.
+- **The script bundle registers `circlepack` on load**, next to `treemap`.
+- **Filling a non-square area is tried before the chart type is published** (the recommendation was to publish the round cluster first). This adds piece P12, see D18.
+
+**D18. Aspect-aware placement, as an experiment with an exit (P12).** Front-chain packing chooses where the next circle goes by the smallest distance from the cluster's centre, which makes the cluster round. P12 measures that distance with the horizontal axis compressed by the area's aspect ratio (width over height, the long side taken as horizontal; the orientation choice of D5 turns the result for a tall area), so the cluster grows as an ellipse shaped like the area. Tangency and the overlap rule are untouched, so circles still touch and never overlap. It applies to the top-level sibling set only: a group is a circle, so its members stay a round cluster.
+This is unproven: there is no standard algorithm for value-proportional circles in a rectangle, and nothing here has been run. P12 therefore carries its own acceptance test and an exit. Accepted when, for seeded sets of 10, 50 and 200 circles in 2:1 and 3:1 areas, the share of the area covered by circles is at least 15 % higher (relative) than with the round cluster, and never lower for a square area; the pull request shows rendered comparisons, and merging it is the maintainer's verdict on how it looks. If the test cannot be met, P12 is closed unmerged, the "Wide area" scenario is removed from the spec, and P8 proceeds on the round cluster.
+P12 sits before P8 so that fixture baselines are generated once. It stays invisible like the other groundwork.
+*Alternatives:* true rectangle packing (no standard algorithm); publishing first and changing the arrangement later (every published chart would change shape in a minor release).
+
 ## Risks / Trade-offs
 
-- **The issue's screenshot fills a box; this does not.** The cluster is round. The orientation choice helps with a handful of circles; with many circles in a wide area the sides stay empty. How close a four-circle chart comes to the maintainer's mock has not been measured. The usage page says so.
+- **The issue's screenshot fills a box; this may not.** The cluster is round unless the P12 experiment succeeds, and P12 can fail (D18). The orientation choice helps with a handful of circles; with many circles in a wide area the sides stay empty. How close a four-circle chart comes to the maintainer's mock has not been measured. The usage page says so.
 - **Numerical edge cases in the front chain** (radius ratios of 1e6, thousands of equal circles) are where circle packing implementations fail. P3's tests cover them with seeded inputs and a pairwise overlap check.
 - **Cost is not measured.** A sibling set of n is about O(n√n); groups with a ring repeat the pack up to five times. P11 adds a benchmark case; if 10 000 circles is slow the iteration count is the first thing to lower.
 - **Unreleased code on main.** P3–P9 add modules that only tests reach. They are covered by unit tests and fixtures, but a long gap before P10 leaves dead weight in the source.
@@ -107,12 +123,13 @@ Sizes are estimates of changed lines without image baselines. The limit is 400.
 | P5 | `refactor:` | Tree packing: radii and relative positions bottom-up, ring, zero handling | new `src/pack/tree.ts`, `src/pack/tree.test.ts` | Members inside the group minus the ring; equal leaves in different groups have equal radius; zero and NaN leaves excluded; single-member group concentric; node order untouched. | ~230 | P3, P4 | advances |
 | P6 | `refactor:` | `packNodes`: fit, orientation, ring iteration, node geometry | new `src/pack/layout.ts`, `src/pack/layout.test.ts` | Bounding box centred in the rectangle and touching two opposite sides; `[1]` gives diameter `min(W, H)`; `[1, 1]` follows the long axis; ring within 1 % after the fit; negative spacing with groups keeps every radius ≥ its enclosure; `s` and `gs` as defined in D3; `hidden`; empty rectangle yields no NaN. | ~300 | P5 | advances |
 | P7 | `refactor:` | `CirclePackElement` with its defaults, descriptors and default routes, and the element option types | new `src/pack/element.ts`, `src/pack/types.ts`, `src/pack/element.test.ts` | With a mock context: ellipse path and even-odd border; inscribed text rectangle; `inRange` false in the box corner and for zero or negative size; centre point; object or function `borderWidth` draws no border; a group draws no text even with `captions` present. | ~310 | P2 | advances |
-| P8 | `refactor:` | `CirclePackController`, the dataset option type, test-only registration, first fixtures | new `src/pack/controller.ts`; `src/pack/types.ts`; `test/setup.js`, `test/specs/fixtures.spec.js`; new `test/specs/circlepack.spec.js`; `test/fixtures/circlepack/{basic,single,fourValues,region,labels}` | The fixtures cannot render without the controller. Spec: rectangle-only options leave the nodes identical; `borderWidth` from `options.datasets.circlepack` widens the ring; a function `borderWidth` reading `ctx.raw` does not throw and gives no ring and no border; `update('none')` keeps node objects; reset starts at the centre; unregistering keeps the treemap positioner. | ~340 | P1, P6, P7 | advances |
+| P12 | `refactor:` | Aspect-aware placement of the top-level cluster (experiment, D18) | `src/pack/siblings.ts`, `src/pack/layout.ts`, their tests | For seeded sets of 10, 50 and 200 circles in 2:1 and 3:1 rectangles the covered share of the rectangle is at least 15 % higher than with the round cluster; not lower in a square; still no overlap and every circle touches another. | ~150 | P6 | advances |
+| P8 | `refactor:` | `CirclePackController`, the dataset option type, test-only registration, first fixtures | new `src/pack/controller.ts`; `src/pack/types.ts`; `test/setup.js`, `test/specs/fixtures.spec.js`; new `test/specs/circlepack.spec.js`; `test/fixtures/circlepack/{basic,single,fourValues,region,labels}` | The fixtures cannot render without the controller. Spec: rectangle-only options leave the nodes identical; `borderWidth` from `options.datasets.circlepack` widens the ring; a function `borderWidth` reading `ctx.raw` does not throw and gives no ring and no border; `update('none')` keeps node objects; reset starts at the centre; unregistering keeps the treemap positioner. | ~340 | P1, P6, P7, P12 (merged or closed) | advances |
 | P9 | `test:` | Fixtures for nesting and interaction | `test/fixtures/circlepack/{grouped,grouped3,groupedBorderSpacing,others,valueScale,hover,tooltip,zoom,zoomX,zeroValues}` | The fixtures themselves: the pixel net for the hierarchy, interaction and zoom requirements. | ~260 | P8 | advances |
 | P10 | `feat:` | Publish: exports, script-bundle registration, registry type, type tests, integration checks, usage page, sample, sidebar, docs runtime, README line; removes the test-only registration | `src/index.ts`, `src/index.esm.ts`, `src/types.ts`, `test/setup.js`, new `test/types/circlepack.ts`, `test/types/register.ts`, `test/integration/*`, new `src/content/docs/circlepack.md`, new `src/content/docs/samples/circlePack.md`, `astro.config.mjs`, `docs/chart-runtime.js`, `README.md` — **wide** | Type test `ChartData<'circlepack'>` with `rtl` as an expected error; integration tests import `CirclePackController` from the built package and unregister both chart types afterwards; the CommonJS test creates a `circlepack` chart from the self-registering bundle. | ~350 | P8, P9 | **completes** |
 | P11 | `test:` | A circlepack case in the update benchmark | `bench/update.mjs` | `npm run test:bench` runs the circlepack case; the pull request records the 10 000-circle time. | ~25 | P10 (the benchmark imports the built package) | — (after the issue is closed) |
 
-**Order.** P1, P2 and P3 can start at once. P4 follows P3 only for the shared `Circle` type. P7 can run beside P4–P6 once P2 is merged. P5 → P6 is serial. P8 joins P1, P6 and P7. P9 and P10 share `test/setup.js`/fixture wiring with P8 and are serial after it. P1 and P2 both edit `src/controller.ts` by hand (P1 the update cycle, P2 the descriptors), so whichever merges second rebases on the first; P7 and P8 both edit `src/pack/types.ts`, and P8 and P10 both edit `test/setup.js`, which the order already covers. P11 follows P10. No piece waits on the open PR #515.
+**Order.** P1, P2 and P3 can start at once. P4 follows P3 only for the shared `Circle` type. P7 can run beside P4–P6 once P2 is merged. P5 → P6 is serial. P12 follows P6 (both edit `src/pack/siblings.ts` and `src/pack/layout.ts` after P3 and P6). P8 joins P1, P6, P7 and the outcome of P12. Rows are numbered in the order they were designed, not built: P12 is built between P6 and P8. P9 and P10 share `test/setup.js`/fixture wiring with P8 and are serial after it. P1 and P2 both edit `src/controller.ts` by hand (P1 the update cycle, P2 the descriptors), so whichever merges second rebases on the first; P7 and P8 both edit `src/pack/types.ts`, and P8 and P10 both edit `test/setup.js`, which the order already covers. P11 follows P10. No piece waits on the open PR #515.
 
 ## Contracts
 
@@ -142,6 +159,9 @@ export type Circle = { x: number; y: number; r: number }
 /** Precondition: every r finite and > 0. Places in the given order, writes x and y
  *  (first circle at the origin), returns the front chain in chain order. */
 export function packSiblings<T extends Circle>(circles: T[]): T[]
+// P12 adds an optional second parameter, default 1 (round): the cluster's target width over height, >= 1.
+// export function packSiblings<T extends Circle>(circles: T[], aspect?: number): T[]
+// packNodes passes max(w, h) / min(w, h) of the rectangle for the top-level sibling set only.
 
 // P4 — src/pack/enclose.ts
 /** Smallest circle containing every input circle. Empty input gives { x: 0, y: 0, r: 0 }. Pure. */
@@ -244,15 +264,4 @@ Rules that cross pieces:
 
 ## Open Questions
 
-Each is a product choice; the recommendation is what the pieces above assume.
-
-| # | Question | Piece | Options | Recommendation |
-|---|---|---|---|---|
-| Q1 | Chart type id and class names | P7, P8, P10 | `circlepack` / `CirclePackController` / `CirclePackElement`; `circlePack`; `packedCircle` | `circlepack`: the name the release plan used, lower case like `treemap`. |
-| Q2 | This package or a new one (the 2021 comment on the issue said "its own package") | all | here; a new package depending on this one; a standalone package | Here: nearly everything but the layout and the element is reused, and a second package would turn internal modules into public API. |
-| Q3 | Nested groups in the first release | P4, P5, P9 | flat and nested; flat only | Flat and nested: the hierarchy pass already produces the tree. Nesting is about a third of the work (P4, the ring and its iteration in P5 and P6, half of P9, roughly 600 lines); flat only would ship sooner and nesting could follow as its own feature. The issue itself only needs flat. |
-| Q4 | Group captions | P7, P10 | none; reserve a caption-height ring around every group | None: groups are identified by colour and tooltip. |
-| Q5 | Default `spacing` | P8 | 0 (circles touch); 0.5 (as treemap) | 0: the reporter asks that "the circles actually touch". |
-| Q6 | How hard to fill a non-square area | P6 | bounding-box fit with orientation choice; an aspect-aware placement experiment first | Bounding-box fit now; aspect-aware placement as a separately budgeted follow-up with no promise. |
-| Q7 | "An arbitrary point" from the issue | P6, P10 | `region` only; an `anchor` option | `region` only: an off-centre anchor only shrinks the circles. |
-| Q8 | The script bundle registers `circlepack` on load | P10 | yes; no, module build only | Yes: the script build has always been complete on its own. Costs an estimated 2–3 kB minified. |
+None. The maintainer answered all eight on 2026-11-21; the answers are D17 under Decisions.

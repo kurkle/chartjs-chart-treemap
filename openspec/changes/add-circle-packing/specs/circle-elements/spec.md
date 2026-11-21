@@ -13,6 +13,11 @@ Each node SHALL be drawn as a filled circle with an optional border drawn inside
 - **WHEN** `borderWidth` is 4
 - **THEN** a 4 px ring in `borderColor` is drawn inside the circle and the fill covers the rest
 
+#### Scenario: Border width is a number
+
+- **WHEN** `borderWidth` is a function or an object
+- **THEN** the function is not called and no border is drawn
+
 #### Scenario: Scriptable colour
 
 - **WHEN** `backgroundColor` is a function
@@ -27,6 +32,16 @@ A leaf's label SHALL be placed inside the square inscribed in its circle and obe
 - **WHEN** `labels.display` is true
 - **THEN** the label is centred in the circle
 
+#### Scenario: Labels are off by default
+
+- **WHEN** `labels.display` is not set
+- **THEN** no label is drawn
+
+#### Scenario: Default overflow
+
+- **WHEN** the label does not fit and `labels.overflow` is not set
+- **THEN** the label is cut at the inscribed square less the padding, not at the edge of the circle
+
 #### Scenario: Overflow
 
 - **WHEN** the label does not fit and `labels.overflow` is `hidden`
@@ -39,7 +54,7 @@ A leaf's label SHALL be placed inside the square inscribed in its circle and obe
 #### Scenario: Group
 
 - **WHEN** a node is a group
-- **THEN** no text is drawn for it
+- **THEN** no text is drawn for it, whatever `captions` or `displayMode` say
 
 ### Requirement: Round pointer interaction
 
@@ -49,6 +64,11 @@ Pointer interaction SHALL follow the round shape.
 
 - **WHEN** the pointer is in a corner of a circle's bounding box but outside the circle
 - **THEN** the circle is not hovered and no tooltip is shown for it
+
+#### Scenario: Circle smaller than its spacing
+
+- **WHEN** a circle's diameter is smaller than twice the `spacing`
+- **THEN** it is not drawn and cannot be hovered
 
 #### Scenario: Leaf inside a group
 

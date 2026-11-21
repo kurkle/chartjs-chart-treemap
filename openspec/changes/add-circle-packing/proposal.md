@@ -8,8 +8,9 @@ Issue #15 asks for circles instead of rectangles: values drawn as touching circl
 - A circle-packing layout written in-house (front-chain sibling packing and a smallest-enclosing-circle step). No runtime dependency is added.
 - With `groups`, each group is a circle enclosing its members, at every level.
 - Labels of leaves are placed in the square inscribed in the circle; hit testing, hover and tooltips follow the round shape; circles animate from their own centre.
+- Deliberate additions beyond the issue: the cluster is turned to the orientation that fits the area better, the layout is deterministic, and the chart works with the zoom plugin (circles become ellipses when only one axis is zoomed).
 - Rectangle-only options (`rtl`, `unsorted`, `displayMode`, `borderRadius`, per-side `borderWidth`, `captions`) are not part of the `circlepack` types and have no effect when set.
-- Two behaviour-neutral seams in the treemap controller and a type-only seam in the text engine, so the new chart type overrides the layout instead of copying the update cycle.
+- Two behaviour-neutral seams in the treemap controller, a type-only seam in the text engine and shared label defaults, so the new chart type overrides the layout instead of copying the update cycle.
 - Documentation: a usage page, a sample, and a README line.
 - Nothing about the `treemap` chart type changes. No breaking change.
 
@@ -28,8 +29,9 @@ None. The repository has no written specs yet, and the treemap's behaviour does 
 
 ## Impact
 
-- New modules under `src/pack/`; small edits to `src/controller.ts`, `src/text/index.ts`, `src/types.ts`, `src/index.ts`, `src/index.esm.ts`.
-- The published type definitions gain defaulted type parameters on the label option types (non-breaking) and the `circlepack` entry in `ChartTypeRegistry`.
+- New modules under `src/pack/`; small edits to `src/controller.ts`, `src/element.ts`, `src/options.ts`, `src/text/`, `src/types.ts`, `src/index.ts`, `src/index.esm.ts`.
+- The published type definitions gain the `circlepack` entry in `ChartTypeRegistry` and the new option types.
+- In the module build, registering the circlepack controller also registers the treemap controller, because it is its parent class.
 - The script bundle grows by the new layout and element (estimated 2–3 kB minified; not measured).
 - New fixture directory `test/fixtures/circlepack/`, new type and integration checks, a benchmark case.
 - `package.json` and the lockfile are not edited, so the open dependabot PR #515 blocks nothing.

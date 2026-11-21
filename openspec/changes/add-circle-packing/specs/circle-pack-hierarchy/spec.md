@@ -25,21 +25,41 @@ With `groups`, each group SHALL be drawn as a circle enclosing its members, at e
 
 ### Requirement: Ring between a group and its members
 
-A group circle SHALL leave a ring of `spacing` plus its border width between its edge and its members.
+A group circle SHALL leave a ring of `spacing` plus its border width, and never less than nothing, between its edge and its members, within 1 % of that width.
 
 #### Scenario: Spacing and border
 
 - **WHEN** `spacing` is 3 and `borderWidth` is 2
-- **THEN** no member comes closer than about 3 px to the inside of the group's border
+- **THEN** no member comes closer than 3 px, within 1 % of the 5 px ring, to the inside of the group's border
+
+#### Scenario: Border from the chart options
+
+- **WHEN** `borderWidth` is set for all circlepack datasets in the chart options instead of on the dataset
+- **THEN** the ring is the same as when it is set on the dataset
+
+#### Scenario: Negative spacing
+
+- **WHEN** `spacing` is negative and larger in size than the border width
+- **THEN** a group circle is no smaller than the circle enclosing its members
 
 ### Requirement: Leaf sizes comparable across groups
 
-Leaf circles SHALL use one area scale across all groups; a group's size SHALL follow from its members.
+Leaf circles SHALL use one area scale across all groups; a group's size SHALL follow from its members and is not proportional to the group's value.
 
 #### Scenario: Equal values in different groups
 
 - **WHEN** two leaves in different groups have the same value
 - **THEN** their circles have the same radius
+
+#### Scenario: Groups of equal value
+
+- **WHEN** one group has ten leaves of 1 and another has one leaf of 10
+- **THEN** the first group's circle is the larger one
+
+#### Scenario: Share of the group
+
+- **WHEN** a scriptable option reads `ctx.raw.v / ctx.raw.gs` for a node inside a group
+- **THEN** it gets the node's share of the total value of its group
 
 ### Requirement: Shared data handling
 

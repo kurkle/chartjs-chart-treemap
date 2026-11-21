@@ -17,6 +17,7 @@ The package SHALL provide a `circlepack` chart type alongside `treemap`, and the
 
 - **WHEN** the module build is used
 - **THEN** `circlepack` is available after registering its controller and element
+- **THEN** the treemap controller is registered with it, and a treemap chart additionally needs the treemap element
 
 #### Scenario: Existing treemap
 
@@ -36,11 +37,6 @@ Options that only make sense for rectangles SHALL have no effect on a `circlepac
 
 - **WHEN** `rtl`, `unsorted`, `displayMode`, `borderRadius` or `captions` is set on a circlepack dataset
 - **THEN** the chart is identical to one without it
-
-#### Scenario: Per-side border width
-
-- **WHEN** `borderWidth` is an object
-- **THEN** no border is drawn
 
 #### Scenario: Types
 
@@ -69,7 +65,7 @@ The chart SHALL work with the zoom plugin.
 
 - **WHEN** the chart is zoomed equally on both axes
 - **THEN** circles stay round, grow, and stay tangent
-- **THEN** spacing and border widths stay in pixels
+- **THEN** the spacing between sibling circles and the border widths stay in pixels
 
 #### Scenario: One-axis zoom
 

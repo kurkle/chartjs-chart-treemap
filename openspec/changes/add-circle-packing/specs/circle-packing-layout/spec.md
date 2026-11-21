@@ -36,11 +36,11 @@ Sibling circles MUST NOT overlap and SHALL form one connected cluster.
 #### Scenario: Negative spacing
 
 - **WHEN** `spacing` is negative
-- **THEN** neighbouring circles overlap by that amount
+- **THEN** neighbouring circles overlap by twice that amount and may reach outside the dataset's area
 
 ### Requirement: Centred and fitted to the dataset area
 
-The cluster SHALL be centred in the dataset's area and scaled as large as that area allows without changing the arrangement.
+The cluster SHALL be centred in the dataset's area and, in whichever of its two orientations fits better, scaled as large as that area allows without changing the arrangement. With a `spacing` of 0 or more no circle reaches outside the area.
 
 #### Scenario: Single value
 
